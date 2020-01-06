@@ -1,0 +1,11 @@
+##########################
+# Unreal Generated Files #
+##########################
+Binaries/
+Config/
+Content/
+Intermediate/
+Saved/
+
+*_BuiltData.uasset
+.vs/
