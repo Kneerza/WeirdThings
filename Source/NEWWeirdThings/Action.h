@@ -60,6 +60,25 @@ public:
 	// Sets default values for this actor's properties
 	AAction();
 
+	// --- Action setup parameters ---
+	UPROPERTY(EditAnywhere, Category = Setup)
+		bool IsForced = false; // Is action happens on it's own or should be activated                   
+
+	UPROPERTY(EditAnywhere, Category = Setup)
+		EActionType ActionType = EActionType::Get_Item_C; // Type of event happening when activated
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Mesh) // TODO Delete?
+		USphereComponent* CollisionSphere;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Mesh)
+		UPaperFlipbookComponent* ActionFlipBookComponent;
+
+
+
+	// --- Locks for Action ---
+	UPROPERTY(EditAnywhere, Category = Setup)
+		TArray<EActionLockType> ActionLockType;
+
 	UPaperFlipbook* pLockFood;
 	UPaperFlipbook* pLockWood;
 	UPaperFlipbook* pLockTool;
@@ -71,50 +90,36 @@ public:
 	UPaperFlipbook* pLockInsanity;
 	UPaperFlipbook* pActionForced;
 
-
-	UPaperFlipbookComponent* pConnector;
-	UPaperFlipbookComponent* pActionForcedComponent;
-
-	AInteractiveLocationDecoration* EntangledInteractiveLocationDecoration = nullptr;
-
 	TArray<UPaperFlipbookComponent*> ActionLock;
-
-	UPROPERTY(EditAnywhere, Category = Setup)
-		TArray<EActionLockType> ActionLockType;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Mesh)
-		USphereComponent* CollisionSphere;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Mesh)
-		UPaperFlipbookComponent* ActionFlipBookComponent;
-
-	UPROPERTY(EditAnywhere, Category = Setup)
-		bool IsForced = false;
-
-	USceneComponent* pRootComponent;
-
-	UPROPERTY(EditAnywhere, Category = Setup)
-		EActionType ActionType = EActionType::Get_Item_C;
-
-	void ConstructActionLocks();  // BeginPlay only
-
-	void Unlock();
-
-	void Deactivate();
-
-	void Activate();
-
-	void GetTypeOfLock();
-
-	AAction* Child = nullptr;
 
 	int32 CurrentLockTypeIndex;
 	int32 CurrentLockIndex;
+
+
+	// --- Pointers ----
+	UPaperFlipbookComponent* pConnector;
+	AAction* Child = nullptr;
+	UPaperFlipbookComponent* pActionForcedComponent;
+	AInteractiveLocationDecoration* EntangledInteractiveLocationDecoration = nullptr;
+
+
+	// --- Lock handling functions ---
+	void GetTypeOfLock();
+	void ConstructActionLocks();  
+	void Unlock();
+
+
+	// --- Action handling functions ---
+	void Deactivate();
+	void Activate();
+	void ForcedActionHandling();
+
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// --- Parameters for Locks placing ---
 	float ActionLocksOrbit = 150.f;
 	float ActionLockOffset_X = -20;
 
@@ -122,5 +127,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+private:
+
+	USceneComponent* pRootComponent;
 
 };

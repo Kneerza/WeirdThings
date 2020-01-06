@@ -34,7 +34,7 @@ AAction::AAction()
 	pLockItem_G = LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Action_Locks/Flipbooks/Lock_Item_Gold_Flipbook.Lock_Item_Gold_Flipbook'")));
 	pLockExhaustion = LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Action_Locks/Flipbooks/Exhaustion_Flipbook.Exhaustion_Flipbook'")));
 	pLockInsanity = LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Action_Locks/Flipbooks/Insanity_Flipbook.Insanity_Flipbook'")));
-	pActionForced = LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Action_Forced_Flipbook.Action_Forced_Flipbook'")));
+	pActionForced = LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Flipbooks/Action_Forced_Flipbook.Action_Forced_Flipbook'")));
 
 	//----------------------Creating Root Component--------------------------
 	pRootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
@@ -85,22 +85,8 @@ void AAction::BeginPlay()
 	Super::BeginPlay();
 	
 	ConstructActionLocks();
+	ForcedActionHandling();
 
-	if (IsForced)
-	{
-		pActionForcedComponent = NewObject<UPaperFlipbookComponent>(this, "ForcedActionFlipbook");
-		pActionForcedComponent->RegisterComponent();
-		pActionForcedComponent->SetFlipbook(pActionForced);
-
-		FTransform ForcedActionTransform = ActionFlipBookComponent->GetComponentTransform();
-		FVector Offset = FVector(1.f, 0.f, 0.f);
-		ForcedActionTransform.SetLocation(ForcedActionTransform.GetLocation() + Offset);
-
-		pActionForcedComponent->SetRelativeTransform(ForcedActionTransform);
-
-		Cast<ALocationTemplate>(GetParentActor())->ForcedAction = this;
-	}
-	
 }
 
 // Called every frame
@@ -116,7 +102,7 @@ void AAction::ConstructActionLocks()
 	for (int32 i = 0; i < ActionLockType.Num(); i++)
 	{
 		if (ActionLockType[i] == EActionLockType::No_Need) { return; }
-		ActionLock[i] = NewObject<UPaperFlipbookComponent>(this, ("Roma " + i));
+		ActionLock[i] = NewObject<UPaperFlipbookComponent>(this, ("Lock    " + i));
 		ActionLock[i]->RegisterComponent();
 		switch (ActionLockType[i])
 		{
@@ -185,17 +171,15 @@ void AAction::GetTypeOfLock()
 {
 	for (int32 i = 0; i < ActionLock.Num(); i++)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("%i"), ActionLockType.Num())
 		if (ActionLock[i])
 		{
-			//UE_LOG(LogTemp, Warning, TEXT("%i"), i)
 			CurrentLockIndex = i;
 			CurrentLockTypeIndex = i;
-			return; // ActionLockType[i];
+			return; 
 		}
 
 	}
-	return; //EActionLockType::No_Need;
+	return;
 }
 
 void AAction::Unlock()
@@ -208,13 +192,17 @@ void AAction::Unlock()
 
 void AAction::Deactivate()
 {
+	// --- Changing color on deactivated Action ---
 	ActionFlipBookComponent->SetSpriteColor(FLinearColor(0.03f, 0.03f, 0.03f, 1));
 	if (pActionForcedComponent) {
 		pActionForcedComponent->SetSpriteColor(FLinearColor(0.03f, 0.03f, 0.03f, 1));
 	}
 
+	// --- Disabling Collision on deactivated Action ---
 	ActionFlipBookComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	CollisionSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// --- Changing color of connector and activationg ChildAction (if there are any) 
 	if (Child && pConnector)
 	{
 		pConnector->SetSpriteColor(FLinearColor(0.03f, 0.03f, 0.03f, 1));
@@ -224,8 +212,28 @@ void AAction::Deactivate()
 
 void AAction::Activate()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Activated"))
-		ActionFlipBookComponent->SetSpriteColor(FLinearColor(1.f, 1.f, 1.f, 1.f));
+	// --- Setting color of activated Action ---
+	ActionFlipBookComponent->SetSpriteColor(FLinearColor(1.f, 1.f, 1.f, 1.f));
+
+	// --- Setting collision of activated Action ---
 	ActionFlipBookComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CollisionSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+}
+
+void AAction::ForcedActionHandling()
+{
+	if (IsForced)
+	{
+		pActionForcedComponent = NewObject<UPaperFlipbookComponent>(this, "ForcedActionFlipbook");
+		pActionForcedComponent->RegisterComponent();
+		pActionForcedComponent->SetFlipbook(pActionForced);
+
+		FTransform ForcedActionTransform = ActionFlipBookComponent->GetComponentTransform();
+		FVector Offset = FVector(1.f, 0.f, 0.f);
+		ForcedActionTransform.SetLocation(ForcedActionTransform.GetLocation() + Offset);
+
+		pActionForcedComponent->SetRelativeTransform(ForcedActionTransform);
+
+		Cast<ALocationTemplate>(GetParentActor())->ForcedAction = this;
+	}
 }

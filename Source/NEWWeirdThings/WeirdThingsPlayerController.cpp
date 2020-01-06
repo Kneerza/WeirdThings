@@ -178,8 +178,12 @@ void AWeirdThingsPlayerController::ClickedActionHandle(AAction* CurrentAction)
 	{
 		if (PerformAction(CurrentAction)) {
 			pSelectedCharacter->ActionPoints--;
-			CurrentAction->EntangledInteractiveLocationDecoration->Deactivate_InteractiveLocationDecoration();
 			CurrentAction->Deactivate();
+			if (!(CurrentAction->EntangledInteractiveLocationDecoration)) {
+				UE_LOG(LogTemp, Error, TEXT("No EntangledILP for this action"))
+				return; 
+			}
+				CurrentAction->EntangledInteractiveLocationDecoration->Deactivate_InteractiveLocationDecoration();
 		}
 	}
 	else {
