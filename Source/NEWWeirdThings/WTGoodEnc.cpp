@@ -17,8 +17,8 @@ AWTGoodEnc::AWTGoodEnc()
 	SetRootComponent(pRootComponent);
 
 	//----------------------Creating Health Widget Component-----------------
-	///pHealthWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetHealth"));
-	///pHealthWidget->AttachTo(pRootComponent);
+	pHealthWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetHealth"));
+	pHealthWidget->AttachTo(pRootComponent);
 
 	//Setting up relative transform
 	FTransform HealthWidgetRelativeTransform;
@@ -26,8 +26,8 @@ AWTGoodEnc::AWTGoodEnc()
 	HealthWidgetRelativeTransform.SetRotation(FRotator(0.0f, 180.0f, 0.0f).Quaternion());
 	HealthWidgetRelativeTransform.SetScale3D(FVector(0.15f, 0.15f, 0.15f));
 
-	///pHealthWidget->SetRelativeTransform(HealthWidgetRelativeTransform);
-	///pHealthWidget->SetDrawSize(FVector2D(2400.f, 2000.f));
+	pHealthWidget->SetRelativeTransform(HealthWidgetRelativeTransform);
+	pHealthWidget->SetDrawSize(FVector2D(2400.f, 2000.f));
 
 	//----------------------Creating Attack/Defense Component--------------------------
 	pAttackDefenseComponent = CreateDefaultSubobject<UAttackDefenseComponent>(TEXT("AttackDefenseComponent"));

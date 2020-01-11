@@ -8,12 +8,12 @@
 #include "WTEnemy.generated.h"
 
 
-///class UWidgetComponent;
+class UWidgetComponent;
 class ALocationTemplate;
 class AAttackDefenseActor;
 class UAttackDefenseComponent;
 class AItemTemplate;
-///class UUserWidget;
+class UUserWidget;
 class UQuitManagement;
 
 
@@ -40,29 +40,29 @@ public:
 
 	USceneComponent* pRootComponent;
 
-	///UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Custom")
-		///UWidgetComponent* pHealthWidget;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Custom")
+		UWidgetComponent* pHealthWidget;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		int32 HealthPoints = 5;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
-		int32 MaxDamage = 3;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+	//	int32 MaxDamage = 3;
 
 	AAttackDefenseActor* AttackDefenseActorToIgnore;
 
-	float DamageWidgetAlphaChannel = 1;
+	//float DamageWidgetAlphaChannel = 1;
 
 	ALocationTemplate* CurrentLocation = nullptr;
 
 	//UFUNCTION(BlueprintCallable, Category = "Custom")
-	void LooseHealth(AAttackDefenseActor* AttackDefenseActorRef);
+	//void LooseHealth(AAttackDefenseActor* AttackDefenseActorRef);
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void LooseHealth();
 
-	///UFUNCTION(BlueprintCallable, Category = "Custom")
-	///	void CreateInfoWidget(UUserWidget* WidgetToCreate, FVector2D WidgetOffset);
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void CreateInfoWidget(UUserWidget* WidgetToCreate, FVector2D WidgetOffset);
 
 	void InitializeLoot();
 

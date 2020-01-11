@@ -31,7 +31,7 @@ class UMaterial;
 class ADirectionalLight;
 class AAttackDefenseActor;
 class UDeckManager;
-
+class AEncounter_Dead;
 
 
 /**
@@ -116,7 +116,8 @@ public:
 		TArray<AWTPlayerCharacter*> PlayerCharacters;
 
 	TArray<ALocationTemplate*> AllLocationsInPlay;
-	TArray<AWTDead*> AllDeadsInPlay;
+	TArray<AWTDead*> AllDeadsInPlay; // TODO Delete (replaced by Encounter_DeadsInPlay
+	TArray<AEncounter_Dead*>Encounter_DeadsInPlay;
 
 	void GetCurrentLocationOfActor(AActor* Actor, ALocationTemplate* &CurrentLocation);
 

@@ -1,49 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "WTDead.h"
-#include "LocationTemplate.h"
-#include "Components/ChildActorComponent.h"
-#include "Action.h"
-#include "QuitManagement.h"
-#include "AttackDefenseActor.h"
-#include "AttackDefenseComponent.h"
-#include "WeirdThingsPlayerController.h"
-#include "ItemTemplate.h"
+#include "Encounter_Dead.h"
 #include "PaperFlipbookComponent.h"
-#include "Blueprint/UserWidget.h"
-#include "Math/Vector2D.h"
-#include "Runtime/UMG/Public/Components/WidgetComponent.h"
+#include "Engine/World.h"
+#include "LocationTemplate.h"
+#include "WeirdThingsPlayerController.h"
 
-
-// Sets default values
-AWTDead::AWTDead()
+AEncounter_Dead::AEncounter_Dead()
 {
-	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
-	//----------------------Creating Root Component--------------------------
-	pRootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-	SetRootComponent(pRootComponent);
-
-	//----------------------Creating Health Widget Component-----------------
-	pHealthWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetHealth"));
-	pHealthWidget->AttachTo(pRootComponent);
-
-	//Setting up relative transform
-	FTransform HealthWidgetRelativeTransform;
-	HealthWidgetRelativeTransform.SetLocation(FVector(0.f, -140.f, 320.f));
-	HealthWidgetRelativeTransform.SetRotation(FRotator(0.0f, 180.0f, 0.0f).Quaternion());
-	HealthWidgetRelativeTransform.SetScale3D(FVector(0.15f, 0.15f, 0.15f));
-
-	pHealthWidget->SetRelativeTransform(HealthWidgetRelativeTransform);
-	pHealthWidget->SetDrawSize(FVector2D(2400.f, 2000.f));
-
-	//----------------------Creating Attack/Defense Component--------------------------
-	pAttackDefenseComponent = CreateDefaultSubobject<UAttackDefenseComponent>(TEXT("AttackDefenseComponent"));
-
-	//----------------------Creating Attack/Defense Component--------------------------
-	pQuitManagementComponent = CreateDefaultSubobject<UQuitManagement>(TEXT("QuitManagementComponent"));
-
 	//----------------------Creating AwakenedDeadFlipbookComponent----------
 	AwakenedDeadFlipbookComponent = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("AwakenedDead"));
 	AwakenedDeadFlipbookComponent->SetupAttachment(pRootComponent);
@@ -88,20 +52,13 @@ AWTDead::AWTDead()
 
 	SleepingDeadFlipbookComponent->SetCollisionResponseToChannels(SleepingDeadFlipbookComponentResponseContainer);
 	SleepingDeadFlipbookComponent->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
-
-	//-----------------------Initializing arrays--------------------------------
-	Loot.Init(nullptr, 3);
-	LootClassesToSpawn.Init(nullptr, 3);
 }
 
-// Called when the game starts or when spawned
-void AWTDead::BeginPlay()
+void AEncounter_Dead::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InitializeLoot();
-
-	(Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController())->AllDeadsInPlay).Add(this);
+	(Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController())->Encounter_DeadsInPlay).Add(this);
 
 	// TODO move to LocationTemplate as a Function, that will be called here
 	if (GetParentActor() && ActionClassToSpawn) {
@@ -113,66 +70,7 @@ void AWTDead::BeginPlay()
 	}
 }
 
-// Called every frame
-void AWTDead::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
-// Called to bind functionality to input
-void AWTDead::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
-
-void AWTDead::LooseHealth()
-{
-
-	HealthPoints--;
-	if (HealthPoints < 1)
-	{
-
-		Destroy();
-	}
-}
-
-void AWTDead::LooseHealth(AAttackDefenseActor* AttackDefenseActorRef)
-{
-	if (AttackDefenseActorToIgnore == AttackDefenseActorRef) { return; }
-	HealthPoints--;
-	AttackDefenseActorToIgnore = AttackDefenseActorRef;
-}
-
-void AWTDead::InitializeLoot()
-{
-	for (int32 i = 0; i < LootClassesToSpawn.Num(); i++)
-	{
-		Loot[i] = GetWorld()->SpawnActor<AItemTemplate>(LootClassesToSpawn[i]);
-	}
-}
-
-void AWTDead::CreateInfoWidget(UUserWidget* WidgetToCreate, FVector2D WidgetOffset)
-{
-
-	WidgetToCreate->AddToViewport();
-
-	FVector2D ProjectedActorLocation;
-	GetWorld()->GetFirstPlayerController()->ProjectWorldLocationToScreen(GetActorLocation(), ProjectedActorLocation);
-	WidgetToCreate->SetPositionInViewport(ProjectedActorLocation + WidgetOffset);
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *ProjectedActorLocation.ToString())
-
-		WidgetToCreate->SetDesiredSizeInViewport(FVector2D(100.f, 100.f));
-
-	FWidgetTransform WidgetTransform;
-	WidgetTransform.Scale.X = 0.2f;
-	WidgetTransform.Scale.Y = 0.2f;
-	WidgetToCreate->SetRenderTransform(WidgetTransform);
-}
-
-
-void AWTDead::SetAwakened(bool IsAwakened)
+void AEncounter_Dead::SetAwakened(bool IsAwakened)
 {
 	if (IsAwakened) {
 		AwakenedDeadFlipbookComponent->SetHiddenInGame(false);
@@ -184,3 +82,4 @@ void AWTDead::SetAwakened(bool IsAwakened)
 	}
 	return;
 }
+

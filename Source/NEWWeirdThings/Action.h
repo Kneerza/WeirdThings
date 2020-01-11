@@ -92,8 +92,8 @@ public:
 
 	TArray<UPaperFlipbookComponent*> ActionLock;
 
-	int32 CurrentLockTypeIndex;
-	int32 CurrentLockIndex;
+	int32 CurrentLockTypeIndex = 0;
+	int32 CurrentLockIndex = 0;
 
 
 	// --- Pointers ----

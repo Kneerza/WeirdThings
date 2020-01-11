@@ -1159,7 +1159,7 @@ bool AWeirdThingsPlayerController::GetWood(int32 WoodAmountToGet)
 	return true;
 }
 
-void AWeirdThingsPlayerController::MakeCampFire(AWTPlayerCharacter* PlayerCharacter)
+ void AWeirdThingsPlayerController::MakeCampFire(AWTPlayerCharacter* PlayerCharacter)
 {
 
 	//GetWorld()->SpawnActor<AActor>(CampFireClassToSpawn, PlayerCharacter->CurrentLocation->SocketCampFire->GetComponentLocation());

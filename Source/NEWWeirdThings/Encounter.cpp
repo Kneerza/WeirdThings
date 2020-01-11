@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "WTEnemy.h"
+#include "Encounter.h"
 #include "QuitManagement.h"
 #include "AttackDefenseActor.h"
 #include "AttackDefenseComponent.h"
@@ -11,11 +11,10 @@
 
 
 // Sets default values
-AWTEnemy::AWTEnemy()
+AEncounter::AEncounter()
 {
-	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+ 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 
 	//----------------------Creating Root Component--------------------------
 	pRootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
@@ -37,7 +36,7 @@ AWTEnemy::AWTEnemy()
 	//----------------------Creating Attack/Defense Component--------------------------
 	pAttackDefenseComponent = CreateDefaultSubobject<UAttackDefenseComponent>(TEXT("AttackDefenseComponent"));
 
-	//----------------------Creating Attack/Defense Component--------------------------
+	//----------------------Creating QuitManagement Component--------------------------
 	pQuitManagementComponent = CreateDefaultSubobject<UQuitManagement>(TEXT("QuitManagementComponent"));
 
 	//-----------------------Initializing arrays--------------------------------
@@ -46,29 +45,28 @@ AWTEnemy::AWTEnemy()
 }
 
 // Called when the game starts or when spawned
-void AWTEnemy::BeginPlay()
+void AEncounter::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	InitializeLoot();
-
 }
 
 // Called every frame
-void AWTEnemy::Tick(float DeltaTime)
+void AEncounter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
 
 // Called to bind functionality to input
-void AWTEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void AEncounter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
 
-void AWTEnemy::LooseHealth()
+void AEncounter::LooseHealth()
 {
 
 	HealthPoints--;
@@ -78,19 +76,8 @@ void AWTEnemy::LooseHealth()
 		Destroy();
 	}
 }
-/*
-void AWTEnemy::LooseHealth(AAttackDefenseActor* AttackDefenseActorRef)
-{
-	if (AttackDefenseActorToIgnore == AttackDefenseActorRef) { return; }
-	HealthPoints--;
-	AttackDefenseActorToIgnore = AttackDefenseActorRef;
-	if (HealthPoints < 1)
-	{
-		Destroy();
-	}
-}*/
 
-void AWTEnemy::InitializeLoot()
+void AEncounter::InitializeLoot()
 {
 	for (int32 i = 0; i < LootClassesToSpawn.Num(); i++)
 	{
@@ -98,7 +85,7 @@ void AWTEnemy::InitializeLoot()
 	}
 }
 
-void AWTEnemy::CreateInfoWidget(UUserWidget* WidgetToCreate, FVector2D WidgetOffset)
+void AEncounter::CreateInfoWidget(UUserWidget* WidgetToCreate, FVector2D WidgetOffset)
 {
 
 	WidgetToCreate->AddToViewport();

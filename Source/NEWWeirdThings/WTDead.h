@@ -51,8 +51,8 @@ public:
 
 	USceneComponent* pRootComponent;
 
-	///UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Custom")
-	///	UWidgetComponent* pHealthWidget;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Custom")
+		UWidgetComponent* pHealthWidget;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		int32 HealthPoints = 5;
@@ -72,8 +72,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void LooseHealth();
 
-	///UFUNCTION(BlueprintCallable, Category = "Custom")
-	///	void CreateInfoWidget(UUserWidget* WidgetToCreate, FVector2D WidgetOffset);
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void CreateInfoWidget(UUserWidget* WidgetToCreate, FVector2D WidgetOffset);
 
 	void InitializeLoot();
 
