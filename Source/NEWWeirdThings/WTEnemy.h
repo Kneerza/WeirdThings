@@ -7,6 +7,7 @@
 #include "Math/Vector2D.h"
 #include "WTEnemy.generated.h"
 
+// TODO Delete class
 
 class UWidgetComponent;
 class ALocationTemplate;

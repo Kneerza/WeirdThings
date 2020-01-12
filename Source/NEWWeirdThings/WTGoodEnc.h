@@ -11,6 +11,8 @@ class ALocationTemplate;
 class AAttackDefenseActor;
 class UAttackDefenseComponent;
 
+// TODO Delete class
+
 UCLASS()
 class NEWWEIRDTHINGS_API AWTGoodEnc : public APawn
 {

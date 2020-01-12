@@ -5,7 +5,7 @@
 #include "PaperFlipbook.h"
 #include "AttackDefenseComponent.h"
 #include "WeirdThingsPlayerController.h"
-#include "WTEnemy.h"
+#include "Encounter.h"
 #include "Runtime/Engine/Classes/Engine/World.h"
 #include "PaperFlipbookComponent.h"
 #include "Runtime/Engine/Classes/Components/SphereComponent.h"
@@ -166,9 +166,9 @@ void AAttackDefenseActor::CollisionResolve()
 	GetOverlappingActors(OverlappingActors);
 
 	if (!ensure(OverlappingActors[0])) { return; }
-	if (Cast<AWTEnemy>(OverlappingActors[0])) {
+	if (Cast<AEncounter>(OverlappingActors[0])) {
 
-		Cast<AWTEnemy>(OverlappingActors[0])->LooseHealth();
+		Cast<AEncounter>(OverlappingActors[0])->LooseHealth();
 		UE_LOG(LogTemp, Warning, TEXT("Health is lost"))
 
 			SetActorEnableCollision(false);

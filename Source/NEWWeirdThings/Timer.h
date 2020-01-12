@@ -6,7 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Timer.generated.h"
 
-class AWTEnemy;
+class AEncounter;
 class AWTPlayerCharacter;
 
 UCLASS()
@@ -18,7 +18,7 @@ public:
 	// Sets default values for this actor's properties
 	ATimer();
 
-	AWTEnemy* Enemy = nullptr;
+	AEncounter* Enemy = nullptr;
 	AWTPlayerCharacter* PlayerCharacter = nullptr;
 
 

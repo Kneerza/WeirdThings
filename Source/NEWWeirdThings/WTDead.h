@@ -19,6 +19,8 @@ class UPaperFlipbookComponent;
 class ALocationTemplate;
 class AAction;
 
+// TODO Delete class
+
 UCLASS()
 class NEWWEIRDTHINGS_API AWTDead : public APawn
 {

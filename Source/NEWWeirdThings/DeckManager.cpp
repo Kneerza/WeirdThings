@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "DeckManager.h"
-#include "WTGoodEnc.h"
-#include "WTEnemy.h"
-#include "WTDead.h"
+#include "Encounter_Good.h"
+#include "Encounter_Bad.h"
+#include "Encounter_Dead.h"
 #include "ItemTemplate.h"
 #include "LocationTemplate.h"
 #include "Runtime/Engine/Classes/Engine/World.h"
@@ -65,9 +65,9 @@ TSubclassOf<ALocationTemplate> UDeckManager::DrawPlotLocationFromDeck()
 	return LocationToDraw;
 }
 
-TSubclassOf<AWTEnemy> UDeckManager::DrawEnemyFromDeck()
+TSubclassOf<AEncounter_Bad> UDeckManager::DrawEnemyFromDeck()
 {
-	TSubclassOf<AWTEnemy> EnemyToDraw = nullptr;
+	TSubclassOf<AEncounter_Bad> EnemyToDraw = nullptr;
 
 	auto IndexToDraw = FMath::RandRange(0, AvailableEnemyClasses.Num() - 1);
 
@@ -130,9 +130,9 @@ TSubclassOf<AItemTemplate> UDeckManager::DrawItemFromDeck(EItemValue ItemValue)
 	return ItemToDraw;
 }
 
-TSubclassOf<AWTGoodEnc> UDeckManager::DrawGoodEncFromDeck()
+TSubclassOf<AEncounter_Good> UDeckManager::DrawGoodEncFromDeck()
 {
-	TSubclassOf<AWTGoodEnc> GoodEncToDraw = nullptr;
+	TSubclassOf<AEncounter_Good> GoodEncToDraw = nullptr;
 
 	auto IndexToDraw = FMath::RandRange(0, AvailableGoodEncClasses.Num() - 1);
 
@@ -145,9 +145,9 @@ TSubclassOf<AWTGoodEnc> UDeckManager::DrawGoodEncFromDeck()
 	return GoodEncToDraw;
 }
 
-TSubclassOf<AWTDead> UDeckManager::DrawDeadFromDeck()
+TSubclassOf<AEncounter_Dead> UDeckManager::DrawDeadFromDeck()
 {
-	TSubclassOf<AWTDead> DeadToDraw = nullptr;
+	TSubclassOf<AEncounter_Dead> DeadToDraw = nullptr;
 
 	auto IndexToDraw = FMath::RandRange(0, AvailableDeadClasses.Num() - 1);
 

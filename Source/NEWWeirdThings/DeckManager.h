@@ -8,10 +8,10 @@
 #include "DeckManager.generated.h"
 
 class ALocationTemplate;
-class AWTEnemy;
 class AItemTemplate;
-class AWTGoodEnc;
-class AWTDead;
+class AEncounter_Dead;
+class AEncounter_Good;
+class AEncounter_Bad;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class NEWWEIRDTHINGS_API UDeckManager : public UActorComponent
@@ -29,10 +29,10 @@ public:
 		TArray<TSubclassOf<ALocationTemplate>> AvailablePlotLocationsClasses;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
-		TArray<TSubclassOf<AWTEnemy>> AvailableEnemyClasses;
+		TArray<TSubclassOf<AEncounter_Bad>> AvailableEnemyClasses;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
-		TArray<TSubclassOf<AWTDead>> AvailableDeadClasses;
+		TArray<TSubclassOf<AEncounter_Dead>> AvailableDeadClasses;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		TArray<TSubclassOf<AItemTemplate>> AvailableItemsClasses;
@@ -42,14 +42,14 @@ public:
 	TArray<TSubclassOf<AItemTemplate>> AvailableItemsClasses_G;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
-		TArray<TSubclassOf<AWTGoodEnc>> AvailableGoodEncClasses;
+		TArray<TSubclassOf<AEncounter_Good>> AvailableGoodEncClasses;
 
 	TSubclassOf<ALocationTemplate> DrawLocationFromDeck();
 	TSubclassOf<ALocationTemplate> DrawPlotLocationFromDeck();
-	TSubclassOf<AWTEnemy> DrawEnemyFromDeck();
+	TSubclassOf<AEncounter_Bad> DrawEnemyFromDeck();
 	TSubclassOf<AItemTemplate> DrawItemFromDeck(EItemValue ItemValue);
-	TSubclassOf<AWTGoodEnc> DrawGoodEncFromDeck();
-	TSubclassOf<AWTDead> DrawDeadFromDeck();
+	TSubclassOf<AEncounter_Good> DrawGoodEncFromDeck();
+	TSubclassOf<AEncounter_Dead> DrawDeadFromDeck();
 
 protected:
 	// Called when the game starts

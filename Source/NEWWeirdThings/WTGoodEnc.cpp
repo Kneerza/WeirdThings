@@ -5,6 +5,7 @@
 #include "AttackDefenseComponent.h"
 #include "Runtime/UMG/Public/Components/WidgetComponent.h"
 
+// TODO Delete class
 
 // Sets default values
 AWTGoodEnc::AWTGoodEnc()

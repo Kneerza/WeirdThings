@@ -10,12 +10,13 @@
 #include "Runtime/Engine/Classes/Components/StaticMeshComponent.h"
 #include "GameFramework/Actor.h"
 #include "Timer.h"
-#include "WTGoodEnc.h"
+#include "Encounter.h"
 #include "ArrowTemplate.h"
 #include "LocationTemplate.h"
 #include "ItemTemplate.h"
-#include "WTEnemy.h"
-#include "WTDead.h"
+#include "Encounter_Good.h"
+#include "Encounter_Bad.h"
+#include "Encounter_Dead.h"
 #include "Action.h"
 #include "AttackDefenseComponent.h"
 #include "AttackDefenseActor.h"
@@ -128,9 +129,9 @@ void AWeirdThingsPlayerController::RightClickEvents()
 			}
 			*/
 		}
-		else if (ClickedActorClassName == "WTEnemy")
+		else if (ClickedActorClassName == "Encounter_Bad")
 		{
-			Combat(pSelectedCharacter, Cast<AWTEnemy>(pClickedActor));
+			Combat(pSelectedCharacter, Cast<AEncounter>(pClickedActor));
 		}
 		else if (ClickedActorClassName == "InteractiveLocationDecoration")
 		{
@@ -268,13 +269,13 @@ void AWeirdThingsPlayerController::MoveCharacter(AWTPlayerCharacter* CharacterTo
 	CharacterToMove->MovementPoints--;
 }
 
-void AWeirdThingsPlayerController::FightBack(AWTEnemy* Enemy, AWTPlayerCharacter* PlayerCharacter)
+void AWeirdThingsPlayerController::FightBack(AEncounter* Enemy, AWTPlayerCharacter* PlayerCharacter)
 {
 	if (Enemy->HealthPoints <= 0) { return; }
 	AttackDefenseEvent(Enemy, PlayerCharacter);
 }
 
-void AWeirdThingsPlayerController::Combat(AWTPlayerCharacter* PlayerCharacter, AWTEnemy* Enemy)
+void AWeirdThingsPlayerController::Combat(AWTPlayerCharacter* PlayerCharacter, AEncounter* Enemy)
 {
 
 	AttackDefenseEvent(PlayerCharacter, Enemy);
@@ -325,7 +326,7 @@ void AWeirdThingsPlayerController::ItemDurabilityCheck(AWTPlayerCharacter* ItemO
 	}
 }
 
-void AWeirdThingsPlayerController::AttackDefenseEvent(AWTPlayerCharacter* Attacker, AWTEnemy* Defender)
+void AWeirdThingsPlayerController::AttackDefenseEvent(AWTPlayerCharacter* Attacker, AEncounter* Defender)
 {
 
 	TArray<EAttackType> AttackRowToGenerate = Attacker->pAttackDefenseComponent->AttackPoolRow_1;
@@ -396,7 +397,7 @@ void AWeirdThingsPlayerController::AttackDefenseEvent(AWTPlayerCharacter* Attack
 			break;
 		}
 	}
-
+	UE_LOG(LogTemp, Error, TEXT("Attack created"))
 	for (int32 i = 0; i < DefenseRowToGenerate.Num(); i++)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("%s"), *GETENUMSTRING("EUsesEnum", DefenseRowToGenerate[i]))
@@ -443,7 +444,7 @@ void AWeirdThingsPlayerController::AttackDefenseEvent(AWTPlayerCharacter* Attack
 	Timer->PlayerCharacter = Attacker;
 }
 
-void AWeirdThingsPlayerController::AttackDefenseEvent(AWTEnemy* Attacker, AWTPlayerCharacter* Defender)
+void AWeirdThingsPlayerController::AttackDefenseEvent(AEncounter* Attacker, AWTPlayerCharacter* Defender)
 {
 
 	TArray<EAttackType> AttackRowToGenerate = Attacker->pAttackDefenseComponent->AttackPoolRow_1;
@@ -618,7 +619,7 @@ void AWeirdThingsPlayerController::SpawnEnemy(AAction* ActionInstigator)
 		UE_LOG(LogTemp, Warning, TEXT("Enemy Not Spawned"))
 			return;
 	}
-	auto SpawnedEnemy = GetWorld()->SpawnActor<AWTEnemy>(SpawningClass, SpawningSocketTransform, SpawnParameters);
+	auto SpawnedEnemy = GetWorld()->SpawnActor<AEncounter_Bad>(SpawningClass, SpawningSocketTransform, SpawnParameters);
 	if (SpawnedEnemy) {
 		SpawnedEnemy->CurrentLocation = ParentLocation;
 	}
@@ -683,7 +684,7 @@ void AWeirdThingsPlayerController::SpawnGoodEnc(AAction* ActionInstigator)
 	auto SpawningClass = DeckManager->DrawGoodEncFromDeck();
 
 	if (!ensure(SpawningClass)) { return; }
-	auto SpawnedGoodEnc = GetWorld()->SpawnActor<AWTGoodEnc>(SpawningClass, SpawningSocketTransform, SpawnParameters);
+	auto SpawnedGoodEnc = GetWorld()->SpawnActor<AEncounter_Good>(SpawningClass, SpawningSocketTransform, SpawnParameters);
 	if (SpawnedGoodEnc) {
 		SpawnedGoodEnc->CurrentLocation = ParentLocation;
 	}
@@ -988,9 +989,9 @@ void AWeirdThingsPlayerController::SetTimeMorning()
 
 	AddActionPointToEveryCharacter();
 
-	for (int32 i = 0; i < AllDeadsInPlay.Num(); i++)
+	for (int32 i = 0; i < Encounter_DeadsInPlay.Num(); i++)
 	{
-		AllDeadsInPlay[i]->SetAwakened(false);
+		Encounter_DeadsInPlay[i]->SetAwakened(false);
 	}
 
 
@@ -1050,9 +1051,9 @@ void AWeirdThingsPlayerController::SetTimeEvening()
 
 	AddActionPointToEveryCharacter();
 
-	for (int32 i = 0; i < AllDeadsInPlay.Num(); i++)
+	for (int32 i = 0; i < Encounter_DeadsInPlay.Num(); i++)
 	{
-		AllDeadsInPlay[i]->SetAwakened(true);
+		Encounter_DeadsInPlay[i]->SetAwakened(true);
 	}
 
 	CurrentTimeOfDay = ETimeOfDay::Evening;

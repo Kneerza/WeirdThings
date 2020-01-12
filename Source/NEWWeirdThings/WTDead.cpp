@@ -14,6 +14,7 @@
 #include "Math/Vector2D.h"
 #include "Runtime/UMG/Public/Components/WidgetComponent.h"
 
+// TODO Delete class
 
 // Sets default values
 AWTDead::AWTDead()
@@ -101,7 +102,7 @@ void AWTDead::BeginPlay()
 
 	InitializeLoot();
 
-	(Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController())->AllDeadsInPlay).Add(this);
+	//(Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController())->AllDeadsInPlay).Add(this);
 
 	// TODO move to LocationTemplate as a Function, that will be called here
 	if (GetParentActor() && ActionClassToSpawn) {

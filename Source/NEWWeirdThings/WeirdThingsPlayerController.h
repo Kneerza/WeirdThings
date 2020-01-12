@@ -21,8 +21,6 @@ class UPrimitiveComponent;
 class AArrowTemplate;
 class ALocationTemplate;
 class AWTPlayerCharacter;
-class AWTEnemy;
-class AWTDead;
 class AItemTemplate;
 class AActor;
 class UClass;
@@ -31,6 +29,7 @@ class UMaterial;
 class ADirectionalLight;
 class AAttackDefenseActor;
 class UDeckManager;
+class AEncounter;
 class AEncounter_Dead;
 
 
@@ -82,8 +81,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		TSubclassOf<AAttackDefenseActor> SpawnedActorClass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
-		UPaperFlipbook* FlipbookToSet;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+	//	UPaperFlipbook* FlipbookToSet;
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void LeftClickEvents();
@@ -116,7 +115,7 @@ public:
 		TArray<AWTPlayerCharacter*> PlayerCharacters;
 
 	TArray<ALocationTemplate*> AllLocationsInPlay;
-	TArray<AWTDead*> AllDeadsInPlay; // TODO Delete (replaced by Encounter_DeadsInPlay
+	
 	TArray<AEncounter_Dead*>Encounter_DeadsInPlay;
 
 	void GetCurrentLocationOfActor(AActor* Actor, ALocationTemplate* &CurrentLocation);
@@ -142,10 +141,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void SelectCharacter(AActor* CharacterToSelect);
 
-	void Combat(AWTPlayerCharacter* PlayerCharacter, AWTEnemy* Enemy);
-	void AttackDefenseEvent(AWTPlayerCharacter* Attacker, AWTEnemy* Defender);
-	void AttackDefenseEvent(AWTEnemy* Attacker, AWTPlayerCharacter* Defender);
-	void FightBack(AWTEnemy* Enemy, AWTPlayerCharacter* PlayerCharacter);
+	void Combat(AWTPlayerCharacter* PlayerCharacter, AEncounter* Enemy);
+	void AttackDefenseEvent(AWTPlayerCharacter* Attacker, AEncounter* Defender);
+	void AttackDefenseEvent(AEncounter* Attacker, AWTPlayerCharacter* Defender);
+	void FightBack(AEncounter* Enemy, AWTPlayerCharacter* PlayerCharacter);
 
 	bool AreOnSameLocation(AActor* Actor1, AActor* Actor2);
 
