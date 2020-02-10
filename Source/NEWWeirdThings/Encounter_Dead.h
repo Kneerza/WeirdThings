@@ -12,6 +12,7 @@
 
 class AAction;
 class UPaperFlipbookComponent;
+class AWeirdThingsPlayerController;
 
 UCLASS()
 class NEWWEIRDTHINGS_API AEncounter_Dead : public AEncounter
@@ -31,7 +32,19 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Mesh)
 		UPaperFlipbookComponent* SleepingDeadFlipbookComponent;
 
+	UChildActorComponent* CreatedAction;
+
+	AWeirdThingsPlayerController* PlayerController = nullptr;
+
+	bool IsAwake = false;
+
 	void SetAwakened(bool IsAwakened);
+
+	void FindPlayerToAttack();
+
+	void CreateAction();
+
+	void Move();
 
 protected:
 	// Called when the game starts or when spawned

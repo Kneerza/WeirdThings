@@ -62,7 +62,10 @@ public:
 
 	// --- Action setup parameters ---
 	UPROPERTY(EditAnywhere, Category = Setup)
-		bool IsForced = false; // Is action happens on it's own or should be activated                   
+		bool IsForced = false; // Is action happens on it's own or should be activated 
+
+	UPROPERTY(EditAnywhere, Category = Setup)
+		int32 Modifier = 1;
 
 	UPROPERTY(EditAnywhere, Category = Setup)
 		EActionType ActionType = EActionType::Get_Item_C; // Type of event happening when activated
@@ -73,6 +76,8 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Mesh)
 		UPaperFlipbookComponent* ActionFlipBookComponent;
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Mesh)
+		UPaperFlipbookComponent* ModifierVisual;
 
 
 	// --- Locks for Action ---
@@ -105,7 +110,8 @@ public:
 
 	// --- Lock handling functions ---
 	void GetTypeOfLock();
-	void ConstructActionLocks();  
+	void ConstructActionLocks(); 
+	void ConstructModifierVisual();
 	void Unlock();
 
 

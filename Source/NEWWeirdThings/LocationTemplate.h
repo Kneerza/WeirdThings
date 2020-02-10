@@ -93,6 +93,18 @@ public:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Mesh)
 		TArray <UStaticMeshComponent*> AvailableSocketCampFire;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+		UStaticMeshComponent* SocketDynamicAction_0;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+		UStaticMeshComponent* SocketDynamicAction_1;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+		UStaticMeshComponent* SocketDynamicAction_2;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Mesh)
+		TArray <UStaticMeshComponent*> AvailableSocketDynamicAction;
 	//---------------------------------------------------
 
 	TArray<FTransform> SocketPlayer_Transform;
@@ -102,6 +114,9 @@ public:
 	TArray<FTransform> SocketEncounter_Transform;
 
 	TArray<FTransform*> OccupiedSockets;
+
+	int32 VerticalIndex;
+	int32 HorizontalIndex;
 
 	AActor* pArrow;
 
@@ -133,6 +148,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void IncludeInAvailableCampFireSocket(UPrimitiveComponent* ComponentToInclude);
+
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void ExcludeFromAvailableDynamicActionSocket(UPrimitiveComponent* ComponentToExclude);
+
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void IncludeInAvailableDynamicActionSocket(UPrimitiveComponent* ComponentToInclude);
 
 
 protected:

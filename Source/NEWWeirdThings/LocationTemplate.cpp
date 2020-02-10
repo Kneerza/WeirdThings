@@ -61,6 +61,7 @@ ALocationTemplate::ALocationTemplate()
 
 	FVector PlayerIncrement = FVector(13.f, 50.f, 3.56f);
 	FVector EncounterIncrement = FVector(13.f, -50.f, 3.56f);
+	FVector DynamicActionIncrement = FVector(0.f, 300.f, 0.f);
 	FVector OriginalPosition = FVector(-471.f, -367.f, -74.5f);
 	FVector CampFireOffset = FVector(0.f, 150.f, 0.f);
 	FVector EncounterOffset = FVector(0.f, 600.f, 0.f);
@@ -177,6 +178,39 @@ ALocationTemplate::ALocationTemplate()
 	SocketEncounter_4->CastShadow = false;
 	AvailableSocketEncounter.Emplace(SocketEncounter_4);
 
+	OriginalPosition = FVector(-526.f, 182.f, -907.f);
+
+	
+	SocketDynamicAction_0 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SocketDynamicAction_0"));
+	SocketDynamicAction_0->SetupAttachment(pRootComponent);
+	SocketDynamicAction_0->SetCollisionResponseToChannels(CollisionResponseContainer);
+	SocketDynamicAction_0->SetRelativeScale3D(Scale);
+	SocketDynamicAction_0->SetRelativeLocation(OriginalPosition + (0 * DynamicActionIncrement));
+	SocketDynamicAction_0->SetHiddenInGame(true);
+	SocketDynamicAction_0->SetMobility(EComponentMobility::Movable);
+	SocketDynamicAction_0->CastShadow = false;
+	AvailableSocketDynamicAction.Emplace(SocketDynamicAction_0);
+	
+	SocketDynamicAction_1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SocketDynamicAction_1"));
+	SocketDynamicAction_1->SetupAttachment(pRootComponent);
+	SocketDynamicAction_1->SetCollisionResponseToChannels(CollisionResponseContainer);
+	SocketDynamicAction_1->SetRelativeScale3D(Scale);
+	SocketDynamicAction_1->SetRelativeLocation(OriginalPosition + (1 * DynamicActionIncrement));
+	SocketDynamicAction_1->SetHiddenInGame(true);
+	SocketDynamicAction_1->SetMobility(EComponentMobility::Movable);
+	SocketDynamicAction_1->CastShadow = false;
+	AvailableSocketDynamicAction.Emplace(SocketDynamicAction_1);
+	
+	SocketDynamicAction_2 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SocketDynamicAction_2"));
+	SocketDynamicAction_2->SetupAttachment(pRootComponent);
+	SocketDynamicAction_2->SetCollisionResponseToChannels(CollisionResponseContainer);
+	SocketDynamicAction_2->SetRelativeScale3D(Scale);
+	SocketDynamicAction_2->SetRelativeLocation(OriginalPosition + (2 * DynamicActionIncrement));
+	SocketDynamicAction_2->SetHiddenInGame(true);
+	SocketDynamicAction_2->SetMobility(EComponentMobility::Movable);
+	SocketDynamicAction_2->CastShadow = false;
+	AvailableSocketDynamicAction.Emplace(SocketDynamicAction_2);
+	
 	//-----------------------Initializing arrays--------------------------------
 	SocketsLockations.Init(FVector(0.f), 16);
 	SocketPlayer_Transform.Init(FTransform(), 5);
@@ -188,8 +222,12 @@ void ALocationTemplate::BeginPlay()
 {
 	Super::BeginPlay();
 
-	(Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController())->AllLocationsInPlay).Add(this);
+	auto PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
+	PlayerController->AllLocationsInPlay.Add(this);
 
+	HorizontalIndex = (GetActorLocation().Y) / (PlayerController->SpawnedLocationOffsetY.Y);
+	VerticalIndex = (GetActorLocation().Z) / (PlayerController->SpawnedLocationOffsetZ.Z);
+	UE_LOG(LogTemp, Warning, TEXT("%s : Vertical Index = %i , Horizontal Index = %i"), *GetName(), VerticalIndex, HorizontalIndex)
 }
 
 // Called every frame
@@ -253,7 +291,7 @@ void ALocationTemplate::Connect(UChildActorComponent* Parent, UPaperFlipbookComp
 	if (Action_Child_2) {
 		Action_Child_1->Child = Action_Child_2;
 		Action_Child_1->pConnector = Connector_2;
-		Action_Child_2->Deactivate();
+		Action_Child_2->Deactivate(); 
 	}
 
 	if (Action_Child_3) {
@@ -287,4 +325,14 @@ void ALocationTemplate::EntangleActionWithActor(UChildActorComponent* Action, UC
 
 	ActionToEntangle->EntangledInteractiveLocationDecoration = InteractiveLocationDecorationToEntangle;
 	InteractiveLocationDecorationToEntangle->EntangledAction = ActionToEntangle;
+}
+
+void ALocationTemplate::ExcludeFromAvailableDynamicActionSocket(UPrimitiveComponent* ComponentToExclude)
+{
+	AvailableSocketDynamicAction.RemoveSingle(Cast<UStaticMeshComponent>(ComponentToExclude));
+}
+
+void ALocationTemplate::IncludeInAvailableDynamicActionSocket(UPrimitiveComponent* ComponentToInclude)
+{
+	AvailableSocketDynamicAction.Emplace(Cast<UStaticMeshComponent>(ComponentToInclude));
 }

@@ -30,7 +30,8 @@ public:
 
 	AAction* EntangledAction = nullptr;
 
-	void Deactivate_InteractiveLocationDecoration();
+	void ChangeState_InteractiveLocationDecoration();
+	void Diactivate_InteractiveLocationDecoration();
 
 protected:
 	// Called when the game starts or when spawned

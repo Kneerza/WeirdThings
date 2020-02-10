@@ -63,23 +63,23 @@ public:
 		TSubclassOf<ADirectionalLight> SunlightNightClassToSpawn;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
-		ADirectionalLight* SunlightMorning = nullptr;
+		ADirectionalLight* SunlightMorning;// = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
-		ADirectionalLight* SunlightNoon = nullptr;
+		ADirectionalLight* SunlightNoon;// = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
-		ADirectionalLight* SunlightEvening = nullptr;
+		ADirectionalLight* SunlightEvening;// = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
-		ADirectionalLight* SunlightNight = nullptr;
+		ADirectionalLight* SunlightNight;// = nullptr;
 	//---------------------------------------------------------
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		UDeckManager* DeckManager = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
-		TSubclassOf<AAttackDefenseActor> SpawnedActorClass;
+		TSubclassOf<AAttackDefenseActor> AttackDefenceActorClass;
 
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 	//	UPaperFlipbook* FlipbookToSet;
@@ -113,6 +113,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		TArray<AWTPlayerCharacter*> PlayerCharacters;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+		TSubclassOf<AActor> BurningEffectClass = nullptr;
 
 	TArray<ALocationTemplate*> AllLocationsInPlay;
 	
@@ -148,7 +151,7 @@ public:
 
 	bool AreOnSameLocation(AActor* Actor1, AActor* Actor2);
 
-	bool PerformAction(AAction* Action);
+	bool PerformAction(AAction* Action, int32 Modifier);
 	void TryToUnlock(AAction* CurrentAction);
 	bool FindAndUseItemToUnlock(EItemType BackpackItemType);
 	bool FindAndUseItemToUnlock(EItemValue BackpackItemValue);
@@ -199,6 +202,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void Sleep(AWTPlayerCharacter* PlayerCharacter);
+
+
 
 private:
 

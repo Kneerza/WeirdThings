@@ -43,6 +43,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		int32 ActionPoints = 0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int32 MovementPoints = 3;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		ALocationTemplate* CurrentLocation = nullptr;
 
@@ -74,8 +77,6 @@ public:
 	AItemTemplate* ActiveItem = nullptr;
 
 	float DamageWidgetAlphaChannel = 1;
-
-	int32 MovementPoints = 3;
 
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 	//	int32 HealthPoints = 5;

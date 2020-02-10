@@ -8,7 +8,7 @@
 #include "Encounter.h"
 #include "Runtime/Engine/Classes/Engine/World.h"
 #include "PaperFlipbookComponent.h"
-#include "Runtime/Engine/Classes/Components/SphereComponent.h"
+#include "Components/BoxComponent.h"
 
 
 // Sets default values
@@ -34,27 +34,27 @@ AAttackDefenseActor::AAttackDefenseActor()
 	AttackDefenseFlipBookComponent->SetRelativeTransform(ActionFlipBookComponentRelativeTransform);
 	AttackDefenseFlipBookComponent->bGenerateOverlapEvents = false;
 	AttackDefenseFlipBookComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	//----------------------Creating Collision Sphere------------------------
-	CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));
-	CollisionSphere->SetupAttachment(pRootComponent);
+	
+	//----------------------Creating Collision Box------------------------
+	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
+	CollisionBox->SetupAttachment(pRootComponent);
 
 	//Setting up relative transform
-	FTransform CollisionSphereRelativeTransform;
-	CollisionSphereRelativeTransform.SetLocation(FVector(0.f, 0.f, 0.f));
-	CollisionSphereRelativeTransform.SetRotation(FRotator(0.f, 0.f, 0.f).Quaternion());
-	CollisionSphereRelativeTransform.SetScale3D(FVector(0.6f, 0.6f, 0.6f));
+	FTransform CollisionBoxRelativeTransform;
+	CollisionBoxRelativeTransform.SetLocation(FVector(0.f, 0.f, 0.f));
+	CollisionBoxRelativeTransform.SetRotation(FRotator(0.f, 0.f, 0.f).Quaternion());
+	CollisionBoxRelativeTransform.SetScale3D(FVector(0.2f, 0.6f, 0.6f));
 
-	CollisionSphere->SetRelativeTransform(CollisionSphereRelativeTransform);
+	CollisionBox->SetRelativeTransform(CollisionBoxRelativeTransform);
 
 	//Setting up collision
-	FCollisionResponseContainer CollisionSphereResponseContainer;
-	CollisionSphereResponseContainer.SetAllChannels(ECollisionResponse::ECR_Ignore);
-	CollisionSphereResponseContainer.SetResponse(ECollisionChannel::ECC_Destructible, ECollisionResponse::ECR_Overlap);
-	CollisionSphereResponseContainer.SetResponse(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+	FCollisionResponseContainer CollisionBoxResponseContainer;
+	CollisionBoxResponseContainer.SetAllChannels(ECollisionResponse::ECR_Ignore);
+	CollisionBoxResponseContainer.SetResponse(ECollisionChannel::ECC_Destructible, ECollisionResponse::ECR_Overlap);
+	CollisionBoxResponseContainer.SetResponse(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 
-	CollisionSphere->SetCollisionResponseToChannels(CollisionSphereResponseContainer);
-	CollisionSphere->SetCollisionObjectType(ECollisionChannel::ECC_Destructible);
+	CollisionBox->SetCollisionResponseToChannels(CollisionBoxResponseContainer);
+	CollisionBox->SetCollisionObjectType(ECollisionChannel::ECC_Destructible);
 }
 
 // Called when the game starts or when spawned

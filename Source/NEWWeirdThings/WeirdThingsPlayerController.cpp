@@ -133,6 +133,16 @@ void AWeirdThingsPlayerController::RightClickEvents()
 		{
 			Combat(pSelectedCharacter, Cast<AEncounter>(pClickedActor));
 		}
+		else if (ClickedActorClassName == "Encounter_Good")
+		{
+			Combat(pSelectedCharacter, Cast<AEncounter>(pClickedActor));
+		}
+		else if (ClickedActorClassName == "Encounter_Dead")
+		{
+			if (Cast<AEncounter_Dead>(pClickedActor)->IsAwake) {
+				Combat(pSelectedCharacter, Cast<AEncounter>(pClickedActor));
+			}
+		}
 		else if (ClickedActorClassName == "InteractiveLocationDecoration")
 		{
 			ClickedActionHandle(Cast<AInteractiveLocationDecoration>(pClickedActor)->EntangledAction);
@@ -177,14 +187,16 @@ void AWeirdThingsPlayerController::ClickedActionHandle(AAction* CurrentAction)
 
 	if ((CurrentAction->ActionLockType[CurrentAction->CurrentLockTypeIndex]) == EActionLockType::No_Need)
 	{
-		if (PerformAction(CurrentAction)) {
+		if (PerformAction(CurrentAction, CurrentAction->Modifier)) {
 			pSelectedCharacter->ActionPoints--;
 			CurrentAction->Deactivate();
 			if (!(CurrentAction->EntangledInteractiveLocationDecoration)) {
 				UE_LOG(LogTemp, Error, TEXT("No EntangledILP for this action"))
 				return; 
 			}
-				CurrentAction->EntangledInteractiveLocationDecoration->Deactivate_InteractiveLocationDecoration();
+			
+			CurrentAction->EntangledInteractiveLocationDecoration->ChangeState_InteractiveLocationDecoration();
+				
 		}
 	}
 	else {
@@ -263,8 +275,13 @@ void AWeirdThingsPlayerController::MoveCharacter(AWTPlayerCharacter* CharacterTo
 	CharacterToMove->CurrentLocation = LocationToMoveTo;
 	if (auto ForcedAction = LocationToMoveTo->ForcedAction)
 	{
-		PerformAction(ForcedAction);
-		ForcedAction->Deactivate();
+		PerformAction(ForcedAction, ForcedAction->Modifier);
+		//ForcedAction->Deactivate();
+		if (!(ForcedAction->EntangledInteractiveLocationDecoration)) {
+			UE_LOG(LogTemp, Error, TEXT("No EntangledILP for this action"))
+				return;
+		}
+		ForcedAction->EntangledInteractiveLocationDecoration->ChangeState_InteractiveLocationDecoration();
 	}
 	CharacterToMove->MovementPoints--;
 }
@@ -342,7 +359,7 @@ void AWeirdThingsPlayerController::AttackDefenseEvent(AWTPlayerCharacter* Attack
 		FVector LocationToSpawn = (Attacker->GetActorLocation() + FVector(0.f, 0.f, 300.f) + FVector(0.f, 0.f, 140.f*i));
 
 		// TODO move Rows generation to AAttackDefenseActor
-
+		if (!ensure(AttackDefenceActorClass)){UE_LOG(LogTemp, Warning, TEXT("AttackDefence actor class is not set in PlayerController")) }
 		switch (AttackRowToGenerate[i])
 		{
 		case EAttackType::No_Attack:
@@ -350,7 +367,7 @@ void AWeirdThingsPlayerController::AttackDefenseEvent(AWTPlayerCharacter* Attack
 			break;
 
 		case EAttackType::Sharp:
-			AttackRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(SpawnedActorClass, LocationToSpawn, FRotator(0.0f, 180.0f, 0.0f));
+			AttackRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(AttackDefenceActorClass, LocationToSpawn, FRotator(0.0f, 180.0f, 0.0f));
 			if (!ensure(AttackRowActors[i])) { return; }
 
 			AttackRowActors[i]->StartLocation = Attacker->GetActorLocation();
@@ -361,7 +378,7 @@ void AWeirdThingsPlayerController::AttackDefenseEvent(AWTPlayerCharacter* Attack
 			break;
 
 		case EAttackType::Blunt:
-			AttackRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(SpawnedActorClass, LocationToSpawn, FRotator(0.0f, 180.0f, 0.0f));
+			AttackRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(AttackDefenceActorClass, LocationToSpawn, FRotator(0.0f, 180.0f, 0.0f));
 			if (!ensure(AttackRowActors[i])) { return; }
 
 			AttackRowActors[i]->StartLocation = Attacker->GetActorLocation();
@@ -372,7 +389,7 @@ void AWeirdThingsPlayerController::AttackDefenseEvent(AWTPlayerCharacter* Attack
 			break;
 
 		case EAttackType::Unavoidable:
-			AttackRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(SpawnedActorClass, LocationToSpawn, FRotator(0.0f, 180.0f, 0.0f));
+			AttackRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(AttackDefenceActorClass, LocationToSpawn, FRotator(0.0f, 180.0f, 0.0f));
 			if (!ensure(AttackRowActors[i])) { return; }
 
 			AttackRowActors[i]->StartLocation = Attacker->GetActorLocation();
@@ -383,7 +400,7 @@ void AWeirdThingsPlayerController::AttackDefenseEvent(AWTPlayerCharacter* Attack
 			break;
 
 		case EAttackType::Tricky:
-			AttackRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(SpawnedActorClass, LocationToSpawn, FRotator(0.0f, 180.0f, 0.0f));
+			AttackRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(AttackDefenceActorClass, LocationToSpawn, FRotator(0.0f, 180.0f, 0.0f));
 			if (!ensure(AttackRowActors[i])) { return; }
 
 			AttackRowActors[i]->StartLocation = Attacker->GetActorLocation();
@@ -411,7 +428,7 @@ void AWeirdThingsPlayerController::AttackDefenseEvent(AWTPlayerCharacter* Attack
 			break;
 
 		case EDefenseType::Absorb:
-			DefenseRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(SpawnedActorClass, LocationToSpawnDefense, FRotator(0.0f, 180.0f, 0.0f));
+			DefenseRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(AttackDefenceActorClass, LocationToSpawnDefense, FRotator(0.0f, 180.0f, 0.0f));
 
 			DefenseRowActors[i]->DefenseState = EDefenseType::Absorb;
 			DefenseRowActors[i]->Initialize();
@@ -423,7 +440,7 @@ void AWeirdThingsPlayerController::AttackDefenseEvent(AWTPlayerCharacter* Attack
 			break;
 
 		case EDefenseType::Evade:
-			DefenseRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(SpawnedActorClass, LocationToSpawnDefense, FRotator(0.0f, 180.0f, 0.0f));
+			DefenseRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(AttackDefenceActorClass, LocationToSpawnDefense, FRotator(0.0f, 180.0f, 0.0f));
 
 			DefenseRowActors[i]->DefenseState = EDefenseType::Evade;
 			DefenseRowActors[i]->Initialize();
@@ -468,7 +485,7 @@ void AWeirdThingsPlayerController::AttackDefenseEvent(AEncounter* Attacker, AWTP
 			break;
 
 		case EAttackType::Sharp:
-			AttackRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(SpawnedActorClass, LocationToSpawn, FRotator(0.0f, 180.0f, 0.0f));
+			AttackRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(AttackDefenceActorClass, LocationToSpawn, FRotator(0.0f, 180.0f, 0.0f));
 			UE_LOG(LogTemp, Warning, TEXT("Spawned"))
 				if (!ensure(AttackRowActors[i])) { return; }
 
@@ -480,7 +497,7 @@ void AWeirdThingsPlayerController::AttackDefenseEvent(AEncounter* Attacker, AWTP
 			break;
 
 		case EAttackType::Blunt:
-			AttackRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(SpawnedActorClass, LocationToSpawn, FRotator(0.0f, 180.0f, 0.0f));
+			AttackRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(AttackDefenceActorClass, LocationToSpawn, FRotator(0.0f, 180.0f, 0.0f));
 			if (!ensure(AttackRowActors[i])) { return; }
 
 			AttackRowActors[i]->StartLocation = Attacker->GetActorLocation();
@@ -491,7 +508,7 @@ void AWeirdThingsPlayerController::AttackDefenseEvent(AEncounter* Attacker, AWTP
 			break;
 
 		case EAttackType::Unavoidable:
-			AttackRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(SpawnedActorClass, LocationToSpawn, FRotator(0.0f, 180.0f, 0.0f));
+			AttackRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(AttackDefenceActorClass, LocationToSpawn, FRotator(0.0f, 180.0f, 0.0f));
 			if (!ensure(AttackRowActors[i])) { return; }
 
 			AttackRowActors[i]->StartLocation = Attacker->GetActorLocation();
@@ -502,7 +519,7 @@ void AWeirdThingsPlayerController::AttackDefenseEvent(AEncounter* Attacker, AWTP
 			break;
 
 		case EAttackType::Tricky:
-			AttackRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(SpawnedActorClass, LocationToSpawn, FRotator(0.0f, 180.0f, 0.0f));
+			AttackRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(AttackDefenceActorClass, LocationToSpawn, FRotator(0.0f, 180.0f, 0.0f));
 			if (!ensure(AttackRowActors[i])) { return; }
 
 			AttackRowActors[i]->StartLocation = Attacker->GetActorLocation();
@@ -532,7 +549,7 @@ void AWeirdThingsPlayerController::AttackDefenseEvent(AEncounter* Attacker, AWTP
 			break;
 
 		case EDefenseType::Absorb:
-			DefenseRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(SpawnedActorClass, LocationToSpawnDefense, FRotator(0.0f, 180.0f, 0.0f));
+			DefenseRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(AttackDefenceActorClass, LocationToSpawnDefense, FRotator(0.0f, 180.0f, 0.0f));
 
 			DefenseRowActors[i]->DefenseState = EDefenseType::Absorb;
 			DefenseRowActors[i]->Initialize();
@@ -544,7 +561,7 @@ void AWeirdThingsPlayerController::AttackDefenseEvent(AEncounter* Attacker, AWTP
 			break;
 
 		case EDefenseType::Evade:
-			DefenseRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(SpawnedActorClass, LocationToSpawnDefense, FRotator(0.0f, 180.0f, 0.0f));
+			DefenseRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(AttackDefenceActorClass, LocationToSpawnDefense, FRotator(0.0f, 180.0f, 0.0f));
 
 			DefenseRowActors[i]->DefenseState = EDefenseType::Evade;
 			DefenseRowActors[i]->Initialize();
@@ -627,6 +644,9 @@ void AWeirdThingsPlayerController::SpawnEnemy(AAction* ActionInstigator)
 
 void AWeirdThingsPlayerController::SpawnLocation(AAction* Action, bool IsSpawningOnRight, bool IsPlotLocation)
 {
+
+	// TODO IsSpawningOnRight and IsPlotLocation can be collapsed in one variable
+
 	UE_LOG(LogTemp, Warning, TEXT("Started Spawning Location"))
 		FActorSpawnParameters SpawningLocationParameters;
 	SpawningLocationParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::DontSpawnIfColliding;
@@ -700,15 +720,16 @@ void AWeirdThingsPlayerController::PassItemToPlayer(EItemValue ItemValue)
 	pSelectedCharacter->GetItem(ItemToPick);
 }
 
-bool AWeirdThingsPlayerController::PerformAction(AAction* Action)
+bool AWeirdThingsPlayerController::PerformAction(AAction* Action, int32 Modifier)
 {
 	auto ActionType = Action->ActionType;
 
 	switch (ActionType)
 	{
 	case EActionType::Get_Item_C:
-
-		PassItemToPlayer(EItemValue::C);
+		for (int32 i = 0; i < Modifier; i++) {
+			PassItemToPlayer(EItemValue::C);
+		}
 		return true;
 		break;
 
@@ -750,27 +771,27 @@ bool AWeirdThingsPlayerController::PerformAction(AAction* Action)
 
 	case EActionType::Get_Food:
 
-		GetFood(1);
+		GetFood(Modifier);
 
 		return true;
 		break;
 
 	case EActionType::Get_Wood:
 
-		GetWood(1);
+		GetWood(Modifier);
 		return true;
 		break;
 
 	case EActionType::Relief:
 
-		pSelectedCharacter->RemoveInsanity(1);
+		pSelectedCharacter->RemoveInsanity(Modifier);
 		return true;
 		break;
 
 	case EActionType::Fishing:
 
 		if (FindAndUseItemToUnlock(EItemType::Tool)) {
-			GetFood(1);
+			GetFood(Modifier);
 			return true;
 		}
 		UE_LOG(LogTemp, Warning, TEXT("No Tool for fishing"))
@@ -781,6 +802,15 @@ bool AWeirdThingsPlayerController::PerformAction(AAction* Action)
 
 		if (pSelectedCharacter->Wood > 0) {
 			ConsumeWood(1, pSelectedCharacter);
+			if (Action->GetParentActor()->GetClass()->GetSuperClass()->GetName() == "Encounter_Dead") {
+				FTransform EffectTransform;
+				EffectTransform.SetLocation(Action->GetParentActor()->GetActorLocation());
+				Action->GetParentActor()->Destroy();
+				if (BurningEffectClass) {
+
+					GetWorld()->SpawnActor<AActor>(BurningEffectClass, EffectTransform);
+				}
+			}
 			return true;
 		}
 		UE_LOG(LogTemp, Warning, TEXT("Not enough wood"))
@@ -789,7 +819,7 @@ bool AWeirdThingsPlayerController::PerformAction(AAction* Action)
 
 	case EActionType::Get_Injury:
 
-		pSelectedCharacter->GetInjury(1);
+		pSelectedCharacter->GetInjury(Modifier);
 
 		return true;
 		break;
@@ -818,7 +848,7 @@ bool AWeirdThingsPlayerController::PerformAction(AAction* Action)
 
 	case EActionType::ArrowUp_Plot:
 
-		SpawnLocation(Action, true, true);
+		SpawnLocation(Action, false, true);
 
 		return true;
 		break;
@@ -1051,6 +1081,7 @@ void AWeirdThingsPlayerController::SetTimeEvening()
 
 	AddActionPointToEveryCharacter();
 
+	//TODO collapse to function
 	for (int32 i = 0; i < Encounter_DeadsInPlay.Num(); i++)
 	{
 		Encounter_DeadsInPlay[i]->SetAwakened(true);
@@ -1094,6 +1125,12 @@ void AWeirdThingsPlayerController::SetTimeNight()
 
 		if (PlayerCharacters[i]->Wood <= 0) { PlayerCharacters[i]->GetInsanity(1); }
 		//else { ConsumeWood(1, PlayerCharacters[i]); }
+	}
+
+	//TODO collapse to function
+	for (int32 i = 0; i < Encounter_DeadsInPlay.Num(); i++)
+	{
+		Encounter_DeadsInPlay[i]->Move();
 	}
 
 	CurrentTimeOfDay = ETimeOfDay::Night;

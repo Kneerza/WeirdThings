@@ -10,7 +10,7 @@
 
 
 class UPaperFlipbookComponent;
-class USphereComponent;
+class UBoxComponent;
 class AWTEnemy;
 class AWTPlayerCharacter;
 class UPaperFlipbook;
@@ -34,7 +34,7 @@ public:
 		UPaperFlipbookComponent* AttackDefenseFlipBookComponent;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Custom")
-		USphereComponent* CollisionSphere;
+		UBoxComponent* CollisionBox;
 
 	UPaperFlipbook* FlipbookToSet;
 

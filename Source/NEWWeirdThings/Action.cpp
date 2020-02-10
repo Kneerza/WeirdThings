@@ -8,6 +8,7 @@
 #include "Runtime/Engine/Classes/Engine/World.h"
 #include "PaperFlipbookComponent.h"
 #include "PaperFlipbook.h"
+#include "PaperSpriteComponent.h"
 #include <math.h>
 #include "Runtime/Core/Public/Containers/UnrealString.h"
 #include "Runtime/Core/Public/Math/UnrealMathUtility.h"
@@ -85,6 +86,7 @@ void AAction::BeginPlay()
 	Super::BeginPlay();
 	
 	ConstructActionLocks();
+	ConstructModifierVisual();
 	ForcedActionHandling();
 
 }
@@ -167,6 +169,42 @@ void AAction::ConstructActionLocks()
 	
 }
 
+void AAction::ConstructModifierVisual()
+{
+	if (Modifier == 1) { return; }
+		ModifierVisual = NewObject<UPaperFlipbookComponent>(this, ("Modifier"));
+		ModifierVisual->RegisterComponent();
+		switch (Modifier)
+		{
+		case 2:
+
+				ModifierVisual->SetFlipbook(LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Flipbooks/Modifier_2_Flipbook.Modifier_2_Flipbook'"))));
+			break;
+
+		case 3:
+
+			ModifierVisual->SetFlipbook(LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Flipbooks/Modifier_3_Flipbook.Modifier_3_Flipbook'"))));
+			break;
+
+		case 4:
+
+			ModifierVisual->SetFlipbook(LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Flipbooks/Modifier_4_Flipbook.Modifier_4_Flipbook'"))));
+			break;
+
+		default:
+			return;
+
+			break;
+
+		}
+
+		FTransform TransformModifierVisual = ActionFlipBookComponent->GetComponentTransform();
+		TransformModifierVisual.SetLocation(TransformModifierVisual.GetLocation()+ (FVector(-5.f, 80.f, -80.f)));
+
+		ModifierVisual->SetRelativeTransform(TransformModifierVisual);
+	
+}
+
 void AAction::GetTypeOfLock()
 {
 	for (int32 i = 0; i < ActionLock.Num(); i++)
@@ -201,8 +239,11 @@ void AAction::Deactivate()
 	// --- Disabling Collision on deactivated Action ---
 	ActionFlipBookComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	CollisionSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	if (EntangledInteractiveLocationDecoration) {
+		EntangledInteractiveLocationDecoration->InteractiveLocationDecoration_SpriteComponent_0->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
 
-	// --- Changing color of connector and activationg ChildAction (if there are any) 
+	// --- Changing color of connector and activating ChildAction (if there are any) 
 	if (Child && pConnector)
 	{
 		pConnector->SetSpriteColor(FLinearColor(0.03f, 0.03f, 0.03f, 1));
@@ -218,6 +259,9 @@ void AAction::Activate()
 	// --- Setting collision of activated Action ---
 	ActionFlipBookComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CollisionSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	if (EntangledInteractiveLocationDecoration) {
+		EntangledInteractiveLocationDecoration->InteractiveLocationDecoration_SpriteComponent_0->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	}
 }
 
 void AAction::ForcedActionHandling()

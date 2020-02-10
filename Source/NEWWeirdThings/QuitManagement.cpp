@@ -5,6 +5,7 @@
 #include "Runtime/Engine/Classes/Engine/World.h"
 #include "WeirdThingsPlayerController.h"
 #include "WTEnemy.h"
+#include "Encounter.h"
 #include "WTPlayerCharacter.h"
 
 
@@ -38,9 +39,13 @@ void UQuitManagement::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 void UQuitManagement::CheckQuitConditions()
 {
+	UE_LOG(LogTemp, Error, TEXT(" Number of availible fire sockets: %i"), Cast<AEncounter>(GetOwner())->CurrentLocation->AvailableSocketCampFire.Num())
 	auto PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
-	auto Backpack = PlayerController->pSelectedCharacter->Backpack;
-
+	auto CurrentlySelectedCharacter = PlayerController->pSelectedCharacter;
+	TArray<AItemTemplate*> Backpack = { nullptr };
+	if (CurrentlySelectedCharacter) {
+		 Backpack = CurrentlySelectedCharacter->Backpack;
+	}
 	switch (QuitType[0])
 	{
 	case EQuitType::TooManyCharacters:
@@ -61,7 +66,7 @@ void UQuitManagement::CheckQuitConditions()
 		break;
 
 	case EQuitType::Items:
-
+		if (!Backpack[0]) { return; }
 		for (int32 i = (Backpack.Num() - 1); i >= 0; i--)
 		{
 			if (Backpack[i])
@@ -106,7 +111,16 @@ void UQuitManagement::CheckQuitConditions()
 		}
 		break;
 
+	case EQuitType::Fire:
+
+		if ((Cast<AEncounter>(GetOwner()))->CurrentLocation->AvailableSocketCampFire.Num()<1)
+		{
+			OwnerQuits();
+		}
+		break;
+
 	default:
+
 		break;
 	}
 }

@@ -66,7 +66,7 @@ void AInteractiveLocationDecoration::Tick(float DeltaTime)
 
 }
 
-void AInteractiveLocationDecoration::Deactivate_InteractiveLocationDecoration()
+void AInteractiveLocationDecoration::ChangeState_InteractiveLocationDecoration()
 {
 	if (InteractiveLocationDecoration_SpriteComponent_1->GetSprite())
 	{
@@ -78,4 +78,9 @@ void AInteractiveLocationDecoration::Deactivate_InteractiveLocationDecoration()
 		InteractiveLocationDecoration_SpriteComponent_0->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 	return;
+}
+
+void AInteractiveLocationDecoration::Diactivate_InteractiveLocationDecoration()
+{
+	InteractiveLocationDecoration_SpriteComponent_0->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
