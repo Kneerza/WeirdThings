@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "Action.h"
 #include "InteractiveLocationDecoration.h"
+#include "WeirdThingsPlayerController.h"
 #include "LocationTemplate.h"
 #include "Runtime/CoreUObject/Public/UObject/ConstructorHelpers.h"
 #include "Runtime/Engine/Classes/Components/StaticMeshComponent.h"
@@ -171,6 +172,7 @@ void AAction::ConstructActionLocks()
 
 void AAction::ConstructModifierVisual()
 {
+	// TODO Collapse component registration and transform setting into function
 	if (Modifier == 1) { return; }
 		ModifierVisual = NewObject<UPaperFlipbookComponent>(this, ("Modifier"));
 		ModifierVisual->RegisterComponent();
@@ -199,7 +201,7 @@ void AAction::ConstructModifierVisual()
 		}
 
 		FTransform TransformModifierVisual = ActionFlipBookComponent->GetComponentTransform();
-		TransformModifierVisual.SetLocation(TransformModifierVisual.GetLocation()+ (FVector(-5.f, 80.f, -80.f)));
+		TransformModifierVisual.SetLocation(TransformModifierVisual.GetLocation()+ (FVector(-5.f, 80.f, -80.f))); // TODO get rid of magic number
 
 		ModifierVisual->SetRelativeTransform(TransformModifierVisual);
 	
@@ -230,19 +232,75 @@ void AAction::Unlock()
 
 void AAction::Deactivate()
 {
-	// --- Changing color on deactivated Action ---
-	ActionFlipBookComponent->SetSpriteColor(FLinearColor(0.03f, 0.03f, 0.03f, 1));
-	if (pActionForcedComponent) {
-		pActionForcedComponent->SetSpriteColor(FLinearColor(0.03f, 0.03f, 0.03f, 1));
-	}
+	// --- Deactivating arrow actions ---
 
-	// --- Disabling Collision on deactivated Action ---
-	ActionFlipBookComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	CollisionSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	if (EntangledInteractiveLocationDecoration) {
-		EntangledInteractiveLocationDecoration->InteractiveLocationDecoration_SpriteComponent_0->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	}
+	if ((IsWorkedOut)&&((ActionType == EActionType::Arrow_Move)||(ActionType == EActionType::ArrowRight_Bad) || (ActionType == EActionType::ArrowRight_Good) || (ActionType == EActionType::ArrowRight_Ugly) || (ActionType == EActionType::ArrowUp_Plot)))
+	{
+		// TODO Collapse component registration and transform setting into function
 
+		UE_LOG(LogTemp, Warning, TEXT("Arrow is deactivated"))
+
+			UpdatedArrowVisual = NewObject<UPaperFlipbookComponent>(this, ("UpdatedArrowVisual"));
+		UpdatedArrowVisual->RegisterComponent();
+		UpdatedArrowVisual->SetFlipbook(LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Flipbooks/Footprints_Flipbook.Footprints_Flipbook'"))));
+
+		FTransform TransformUpdatedArrowVisual = ActionFlipBookComponent->GetComponentTransform();
+		TransformUpdatedArrowVisual.SetLocation(TransformUpdatedArrowVisual.GetLocation() + (FVector(-5.f, 0.f, 0.f))); // TODO get rid of magic number
+		UpdatedArrowVisual->SetRelativeTransform(TransformUpdatedArrowVisual);
+
+		if (EntangledInteractiveLocationDecoration) {
+			EntangledInteractiveLocationDecoration->InteractiveLocationDecoration_SpriteComponent_0->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		}
+
+		auto ParentLocation = Cast<ALocationTemplate>(GetParentActor());
+		auto ParentLocationHorizontalIndex = ParentLocation->HorizontalIndex;
+		auto ParentLocationVerticalIndex = ParentLocation->VerticalIndex;
+
+		auto PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
+		auto LocationsInPlay = PlayerController->AllLocationsInPlay;
+
+		if (ActionType == EActionType::ArrowUp_Plot) {
+			for (int32 i = 0; i < LocationsInPlay.Num(); i++)
+			{
+				if (((LocationsInPlay[i]->VerticalIndex - ParentLocationVerticalIndex) == 1) && (ParentLocationHorizontalIndex == LocationsInPlay[i]->HorizontalIndex))
+				{
+					LocationArrowPointsTo = LocationsInPlay[i];
+					UE_LOG(LogTemp, Warning, TEXT("Arrow points to: %s"), *LocationArrowPointsTo->GetName())
+						ActionType = EActionType::Arrow_Move;
+					ActionPointsRequired = 0;
+					break;
+				}
+			}
+		}
+		else {
+			for (int32 i = 0; i < LocationsInPlay.Num(); i++)
+			{
+				if (((LocationsInPlay[i]->HorizontalIndex - ParentLocationHorizontalIndex) == 1) && (ParentLocationVerticalIndex == LocationsInPlay[i]->VerticalIndex))
+				{
+					LocationArrowPointsTo = LocationsInPlay[i];
+					UE_LOG(LogTemp, Warning, TEXT("Arrow points to: %s"), *LocationArrowPointsTo->GetName())
+						ActionType = EActionType::Arrow_Move;
+					ActionPointsRequired = 0;
+					break;
+				}
+			}
+		}
+	}
+	else {
+		// --- Changing color on deactivated Action ---
+		ActionFlipBookComponent->SetSpriteColor(FLinearColor(0.03f, 0.03f, 0.03f, 1));
+		if (pActionForcedComponent) {
+			pActionForcedComponent->SetSpriteColor(FLinearColor(0.03f, 0.03f, 0.03f, 1));
+		}
+
+		// --- Disabling Collision on deactivated Action ---
+		ActionFlipBookComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		CollisionSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		if (EntangledInteractiveLocationDecoration) {
+			EntangledInteractiveLocationDecoration->InteractiveLocationDecoration_SpriteComponent_0->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		}
+	}
+	
 	// --- Changing color of connector and activating ChildAction (if there are any) 
 	if (Child && pConnector)
 	{

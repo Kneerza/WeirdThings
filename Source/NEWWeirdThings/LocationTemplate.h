@@ -155,6 +155,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void IncludeInAvailableDynamicActionSocket(UPrimitiveComponent* ComponentToInclude);
 
+	//UFUNCTION(BlueprintCallable, Category = "Custom")
+	//	void TreatAsSameAction(TArray<AAction*> SameActions);
 
 protected:
 	// Called when the game starts or when spawned

@@ -104,30 +104,6 @@ void AWeirdThingsPlayerController::RightClickEvents()
 		else if (ClickedActorClassName == "Action")
 		{
 			ClickedActionHandle(Cast <AAction>(pClickedActor));
-
-			/*
-			AAction* CurrentAction = Cast <AAction>(pClickedActor);
-
-			if (pSelectedCharacter->ActionPoints < 1)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Not enough AP"))
-					return;
-			}
-
-			CurrentAction->GetTypeOfLock();
-
-			if ((CurrentAction->ActionLockType[CurrentAction->CurrentLockTypeIndex])==EActionLockType::No_Need)
-			{
-				if (PerformAction(CurrentAction)) {
-					pSelectedCharacter->ActionPoints--;
-					CurrentAction->Deactivate();
-				}
-			}
-			else {
-				CurrentAction->GetTypeOfLock();
-				TryToUnlock(CurrentAction);
-			}
-			*/
 		}
 		else if (ClickedActorClassName == "Encounter_Bad")
 		{
@@ -177,7 +153,8 @@ void AWeirdThingsPlayerController::ClickedArrowTemplateHandle(AArrowTemplate* Cl
 
 void AWeirdThingsPlayerController::ClickedActionHandle(AAction* CurrentAction)
 {
-	if (pSelectedCharacter->ActionPoints < 1)
+	auto ActionPointsRequired = CurrentAction->ActionPointsRequired;
+	if (pSelectedCharacter->ActionPoints < ActionPointsRequired)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Not enough AP"))
 			return;
@@ -188,7 +165,8 @@ void AWeirdThingsPlayerController::ClickedActionHandle(AAction* CurrentAction)
 	if ((CurrentAction->ActionLockType[CurrentAction->CurrentLockTypeIndex]) == EActionLockType::No_Need)
 	{
 		if (PerformAction(CurrentAction, CurrentAction->Modifier)) {
-			pSelectedCharacter->ActionPoints--;
+			pSelectedCharacter->ActionPoints -= ActionPointsRequired;
+			CurrentAction->IsWorkedOut = true;
 			CurrentAction->Deactivate();
 			if (!(CurrentAction->EntangledInteractiveLocationDecoration)) {
 				UE_LOG(LogTemp, Error, TEXT("No EntangledILP for this action"))
@@ -849,6 +827,13 @@ bool AWeirdThingsPlayerController::PerformAction(AAction* Action, int32 Modifier
 	case EActionType::ArrowUp_Plot:
 
 		SpawnLocation(Action, false, true);
+
+		return true;
+		break;
+
+	case EActionType::Arrow_Move:
+
+		MoveCharacter(pSelectedCharacter, Action->LocationArrowPointsTo);
 
 		return true;
 		break;

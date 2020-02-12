@@ -336,3 +336,4 @@ void ALocationTemplate::IncludeInAvailableDynamicActionSocket(UPrimitiveComponen
 {
 	AvailableSocketDynamicAction.Emplace(Cast<UStaticMeshComponent>(ComponentToInclude));
 }
+

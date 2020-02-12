@@ -24,6 +24,7 @@ enum class EActionType : uint8
 	ArrowRight_Bad,
 	ArrowRight_Ugly,
 	ArrowUp_Plot,
+	Arrow_Move,
 	Relief,
 	Fishing,
 	Hide,
@@ -50,6 +51,7 @@ class USphereComponent;
 class UPaperFlipbook;
 class UPaperFlipbookComponent;
 class AInteractiveLocationDecoration;
+class ALocationTemplate;
 
 UCLASS()
 class NEWWEIRDTHINGS_API AAction : public AActor
@@ -64,8 +66,13 @@ public:
 	UPROPERTY(EditAnywhere, Category = Setup)
 		bool IsForced = false; // Is action happens on it's own or should be activated 
 
+	bool IsWorkedOut = false;
+
 	UPROPERTY(EditAnywhere, Category = Setup)
 		int32 Modifier = 1;
+
+	UPROPERTY(EditAnywhere, Category = Setup)
+		int32 ActionPointsRequired = 1;
 
 	UPROPERTY(EditAnywhere, Category = Setup)
 		EActionType ActionType = EActionType::Get_Item_C; // Type of event happening when activated
@@ -78,6 +85,9 @@ public:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Mesh)
 		UPaperFlipbookComponent* ModifierVisual;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Mesh)
+		UPaperFlipbookComponent* UpdatedArrowVisual;
 
 
 	// --- Locks for Action ---
@@ -106,6 +116,7 @@ public:
 	AAction* Child = nullptr;
 	UPaperFlipbookComponent* pActionForcedComponent;
 	AInteractiveLocationDecoration* EntangledInteractiveLocationDecoration = nullptr;
+	ALocationTemplate* LocationArrowPointsTo = nullptr;
 
 
 	// --- Lock handling functions ---
