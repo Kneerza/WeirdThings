@@ -258,7 +258,7 @@ void ALocationTemplate::IncludeInAvailableEncounterSockets(UPrimitiveComponent* 
 	AvailableSocketEncounter.Emplace(Cast<UStaticMeshComponent>(ComponentToInclude));
 }
 
-void ALocationTemplate::Connect(UChildActorComponent* Parent, UPaperFlipbookComponent* Connector_0, UChildActorComponent* Child_0, UPaperFlipbookComponent* Connector_1, UChildActorComponent* Child_1, UPaperFlipbookComponent* Connector_2, UChildActorComponent* Child_2, UPaperFlipbookComponent* Connector_3, UChildActorComponent* Child_3, UPaperFlipbookComponent* Connector_4, UChildActorComponent* Child_4)
+void ALocationTemplate::Connect(bool IsInfinite, UChildActorComponent* Parent, UPaperFlipbookComponent* Connector_0, UChildActorComponent* Child_0, UPaperFlipbookComponent* Connector_1, UChildActorComponent* Child_1, UPaperFlipbookComponent* Connector_2, UChildActorComponent* Child_2, UPaperFlipbookComponent* Connector_3, UChildActorComponent* Child_3, UPaperFlipbookComponent* Connector_4, UChildActorComponent* Child_4)
 {
 	auto ParentAction = Cast<AAction>(Parent->GetChildActor());
 	AAction* Action_Child_0 = nullptr;
@@ -287,11 +287,19 @@ void ALocationTemplate::Connect(UChildActorComponent* Parent, UPaperFlipbookComp
 		Action_Child_0->pConnector = Connector_1;
 		Action_Child_1->Deactivate();
 	}
+	else if(IsInfinite){
+		Action_Child_0->FirstActionInChain = ParentAction;
+		return;
+	}
 
 	if (Action_Child_2) {
 		Action_Child_1->Child = Action_Child_2;
 		Action_Child_1->pConnector = Connector_2;
 		Action_Child_2->Deactivate(); 
+	}
+	else if (IsInfinite) {
+		Action_Child_1->FirstActionInChain = ParentAction;
+		return;
 	}
 
 	if (Action_Child_3) {
@@ -299,11 +307,22 @@ void ALocationTemplate::Connect(UChildActorComponent* Parent, UPaperFlipbookComp
 		Action_Child_2->pConnector = Connector_3;
 		Action_Child_3->Deactivate();
 	}
+	else if (IsInfinite) {
+		Action_Child_2->FirstActionInChain = ParentAction;
+		return;
+	}
 
 	if (Action_Child_4) {
 		Action_Child_3->Child = Action_Child_4;
 		Action_Child_3->pConnector = Connector_4;
+		if (IsInfinite) {
+			Action_Child_4->FirstActionInChain = ParentAction;
+		}
 		Action_Child_4->Deactivate();
+	}
+	else if (IsInfinite) {
+		Action_Child_3->FirstActionInChain = ParentAction;
+		return;
 	}
 
 }

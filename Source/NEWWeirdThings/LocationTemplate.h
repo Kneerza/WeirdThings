@@ -141,7 +141,7 @@ public:
 		void IncludeInAvailableEncounterSockets(UPrimitiveComponent* ComponentToInclude);
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
-		void Connect(UChildActorComponent* Parent, UPaperFlipbookComponent* Connector_0, UChildActorComponent* Child_0, UPaperFlipbookComponent* Connector_1, UChildActorComponent* Child_1, UPaperFlipbookComponent* Connector_2, UChildActorComponent* Child_2, UPaperFlipbookComponent* Connector_3, UChildActorComponent* Child_3, UPaperFlipbookComponent* Connector_4, UChildActorComponent* Child_4);
+		void Connect(bool IsInfinite, UChildActorComponent* Parent, UPaperFlipbookComponent* Connector_0, UChildActorComponent* Child_0, UPaperFlipbookComponent* Connector_1, UChildActorComponent* Child_1, UPaperFlipbookComponent* Connector_2, UChildActorComponent* Child_2, UPaperFlipbookComponent* Connector_3, UChildActorComponent* Child_3, UPaperFlipbookComponent* Connector_4, UChildActorComponent* Child_4);
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void ExcludeFromAvailableCampFireSocket(UPrimitiveComponent* ComponentToExclude);

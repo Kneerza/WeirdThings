@@ -66,6 +66,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = Setup)
 		bool IsForced = false; // Is action happens on it's own or should be activated 
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Custom)
 	bool IsWorkedOut = false;
 
 	UPROPERTY(EditAnywhere, Category = Setup)
@@ -113,6 +114,7 @@ public:
 
 	// --- Pointers ----
 	UPaperFlipbookComponent* pConnector;
+	AAction* FirstActionInChain = nullptr;
 	AAction* Child = nullptr;
 	UPaperFlipbookComponent* pActionForcedComponent;
 	AInteractiveLocationDecoration* EntangledInteractiveLocationDecoration = nullptr;
@@ -130,6 +132,9 @@ public:
 	void Deactivate();
 	void Activate();
 	void ForcedActionHandling();
+
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+	void UpdateArrowActionVisual();
 
 
 protected:

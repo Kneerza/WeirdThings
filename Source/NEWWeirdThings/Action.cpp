@@ -234,59 +234,11 @@ void AAction::Deactivate()
 {
 	// --- Deactivating arrow actions ---
 
-	if ((IsWorkedOut)&&((ActionType == EActionType::Arrow_Move)||(ActionType == EActionType::ArrowRight_Bad) || (ActionType == EActionType::ArrowRight_Good) || (ActionType == EActionType::ArrowRight_Ugly) || (ActionType == EActionType::ArrowUp_Plot)))
+	if ((IsWorkedOut)&&((ActionType == EActionType::ArrowRight_Bad) || (ActionType == EActionType::ArrowRight_Good) || (ActionType == EActionType::ArrowRight_Ugly) || (ActionType == EActionType::ArrowUp_Plot)))
 	{
-		// TODO Collapse component registration and transform setting into function
-
-		UE_LOG(LogTemp, Warning, TEXT("Arrow is deactivated"))
-
-			UpdatedArrowVisual = NewObject<UPaperFlipbookComponent>(this, ("UpdatedArrowVisual"));
-		UpdatedArrowVisual->RegisterComponent();
-		UpdatedArrowVisual->SetFlipbook(LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Flipbooks/Footprints_Flipbook.Footprints_Flipbook'"))));
-
-		FTransform TransformUpdatedArrowVisual = ActionFlipBookComponent->GetComponentTransform();
-		TransformUpdatedArrowVisual.SetLocation(TransformUpdatedArrowVisual.GetLocation() + (FVector(-5.f, 0.f, 0.f))); // TODO get rid of magic number
-		UpdatedArrowVisual->SetRelativeTransform(TransformUpdatedArrowVisual);
-
-		if (EntangledInteractiveLocationDecoration) {
-			EntangledInteractiveLocationDecoration->InteractiveLocationDecoration_SpriteComponent_0->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		}
-
-		auto ParentLocation = Cast<ALocationTemplate>(GetParentActor());
-		auto ParentLocationHorizontalIndex = ParentLocation->HorizontalIndex;
-		auto ParentLocationVerticalIndex = ParentLocation->VerticalIndex;
-
-		auto PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
-		auto LocationsInPlay = PlayerController->AllLocationsInPlay;
-
-		if (ActionType == EActionType::ArrowUp_Plot) {
-			for (int32 i = 0; i < LocationsInPlay.Num(); i++)
-			{
-				if (((LocationsInPlay[i]->VerticalIndex - ParentLocationVerticalIndex) == 1) && (ParentLocationHorizontalIndex == LocationsInPlay[i]->HorizontalIndex))
-				{
-					LocationArrowPointsTo = LocationsInPlay[i];
-					UE_LOG(LogTemp, Warning, TEXT("Arrow points to: %s"), *LocationArrowPointsTo->GetName())
-						ActionType = EActionType::Arrow_Move;
-					ActionPointsRequired = 0;
-					break;
-				}
-			}
-		}
-		else {
-			for (int32 i = 0; i < LocationsInPlay.Num(); i++)
-			{
-				if (((LocationsInPlay[i]->HorizontalIndex - ParentLocationHorizontalIndex) == 1) && (ParentLocationVerticalIndex == LocationsInPlay[i]->VerticalIndex))
-				{
-					LocationArrowPointsTo = LocationsInPlay[i];
-					UE_LOG(LogTemp, Warning, TEXT("Arrow points to: %s"), *LocationArrowPointsTo->GetName())
-						ActionType = EActionType::Arrow_Move;
-					ActionPointsRequired = 0;
-					break;
-				}
-			}
-		}
+		UpdateArrowActionVisual();
 	}
-	else {
+	if (!((ActionType == EActionType::Arrow_Move) && (!FirstActionInChain))){
 		// --- Changing color on deactivated Action ---
 		ActionFlipBookComponent->SetSpriteColor(FLinearColor(0.03f, 0.03f, 0.03f, 1));
 		if (pActionForcedComponent) {
@@ -307,6 +259,11 @@ void AAction::Deactivate()
 		pConnector->SetSpriteColor(FLinearColor(0.03f, 0.03f, 0.03f, 1));
 		Child->Activate();
 	}
+
+	if (FirstActionInChain)
+	{
+		FirstActionInChain->Activate();
+	}
 }
 
 void AAction::Activate()
@@ -319,6 +276,11 @@ void AAction::Activate()
 	CollisionSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	if (EntangledInteractiveLocationDecoration) {
 		EntangledInteractiveLocationDecoration->InteractiveLocationDecoration_SpriteComponent_0->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	}
+
+	if (Child && pConnector)
+	{
+		pConnector->SetSpriteColor(FLinearColor(1.f, 1.f, 1.f, 1));
 	}
 }
 
@@ -337,5 +299,54 @@ void AAction::ForcedActionHandling()
 		pActionForcedComponent->SetRelativeTransform(ForcedActionTransform);
 
 		Cast<ALocationTemplate>(GetParentActor())->ForcedAction = this;
+	}
+}
+
+void AAction::UpdateArrowActionVisual()
+{
+	UpdatedArrowVisual = NewObject<UPaperFlipbookComponent>(this, ("UpdatedArrowVisual"));
+	UpdatedArrowVisual->RegisterComponent();
+	UpdatedArrowVisual->SetFlipbook(LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Flipbooks/Footprints_Flipbook.Footprints_Flipbook'"))));
+
+	FTransform TransformUpdatedArrowVisual = ActionFlipBookComponent->GetComponentTransform();
+	TransformUpdatedArrowVisual.SetLocation(TransformUpdatedArrowVisual.GetLocation() + (FVector(-5.f, 0.f, 0.f))); // TODO get rid of magic number
+	UpdatedArrowVisual->SetRelativeTransform(TransformUpdatedArrowVisual);
+
+	if (EntangledInteractiveLocationDecoration) {
+		EntangledInteractiveLocationDecoration->InteractiveLocationDecoration_SpriteComponent_0->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+
+	auto ParentLocation = Cast<ALocationTemplate>(GetParentActor());
+	auto ParentLocationHorizontalIndex = ParentLocation->HorizontalIndex;
+	auto ParentLocationVerticalIndex = ParentLocation->VerticalIndex;
+
+	auto PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
+	auto LocationsInPlay = PlayerController->AllLocationsInPlay;
+
+	if (ActionType == EActionType::ArrowUp_Plot) {
+		for (int32 i = 0; i < LocationsInPlay.Num(); i++)
+		{
+			if (((LocationsInPlay[i]->VerticalIndex - ParentLocationVerticalIndex) == 1) && (ParentLocationHorizontalIndex == LocationsInPlay[i]->HorizontalIndex))
+			{
+				LocationArrowPointsTo = LocationsInPlay[i];
+				UE_LOG(LogTemp, Warning, TEXT("Arrow points to: %s"), *LocationArrowPointsTo->GetName())
+					ActionType = EActionType::Arrow_Move;
+				ActionPointsRequired = 0;
+				break;
+			}
+		}
+	}
+	else {
+		for (int32 i = 0; i < LocationsInPlay.Num(); i++)
+		{
+			if (((LocationsInPlay[i]->HorizontalIndex - ParentLocationHorizontalIndex) == 1) && (ParentLocationVerticalIndex == LocationsInPlay[i]->VerticalIndex))
+			{
+				LocationArrowPointsTo = LocationsInPlay[i];
+				UE_LOG(LogTemp, Warning, TEXT("Arrow points to: %s"), *LocationArrowPointsTo->GetName())
+					ActionType = EActionType::Arrow_Move;
+				ActionPointsRequired = 0;
+				break;
+			}
+		}
 	}
 }
