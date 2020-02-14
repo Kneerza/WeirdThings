@@ -66,8 +66,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = Setup)
 		bool IsForced = false; // Is action happens on it's own or should be activated 
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Custom)
-	bool IsWorkedOut = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+		bool IsWorkedOut = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+		bool IsInfinite = false;
 
 	UPROPERTY(EditAnywhere, Category = Setup)
 		int32 Modifier = 1;
@@ -94,6 +97,8 @@ public:
 	// --- Locks for Action ---
 	UPROPERTY(EditAnywhere, Category = Setup)
 		TArray<EActionLockType> ActionLockType;
+
+		TArray<EActionLockType> StartingActionLockType;
 
 	UPaperFlipbook* pLockFood;
 	UPaperFlipbook* pLockWood;

@@ -86,6 +86,10 @@ void AAction::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (IsInfinite) {
+		StartingActionLockType = ActionLockType;
+	}
+
 	ConstructActionLocks();
 	ConstructModifierVisual();
 	ForcedActionHandling();
@@ -238,7 +242,8 @@ void AAction::Deactivate()
 	{
 		UpdateArrowActionVisual();
 	}
-	if (!((ActionType == EActionType::Arrow_Move) && (!FirstActionInChain))){
+	if (IsInfinite){}
+	else if (!((ActionType == EActionType::Arrow_Move) && (!FirstActionInChain))){
 		// --- Changing color on deactivated Action ---
 		ActionFlipBookComponent->SetSpriteColor(FLinearColor(0.03f, 0.03f, 0.03f, 1));
 		if (pActionForcedComponent) {
@@ -263,6 +268,11 @@ void AAction::Deactivate()
 	if (FirstActionInChain)
 	{
 		FirstActionInChain->Activate();
+	}
+	else if (IsInfinite)
+	{
+		ActionLockType = StartingActionLockType;
+		ConstructActionLocks();
 	}
 }
 
