@@ -43,6 +43,9 @@ public:
 	float SocketLocationsStepBetweenColumns = 430.f;
 	float SocketLocationsStepBetweenRow = -300.f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+		bool IsRestricting = false;
+
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void EntangleActionWithActor(UChildActorComponent* Action, UChildActorComponent* InteractiveLocationDecoration);
 

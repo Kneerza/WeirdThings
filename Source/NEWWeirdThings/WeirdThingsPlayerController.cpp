@@ -98,8 +98,11 @@ void AWeirdThingsPlayerController::RightClickEvents()
 		}
 		else if (ClickedActorClassName == "LocationTemplate")
 		{
-
-			MoveCharacter(pSelectedCharacter, Cast<ALocationTemplate>(pClickedActor));
+			auto ClickedLocation = Cast<ALocationTemplate>(pClickedActor);
+			if (!(pSelectedCharacter->CurrentLocation->IsRestricting && ((ClickedLocation->VerticalIndex - pSelectedCharacter->CurrentLocation->VerticalIndex) == 1)))
+			{
+				MoveCharacter(pSelectedCharacter, ClickedLocation);
+			}
 		}
 		else if (ClickedActorClassName == "Action")
 		{
