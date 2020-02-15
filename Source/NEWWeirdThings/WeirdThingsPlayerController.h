@@ -126,7 +126,7 @@ public:
 	void MoveCharacter(AWTPlayerCharacter* CharacterToMove, ALocationTemplate* LocationToMoveTo);
 
 	void SpawnEnemy(AAction* ActionInstigator);
-	void SpawnLocation(AAction* Action, bool IsSpawningOnRight, bool IsPlotLocation);
+	ALocationTemplate* SpawnLocation(AAction* Action, bool IsSpawningOnRight, bool IsPlotLocation);
 	void SpawnGoodEnc(AAction* ActionInstigator);
 
 	void ClickedArrowTemplateHandle(AArrowTemplate* ClickedArrow);
@@ -191,7 +191,7 @@ public:
 	FVector OnLocationOffset = FVector(-400.f, -400.f, -10.f);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
-		float CharacterMovementLimit = 5000.f;
+		float CharacterMovementLimit = 3000.f;
 
 	bool CharacterIsSelected = false;
 

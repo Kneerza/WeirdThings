@@ -98,7 +98,9 @@ void AWeirdThingsPlayerController::RightClickEvents()
 		}
 		else if (ClickedActorClassName == "LocationTemplate")
 		{
+			// TODO collapse all ifs to function
 			auto ClickedLocation = Cast<ALocationTemplate>(pClickedActor);
+			if (pSelectedCharacter->CurrentLocation == ClickedLocation) { return; }
 			if (!(pSelectedCharacter->CurrentLocation->IsRestricting && ((ClickedLocation->VerticalIndex - pSelectedCharacter->CurrentLocation->VerticalIndex) == 1)))
 			{
 				MoveCharacter(pSelectedCharacter, ClickedLocation);
@@ -156,6 +158,8 @@ void AWeirdThingsPlayerController::ClickedArrowTemplateHandle(AArrowTemplate* Cl
 
 void AWeirdThingsPlayerController::ClickedActionHandle(AAction* CurrentAction)
 {
+	if (pSelectedCharacter->CurrentLocation != CurrentAction->GetParentActor()) { return; }
+
 	auto ActionPointsRequired = CurrentAction->ActionPointsRequired;
 	if (pSelectedCharacter->ActionPoints < ActionPointsRequired)
 	{
@@ -249,8 +253,14 @@ void AWeirdThingsPlayerController::MoveCharacter(AWTPlayerCharacter* CharacterTo
 {
 	if (CharacterToMove->MovementPoints < 1) { return; }
 
+	auto LocationOfLocationTemplate = LocationToMoveTo->GetActorLocation();
+	auto LocationOfCharacter = CharacterToMove->CurrentLocation->GetActorLocation();
+
 	// Check if another location is too far 
-	if (abs(abs(LocationToMoveTo->GetActorLocation().Y) - abs(CharacterToMove->GetActorLocation().Y)) > CharacterMovementLimit) { return; }
+	if (abs(abs(LocationOfLocationTemplate.Y) - abs(LocationOfCharacter.Y)) > CharacterMovementLimit) { return; }
+	if (abs(abs(LocationOfLocationTemplate.Z) - abs(LocationOfCharacter.Z)) > CharacterMovementLimit) { return; }
+	if ((LocationOfLocationTemplate.Z != LocationOfCharacter.Z) && (LocationOfLocationTemplate.Y != LocationOfCharacter.Y)) { return; }
+
 	CharacterToMove->SetActorLocation(LocationToMoveTo->AvailableSocketPlayer[0]->GetComponentLocation());
 
 	CharacterToMove->CurrentLocation = LocationToMoveTo;
@@ -623,7 +633,7 @@ void AWeirdThingsPlayerController::SpawnEnemy(AAction* ActionInstigator)
 	}
 }
 
-void AWeirdThingsPlayerController::SpawnLocation(AAction* Action, bool IsSpawningOnRight, bool IsPlotLocation)
+ALocationTemplate* AWeirdThingsPlayerController::SpawnLocation(AAction* Action, bool IsSpawningOnRight, bool IsPlotLocation)
 {
 
 	// TODO IsSpawningOnRight and IsPlotLocation can be collapsed in one variable
@@ -656,18 +666,22 @@ void AWeirdThingsPlayerController::SpawnLocation(AAction* Action, bool IsSpawnin
 			}
 			SpawnedLocationTransform.SetRotation(ParentlLocationTransform.GetRotation());
 
-			if ((SpawnedLocationTransform.GetLocation().Y > LocationsRowLimit)) { return; }
-			GetWorld()->SpawnActor<ALocationTemplate>(LocationClass, SpawnedLocationTransform, SpawningLocationParameters);
+			if ((SpawnedLocationTransform.GetLocation().Y > LocationsRowLimit)) { return nullptr; }
+
+
+			return GetWorld()->SpawnActor<ALocationTemplate>(LocationClass, SpawnedLocationTransform, SpawningLocationParameters);
 
 		}
-		else { UE_LOG(LogTemp, Warning, TEXT("No ParentActor")) }
+		else {
+			UE_LOG(LogTemp, Warning, TEXT("No ParentActor"))
+				return nullptr;
+		}
 
 	}
 	else {
 		UE_LOG(LogTemp, Warning, TEXT("No Available Locations"))
+			return nullptr;
 	}
-
-
 
 }
 
@@ -808,28 +822,28 @@ bool AWeirdThingsPlayerController::PerformAction(AAction* Action, int32 Modifier
 
 	case EActionType::ArrowRight_Good:
 
-		SpawnLocation(Action, true, false);
+		MoveCharacter(pSelectedCharacter, SpawnLocation(Action, true, false));
 
 		return true;
 		break;
 
 	case EActionType::ArrowRight_Bad:
 
-		SpawnLocation(Action, true, false);
+		MoveCharacter(pSelectedCharacter, SpawnLocation(Action, true, false));
 
 		return true;
 		break;
 
 	case EActionType::ArrowRight_Ugly:
 
-		SpawnLocation(Action, true, false);
+		MoveCharacter(pSelectedCharacter, SpawnLocation(Action, true, false));
 
 		return true;
 		break;
 
 	case EActionType::ArrowUp_Plot:
 
-		SpawnLocation(Action, false, true);
+		MoveCharacter(pSelectedCharacter, SpawnLocation(Action, false, true));
 
 		return true;
 		break;
