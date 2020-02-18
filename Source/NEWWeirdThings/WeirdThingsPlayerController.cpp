@@ -794,10 +794,19 @@ bool AWeirdThingsPlayerController::PerformAction(AAction* Action, int32 Modifier
 		break;
 
 	case EActionType::Burn:
-
+		
 		if (pSelectedCharacter->Wood > 0) {
 			ConsumeWood(1, pSelectedCharacter);
-			if (Action->GetParentActor()->GetClass()->GetSuperClass()->GetName() == "Encounter_Dead") {
+			if (Action->EntangledDeadEncounter)
+			{
+				FTransform EffectTransform;
+				EffectTransform.SetLocation(Action->EntangledDeadEncounter->GetActorLocation());
+				Action->EntangledDeadEncounter->Destroy();
+				if (BurningEffectClass) {
+
+					GetWorld()->SpawnActor<AActor>(BurningEffectClass, EffectTransform);
+				}
+			}else if (Action->GetParentActor()->GetClass()->GetSuperClass()->GetName() == "Encounter_Dead") {
 				FTransform EffectTransform;
 				EffectTransform.SetLocation(Action->GetParentActor()->GetActorLocation());
 				Action->GetParentActor()->Destroy();

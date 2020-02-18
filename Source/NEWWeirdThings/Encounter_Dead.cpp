@@ -73,7 +73,9 @@ void AEncounter_Dead::BeginPlay()
 	PlayerController = (Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController()));
 	PlayerController->Encounter_DeadsInPlay.Add(this);
 
-	if (GetParentActor()){ CurrentLocation = Cast<ALocationTemplate>(GetParentActor()); }
+	if (GetParentActor()){ 
+		UE_LOG(LogTemp, Warning, TEXT("Dead action is created"))
+		CurrentLocation = Cast<ALocationTemplate>(GetParentActor()); }
 
 	// TODO move to LocationTemplate as a Function, that will be called here
 	CreateAction();
@@ -116,7 +118,9 @@ void AEncounter_Dead::FindPlayerToAttack()
 
 void AEncounter_Dead::CreateAction()
 {
-	if (GetParentActor() && ActionClassToSpawn) {
+	if (IsOnPlot) { return; }
+	if (CreatedAction) { return; }
+	if (GetParentActor() && ActionClassToSpawn ) {
 		UE_LOG(LogTemp, Warning, TEXT("DEAD IS CREATING ACTION"))
 			//	CurrentLocation = Cast<ALocationTemplate>(GetParentActor());
 			CreatedAction = NewObject<UChildActorComponent>(this, ("Action_Dead"));
@@ -126,20 +130,33 @@ void AEncounter_Dead::CreateAction()
 	}
 }
 
+void AEncounter_Dead::SetAction(UChildActorComponent* ActionToSet)
+{
+	CreatedAction = ActionToSet;
+}
+
 void AEncounter_Dead::Move()
 {
+	if (!CurrentLocation) { 
+		UE_LOG(LogTemp, Warning, TEXT("CurrentLocation of Dead does not exist"))
+		return; }
 	if (CurrentLocation->HorizontalIndex > 0)
 	{
 		for (int32 i = 0; i < PlayerController->AllLocationsInPlay.Num(); i++)
 		{
+			if (!PlayerController->AllLocationsInPlay[i]) { 
+				UE_LOG(LogTemp, Warning, TEXT("Can't access AllLocationsInPlay[i]"))
+				continue; }
 			if ((CurrentLocation->VerticalIndex == PlayerController->AllLocationsInPlay[i]->VerticalIndex) && ((CurrentLocation->HorizontalIndex - PlayerController->AllLocationsInPlay[i]->HorizontalIndex) == 1))
 			{
 				CurrentLocation = PlayerController->AllLocationsInPlay[i];
 				CreatedAction->UnregisterComponent();
+				CreatedAction = nullptr;
 				DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 				AttachToActor(CurrentLocation, FAttachmentTransformRules::KeepWorldTransform);
 				SetActorLocation(CurrentLocation->AvailableSocketEncounter[0]->GetComponentLocation());
 				CreateAction();
+				FindPlayerToAttack();
 				return;
 			}
 		}

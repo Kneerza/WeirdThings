@@ -1,5 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "Action.h"
+#include "Encounter_Dead.h"
 #include "InteractiveLocationDecoration.h"
 #include "WeirdThingsPlayerController.h"
 #include "LocationTemplate.h"
@@ -101,6 +102,11 @@ void AAction::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void AAction::SetEntangledDeadEncounter(AEncounter_Dead* EntangledDeadEncounterToSet)
+{
+	EntangledDeadEncounter = EntangledDeadEncounterToSet;
 }
 
 void AAction::ConstructActionLocks()
@@ -273,6 +279,11 @@ void AAction::Deactivate()
 	{
 		ActionLockType = StartingActionLockType;
 		ConstructActionLocks();
+	}
+
+	if (ModifierVisual)
+	{
+		ModifierVisual->SetSpriteColor(FLinearColor(0.03f, 0.03f, 0.03f, 1));
 	}
 }
 

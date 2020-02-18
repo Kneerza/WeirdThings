@@ -52,6 +52,7 @@ class UPaperFlipbook;
 class UPaperFlipbookComponent;
 class AInteractiveLocationDecoration;
 class ALocationTemplate;
+class AEncounter_Dead;
 
 UCLASS()
 class NEWWEIRDTHINGS_API AAction : public AActor
@@ -93,6 +94,7 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Mesh)
 		UPaperFlipbookComponent* UpdatedArrowVisual;
 
+	AEncounter_Dead* EntangledDeadEncounter = nullptr;
 
 	// --- Locks for Action ---
 	UPROPERTY(EditAnywhere, Category = Setup)
@@ -139,8 +141,10 @@ public:
 	void ForcedActionHandling();
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
-	void UpdateArrowActionVisual();
+		void UpdateArrowActionVisual();
 
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void SetEntangledDeadEncounter(AEncounter_Dead* EntangledDeadEncounterToSet);
 
 protected:
 	// Called when the game starts or when spawned

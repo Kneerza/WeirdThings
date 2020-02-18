@@ -38,11 +38,17 @@ public:
 
 	bool IsAwake = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+		bool IsOnPlot = false;
+
 	void SetAwakened(bool IsAwakened);
 
 	void FindPlayerToAttack();
 
 	void CreateAction();
+
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void SetAction(UChildActorComponent* ActionToSet);
 
 	void Move();
 
