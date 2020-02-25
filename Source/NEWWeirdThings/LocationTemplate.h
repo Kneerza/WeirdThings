@@ -16,6 +16,7 @@ class AActor;
 class AAction;
 class UPaperFlipbookComponent;
 class AInteractiveLocationDecoration;
+class AEncounter_Dead;
 
 UCLASS()
 class NEWWEIRDTHINGS_API ALocationTemplate : public AActor
@@ -64,10 +65,10 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Mesh)
 		UStaticMeshComponent* SocketPlayer_1;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Mesh)
 		UStaticMeshComponent* SocketPlayer_2;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Mesh)
 		UStaticMeshComponent* SocketPlayer_3;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
@@ -124,6 +125,10 @@ public:
 	AActor* pArrow;
 
 	AActor* pArrowUp;
+
+	UChildActorComponent* CreatedAction;
+
+	void CreateAction(TSubclassOf<AAction> ActionClass, AEncounter_Dead* EntangledDead);
 
 	UPROPERTY(EditAnywhere, Category = Setup)
 		TSubclassOf<AArrowTemplate> ArrowBlueprint;

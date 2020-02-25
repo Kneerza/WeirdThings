@@ -124,6 +124,7 @@ public:
 	void GetCurrentLocationOfActor(AActor* Actor, ALocationTemplate* &CurrentLocation);
 
 	void MoveCharacter(AWTPlayerCharacter* CharacterToMove, ALocationTemplate* LocationToMoveTo);
+	void TeleportCharacter(AWTPlayerCharacter* CharacterToMove, ALocationTemplate* LocationToMoveTo);
 
 	void SpawnEnemy(AAction* ActionInstigator);
 	ALocationTemplate* SpawnLocation(AAction* Action, bool IsSpawningOnRight, bool IsPlotLocation);

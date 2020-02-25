@@ -44,6 +44,9 @@ public:
 		int32 ActionPoints = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int32 CurrentActionPoints = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		int32 MovementPoints = 3;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)

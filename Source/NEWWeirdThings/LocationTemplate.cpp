@@ -13,6 +13,7 @@
 #include "Runtime/Core/Public/Math/Rotator.h"
 #include "Runtime/Core/Public/Math/TransformNonVectorized.h"
 #include "Runtime/Core/Public/Math/Quat.h"
+#include "Encounter_Dead.h"
 #include "Components/SceneComponent.h"
 #include "ArrowTemplate.h"
 
@@ -356,3 +357,12 @@ void ALocationTemplate::IncludeInAvailableDynamicActionSocket(UPrimitiveComponen
 	AvailableSocketDynamicAction.Emplace(Cast<UStaticMeshComponent>(ComponentToInclude));
 }
 
+void ALocationTemplate::CreateAction(TSubclassOf<AAction> ActionClass, AEncounter_Dead* EntangledDead)
+{
+	CreatedAction = NewObject<UChildActorComponent>(this, ("Action_Dead"));
+
+	CreatedAction->RegisterComponent();
+	CreatedAction->SetChildActorClass(ActionClass);
+	CreatedAction->SetWorldLocation(AvailableSocketDynamicAction[0]->GetComponentLocation());
+	Cast<AAction>(CreatedAction->GetChildActor())->EntangledDeadEncounter = EntangledDead;
+}

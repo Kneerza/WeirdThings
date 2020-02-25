@@ -79,6 +79,10 @@ void AEncounter_Dead::BeginPlay()
 
 	// TODO move to LocationTemplate as a Function, that will be called here
 	CreateAction();
+	if ((PlayerController->CurrentTimeOfDay == ETimeOfDay::Evening) || (PlayerController->CurrentTimeOfDay == ETimeOfDay::Night))
+	{
+		SetAwakened(true);
+	}
 }
 
 void AEncounter_Dead::SetAwakened(bool IsAwakened)
@@ -123,10 +127,13 @@ void AEncounter_Dead::CreateAction()
 	if (GetParentActor() && ActionClassToSpawn ) {
 		UE_LOG(LogTemp, Warning, TEXT("DEAD IS CREATING ACTION"))
 			//	CurrentLocation = Cast<ALocationTemplate>(GetParentActor());
-			CreatedAction = NewObject<UChildActorComponent>(this, ("Action_Dead"));
-		CreatedAction->RegisterComponent();
-		CreatedAction->SetChildActorClass(ActionClassToSpawn);
-		CreatedAction->SetWorldLocation(CurrentLocation->AvailableSocketDynamicAction[0]->GetComponentLocation());
+			//CreatedAction = NewObject<UChildActorComponent>(this, ("Action_Dead"));
+
+		//CreatedAction->RegisterComponent();
+		//CreatedAction->SetChildActorClass(ActionClassToSpawn);
+		//CreatedAction->SetWorldLocation(CurrentLocation->AvailableSocketDynamicAction[0]->GetComponentLocation());
+
+			CurrentLocation->CreateAction(ActionClassToSpawn, this);
 	}
 }
 

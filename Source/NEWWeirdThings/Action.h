@@ -25,6 +25,7 @@ enum class EActionType : uint8
 	ArrowRight_Ugly,
 	ArrowUp_Plot,
 	Arrow_Move,
+	Teleport,
 	Relief,
 	Fishing,
 	Hide,
@@ -127,7 +128,6 @@ public:
 	AInteractiveLocationDecoration* EntangledInteractiveLocationDecoration = nullptr;
 	ALocationTemplate* LocationArrowPointsTo = nullptr;
 
-
 	// --- Lock handling functions ---
 	void GetTypeOfLock();
 	void ConstructActionLocks(); 
@@ -140,11 +140,15 @@ public:
 	void Activate();
 	void ForcedActionHandling();
 
+	//ALocationTemplate* LocationTeleportTo = nullptr;
+
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void UpdateArrowActionVisual();
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void SetEntangledDeadEncounter(AEncounter_Dead* EntangledDeadEncounterToSet);
+
+	void SetTeleport();
 
 protected:
 	// Called when the game starts or when spawned

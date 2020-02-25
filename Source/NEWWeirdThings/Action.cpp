@@ -244,7 +244,7 @@ void AAction::Deactivate()
 {
 	// --- Deactivating arrow actions ---
 
-	if ((IsWorkedOut)&&((ActionType == EActionType::ArrowRight_Bad) || (ActionType == EActionType::ArrowRight_Good) || (ActionType == EActionType::ArrowRight_Ugly) || (ActionType == EActionType::ArrowUp_Plot)))
+	if ((IsWorkedOut)&&((ActionType == EActionType::ArrowRight_Bad) || (ActionType == EActionType::ArrowRight_Good) || (ActionType == EActionType::ArrowRight_Ugly) || (ActionType == EActionType::ArrowUp_Plot) || (ActionType == EActionType::Teleport)))
 	{
 		UpdateArrowActionVisual();
 	}
@@ -323,6 +323,8 @@ void AAction::ForcedActionHandling()
 	}
 }
 
+
+//TODO Create derived class Action_Arrows and move this function there
 void AAction::UpdateArrowActionVisual()
 {
 	UpdatedArrowVisual = NewObject<UPaperFlipbookComponent>(this, ("UpdatedArrowVisual"));
@@ -344,6 +346,7 @@ void AAction::UpdateArrowActionVisual()
 	auto PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
 	auto LocationsInPlay = PlayerController->AllLocationsInPlay;
 
+	if (ActionType == EActionType::Arrow_Move) {return;}
 	if (ActionType == EActionType::ArrowUp_Plot) {
 		for (int32 i = 0; i < LocationsInPlay.Num(); i++)
 		{
@@ -357,7 +360,10 @@ void AAction::UpdateArrowActionVisual()
 			}
 		}
 	}
-	else {
+	else if (ActionType == EActionType::Teleport) {
+			ActionType = EActionType::Arrow_Move;
+		ActionPointsRequired = 0;
+	} else {
 		for (int32 i = 0; i < LocationsInPlay.Num(); i++)
 		{
 			if (((LocationsInPlay[i]->HorizontalIndex - ParentLocationHorizontalIndex) == 1) && (ParentLocationVerticalIndex == LocationsInPlay[i]->VerticalIndex))
@@ -368,6 +374,27 @@ void AAction::UpdateArrowActionVisual()
 				ActionPointsRequired = 0;
 				break;
 			}
+		}
+	}
+}
+
+//TODO Create derived class Action_Arrows and move this function there
+void AAction::SetTeleport()
+{
+	auto PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
+	auto Rand = FMath::RandRange(0, (PlayerController->AllLocationsInPlay.Num() - 1));
+
+	UE_LOG(LogTemp, Warning, TEXT("Random is %i"), Rand)
+
+	while (!LocationArrowPointsTo) {
+		if (PlayerController->AllLocationsInPlay[Rand] != GetParentActor())
+		{
+			LocationArrowPointsTo = PlayerController->AllLocationsInPlay[Rand];
+			UE_LOG(LogTemp, Warning, TEXT("Location to teleport: %s"),*PlayerController->AllLocationsInPlay[Rand]->GetName())
+		}
+		else {
+			Rand = FMath::RandRange(0, (PlayerController->AllLocationsInPlay.Num() - 1));
+			UE_LOG(LogTemp, Warning, TEXT("Random is %i"), Rand)
 		}
 	}
 }

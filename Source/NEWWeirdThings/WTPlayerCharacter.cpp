@@ -63,6 +63,7 @@ void AWTPlayerCharacter::BeginPlay()
 	PlayerController->PlayerCharacterRef = this;
 	PlayerController->PlayerCharacters.Emplace(this);
 
+	CurrentActionPoints = ActionPoints;
 }
 
 // Called every frame

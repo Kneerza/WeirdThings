@@ -33,6 +33,9 @@ public:
 	void ChangeState_InteractiveLocationDecoration();
 	void Diactivate_InteractiveLocationDecoration();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+		bool IsLastStateActive = false;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

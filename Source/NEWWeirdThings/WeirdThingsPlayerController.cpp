@@ -126,6 +126,7 @@ void AWeirdThingsPlayerController::RightClickEvents()
 		}
 		else if (ClickedActorClassName == "InteractiveLocationDecoration")
 		{
+			UE_LOG(LogTemp, Warning, TEXT("ILD is clicked"))
 			ClickedActionHandle(Cast<AInteractiveLocationDecoration>(pClickedActor)->EntangledAction);
 		}
 	}
@@ -161,8 +162,9 @@ void AWeirdThingsPlayerController::ClickedActionHandle(AAction* CurrentAction)
 	if (pSelectedCharacter->CurrentLocation != CurrentAction->GetParentActor()) { return; }
 
 	auto ActionPointsRequired = CurrentAction->ActionPointsRequired;
-	if (pSelectedCharacter->ActionPoints < ActionPointsRequired)
+	if (pSelectedCharacter->CurrentActionPoints < ActionPointsRequired)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("CurrentActionPoints: %i"),pSelectedCharacter->CurrentActionPoints)
 		UE_LOG(LogTemp, Warning, TEXT("Not enough AP"))
 			return;
 	}
@@ -172,7 +174,7 @@ void AWeirdThingsPlayerController::ClickedActionHandle(AAction* CurrentAction)
 	if ((CurrentAction->ActionLockType[CurrentAction->CurrentLockTypeIndex]) == EActionLockType::No_Need)
 	{
 		if (PerformAction(CurrentAction, CurrentAction->Modifier)) {
-			pSelectedCharacter->ActionPoints -= ActionPointsRequired;
+			pSelectedCharacter->CurrentActionPoints -= ActionPointsRequired;
 			CurrentAction->IsWorkedOut = true;
 			CurrentAction->Deactivate();
 			if (!(CurrentAction->EntangledInteractiveLocationDecoration)) {
@@ -253,14 +255,36 @@ void AWeirdThingsPlayerController::MoveCharacter(AWTPlayerCharacter* CharacterTo
 {
 	if (CharacterToMove->MovementPoints < 1) { return; }
 
-	auto LocationOfLocationTemplate = LocationToMoveTo->GetActorLocation();
-	auto LocationOfCharacter = CharacterToMove->CurrentLocation->GetActorLocation();
+	//auto LocationOfLocationTemplate = LocationToMoveTo->GetActorLocation();
+	auto LocationOfCharacter = CharacterToMove->CurrentLocation;
 
+	if (abs(LocationToMoveTo->HorizontalIndex - LocationOfCharacter->HorizontalIndex) > 1) { return; }
+	if ((abs(LocationToMoveTo->VerticalIndex - LocationOfCharacter->VerticalIndex) == 1) && (LocationToMoveTo->HorizontalIndex != 0)) { return; }
+	if (abs(LocationToMoveTo->VerticalIndex - LocationOfCharacter->VerticalIndex) > 1) { return; }
+	if ((LocationToMoveTo->HorizontalIndex != LocationOfCharacter->HorizontalIndex) && (LocationToMoveTo->VerticalIndex != LocationOfCharacter->VerticalIndex)) { return; }
 	// Check if another location is too far 
-	if (abs(abs(LocationOfLocationTemplate.Y) - abs(LocationOfCharacter.Y)) > CharacterMovementLimit) { return; }
-	if (abs(abs(LocationOfLocationTemplate.Z) - abs(LocationOfCharacter.Z)) > CharacterMovementLimit) { return; }
-	if ((LocationOfLocationTemplate.Z != LocationOfCharacter.Z) && (LocationOfLocationTemplate.Y != LocationOfCharacter.Y)) { return; }
+	//if (abs(abs(LocationOfLocationTemplate.Y) - abs(LocationOfCharacter.Y)) > CharacterMovementLimit) { return; }
+	//if (abs(abs(LocationOfLocationTemplate.Z) - abs(LocationOfCharacter.Z)) > CharacterMovementLimit) { return; }
+	//if ((LocationOfLocationTemplate.Z != LocationOfCharacter.Z) && (LocationOfLocationTemplate.Y != LocationOfCharacter.Y)) { return; }
 
+	CharacterToMove->SetActorLocation(LocationToMoveTo->AvailableSocketPlayer[0]->GetComponentLocation());
+
+	CharacterToMove->CurrentLocation = LocationToMoveTo;
+	if (auto ForcedAction = LocationToMoveTo->ForcedAction)
+	{
+		PerformAction(ForcedAction, ForcedAction->Modifier);
+		//ForcedAction->Deactivate();
+		if (!(ForcedAction->EntangledInteractiveLocationDecoration)) {
+			UE_LOG(LogTemp, Error, TEXT("No EntangledILP for this action"))
+				return;
+		}
+		ForcedAction->EntangledInteractiveLocationDecoration->ChangeState_InteractiveLocationDecoration();
+	}
+	CharacterToMove->MovementPoints--;
+}
+
+void AWeirdThingsPlayerController::TeleportCharacter(AWTPlayerCharacter* CharacterToMove, ALocationTemplate* LocationToMoveTo)
+{
 	CharacterToMove->SetActorLocation(LocationToMoveTo->AvailableSocketPlayer[0]->GetComponentLocation());
 
 	CharacterToMove->CurrentLocation = LocationToMoveTo;
@@ -579,11 +603,11 @@ void AWeirdThingsPlayerController::RefreshCharacterMP()
 	}
 	*/
 
-	if (!pSelectedCharacter) { return; }
-	if (pSelectedCharacter->MovementPoints <= 0) {
-		pSelectedCharacter->MovementPoints += 3;
+	for (int32 i = 0; i < PlayerCharacters.Num(); i++)
+	{
+		if (!PlayerCharacters[i]) { continue; }
+			PlayerCharacters[i]->MovementPoints = 3;
 	}
-
 	switch (CurrentTimeOfDay)
 	{
 	case ETimeOfDay::Morning:
@@ -801,12 +825,14 @@ bool AWeirdThingsPlayerController::PerformAction(AAction* Action, int32 Modifier
 			{
 				FTransform EffectTransform;
 				EffectTransform.SetLocation(Action->EntangledDeadEncounter->GetActorLocation());
+				Encounter_DeadsInPlay.RemoveSingle(Action->EntangledDeadEncounter);
 				Action->EntangledDeadEncounter->Destroy();
 				if (BurningEffectClass) {
 
 					GetWorld()->SpawnActor<AActor>(BurningEffectClass, EffectTransform);
 				}
-			}else if (Action->GetParentActor()->GetClass()->GetSuperClass()->GetName() == "Encounter_Dead") {
+			}else //if (Action->GetParentActor()->GetClass()->GetSuperClass()->GetName() == "Encounter_Dead") {
+			{
 				FTransform EffectTransform;
 				EffectTransform.SetLocation(Action->GetParentActor()->GetActorLocation());
 				Action->GetParentActor()->Destroy();
@@ -860,6 +886,15 @@ bool AWeirdThingsPlayerController::PerformAction(AAction* Action, int32 Modifier
 	case EActionType::Arrow_Move:
 
 		MoveCharacter(pSelectedCharacter, Action->LocationArrowPointsTo);
+
+		return true;
+		break;
+
+	case EActionType::Teleport:
+
+		Action->SetTeleport();
+		TeleportCharacter(pSelectedCharacter, Action->LocationArrowPointsTo);
+
 
 		return true;
 		break;
@@ -1151,7 +1186,7 @@ bool AWeirdThingsPlayerController::ConsumeFood(int32 FoodAmountToConsume, AWTPla
 {
 	if (!AffectedCharacter) { return false; }
 
-	if (AffectedCharacter->ActionPoints < 1)
+	if (AffectedCharacter->CurrentActionPoints < 1)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Not enough AP"))
 			return false;
@@ -1165,7 +1200,7 @@ bool AWeirdThingsPlayerController::ConsumeFood(int32 FoodAmountToConsume, AWTPla
 	AffectedCharacter->Food -= FoodAmountToConsume;
 	AffectedCharacter->RemoveHunger(1);
 
-	AffectedCharacter->ActionPoints--;
+	AffectedCharacter->CurrentActionPoints--;
 
 	return true;
 }
@@ -1214,7 +1249,7 @@ bool AWeirdThingsPlayerController::GetWood(int32 WoodAmountToGet)
 	//GetWorld()->SpawnActor<AActor>(CampFireClassToSpawn, PlayerCharacter->CurrentLocation->SocketCampFire->GetComponentLocation());
 	//PlayerCharacter->CurrentLocation->SocketCampFire;
 
-	if (PlayerCharacter->ActionPoints < 1)
+	if (PlayerCharacter->CurrentActionPoints < 1)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Not enough AP"))
 			return;
@@ -1245,25 +1280,25 @@ bool AWeirdThingsPlayerController::GetWood(int32 WoodAmountToGet)
 		UE_LOG(LogTemp, Warning, TEXT("No wood available"))
 	}
 
-	PlayerCharacter->ActionPoints--;
+	PlayerCharacter->CurrentActionPoints--;
 }
 
 void AWeirdThingsPlayerController::Sleep(AWTPlayerCharacter* PlayerCharacter)
 {
-	if (PlayerCharacter->ActionPoints < 1)
+	if (PlayerCharacter->CurrentActionPoints < 1)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Not enough AP"))
 			return;
 	}
 
 	PlayerCharacter->RemoveExhaustion(1);
-	PlayerCharacter->ActionPoints--;
+	PlayerCharacter->CurrentActionPoints--;
 }
 
 void AWeirdThingsPlayerController::AddActionPointToEveryCharacter()
 {
 	for (int32 i = 0; i < PlayerCharacters.Num(); i++)
 	{
-		PlayerCharacters[i]->ActionPoints++;
+		PlayerCharacters[i]->CurrentActionPoints = PlayerCharacters[i]->ActionPoints;
 	}
 }

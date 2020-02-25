@@ -77,6 +77,11 @@ void AInteractiveLocationDecoration::ChangeState_InteractiveLocationDecoration()
 		InteractiveLocationDecoration_SpriteComponent_0->SetSpriteColor(FLinearColor(0.03f, 0.03f, 0.03f, 1));
 		InteractiveLocationDecoration_SpriteComponent_0->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
+
+	if (IsLastStateActive)
+	{
+		InteractiveLocationDecoration_SpriteComponent_1->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	}
 	return;
 }
 
