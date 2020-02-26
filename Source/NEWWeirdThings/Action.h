@@ -96,6 +96,12 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Mesh)
 		UPaperFlipbookComponent* UpdatedArrowVisual;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+		TSubclassOf<AInteractiveLocationDecoration> DoorToCreateClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+		TSubclassOf<AAction> TeleportActionToCreateClass;
+
 	AEncounter_Dead* EntangledDeadEncounter = nullptr;
 
 	// --- Locks for Action ---

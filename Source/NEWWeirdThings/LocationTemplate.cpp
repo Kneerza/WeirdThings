@@ -71,6 +71,15 @@ ALocationTemplate::ALocationTemplate()
 
 	FVector Scale = FVector(0.01f, 0.3f, 1.f);
 
+	SocketDoor = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SocketDoor"));
+	SocketDoor->SetupAttachment(pRootComponent);
+	SocketDoor->SetCollisionResponseToChannels(CollisionResponseContainer);
+	SocketDoor->SetRelativeScale3D(Scale);
+	SocketDoor->SetRelativeLocation(FVector(-216.f, -364.f, 8.5f));
+	SocketDoor->SetHiddenInGame(true);
+	SocketDoor->SetMobility(EComponentMobility::Movable);
+	SocketDoor->CastShadow = false;
+
 	SocketPlayer_0 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SocketPlayer_0"));
 	SocketPlayer_0->SetupAttachment(pRootComponent);
 	SocketPlayer_0->SetCollisionResponseToChannels(CollisionResponseContainer);
@@ -426,7 +435,7 @@ void ALocationTemplate::IncludeInAvailableDynamicPlayerActionSocket(UPrimitiveCo
 	AvailableSocketDynamicPlayerAction.Emplace(Cast<UStaticMeshComponent>(ComponentToInclude));
 }
 
-void ALocationTemplate::CreateAction(TSubclassOf<AAction> ActionClass, AEncounter_Dead* EntangledDead)
+void ALocationTemplate::CreateDynamicAction(TSubclassOf<AAction> ActionClass, AEncounter_Dead* EntangledDead)
 {
 	for (int32 i = 0; i < DynamicAction.Num(); i++)
 	{
@@ -444,4 +453,51 @@ void ALocationTemplate::CreateAction(TSubclassOf<AAction> ActionClass, AEncounte
 		
 		return;
 	}
+}
+
+void ALocationTemplate::CreateDynamicAction(TSubclassOf<AAction> ActionClass, UChildActorComponent* ActorToEntangleWith)
+{
+	for (int32 i = 0; i < DynamicAction.Num(); i++)
+	{
+		if (DynamicAction[i]) {
+			continue;
+		}
+		DynamicAction[i] = NewObject<UChildActorComponent>(this, ("Action_Dynamic" + i));
+
+		DynamicAction[i]->RegisterComponent();
+		DynamicAction[i]->SetChildActorClass(ActionClass);
+		DynamicAction[i]->SetWorldLocation(AvailableSocketDynamicAction[0]->GetComponentLocation());
+		//Cast<AAction>(DynamicAction[i]->GetChildActor())->EntangledDeadEncounter = EntangledDead;
+
+		//EntangledDead->CreatedAction = DynamicAction[i];
+
+		EntangleActionWithActor(DynamicAction[i], ActorToEntangleWith);
+		return;
+	}
+}
+
+void ALocationTemplate::CreateDoor(TSubclassOf<AInteractiveLocationDecoration> DoorToCreateClass, TSubclassOf<AAction> TeleportActionToCreateClass)
+{
+	if (Door) {
+
+		UE_LOG(LogTemp, Warning, TEXT("Door already exists"))
+		return;
+	}
+	if (!DoorToCreateClass) {
+
+		UE_LOG(LogTemp, Error, TEXT("Door cannot be created: no ILD class"))
+		return;
+	}
+	if (!TeleportActionToCreateClass) {
+
+		UE_LOG(LogTemp, Error, TEXT("Door cannot be created: no action class"))
+		return;
+	}
+
+	Door = NewObject<UChildActorComponent>(this, ("Door"));
+
+	Door->RegisterComponent();
+	Door->SetChildActorClass(DoorToCreateClass);
+	Door->SetWorldLocation(SocketDoor->GetComponentLocation());
+	CreateDynamicAction(TeleportActionToCreateClass, Door);
 }

@@ -45,7 +45,7 @@ public:
 
 	void FindPlayerToAttack();
 
-	void CreateAction();
+	void CreateDynamicAction();
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void SetAction(UChildActorComponent* ActionToSet);

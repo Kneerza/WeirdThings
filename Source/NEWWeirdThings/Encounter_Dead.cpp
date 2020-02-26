@@ -77,7 +77,7 @@ void AEncounter_Dead::BeginPlay()
 		CurrentLocation = Cast<ALocationTemplate>(GetParentActor()); }
 
 	// TODO move to LocationTemplate as a Function, that will be called here
-	CreateAction();
+	CreateDynamicAction();
 	if ((PlayerController->CurrentTimeOfDay == ETimeOfDay::Evening) || (PlayerController->CurrentTimeOfDay == ETimeOfDay::Night))
 	{
 		SetAwakened(true);
@@ -119,13 +119,13 @@ void AEncounter_Dead::FindPlayerToAttack()
 	}
 }
 
-void AEncounter_Dead::CreateAction()
+void AEncounter_Dead::CreateDynamicAction()
 {
 	if (IsOnPlot) { return; }
 	if (CreatedAction) { return; }
 	if (GetParentActor() && ActionClassToSpawn ) {
 		UE_LOG(LogTemp, Warning, TEXT("DEAD IS CREATING ACTION"))
-			CurrentLocation->CreateAction(ActionClassToSpawn, this);
+			CurrentLocation->CreateDynamicAction(ActionClassToSpawn, this);
 	}
 }
 
@@ -154,7 +154,7 @@ void AEncounter_Dead::Move()
 				DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 				AttachToActor(CurrentLocation, FAttachmentTransformRules::KeepWorldTransform);
 				SetActorLocation(CurrentLocation->AvailableSocketEncounter[0]->GetComponentLocation());
-				CreateAction();
+				CreateDynamicAction();
 				FindPlayerToAttack();
 				return;
 			}

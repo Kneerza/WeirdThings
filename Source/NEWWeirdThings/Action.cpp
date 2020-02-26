@@ -397,4 +397,6 @@ void AAction::SetTeleport()
 			UE_LOG(LogTemp, Warning, TEXT("Random is %i"), Rand)
 		}
 	}
+
+	PlayerController->AllLocationsInPlay[Rand]->CreateDoor(DoorToCreateClass, TeleportActionToCreateClass);
 }

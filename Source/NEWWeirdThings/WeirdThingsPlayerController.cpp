@@ -258,14 +258,11 @@ void AWeirdThingsPlayerController::MoveCharacter(AWTPlayerCharacter* CharacterTo
 	//auto LocationOfLocationTemplate = LocationToMoveTo->GetActorLocation();
 	auto LocationOfCharacter = CharacterToMove->CurrentLocation;
 
+	// Check if another location is too far 
 	if (abs(LocationToMoveTo->HorizontalIndex - LocationOfCharacter->HorizontalIndex) > 1) { return; }
 	if ((abs(LocationToMoveTo->VerticalIndex - LocationOfCharacter->VerticalIndex) == 1) && (LocationToMoveTo->HorizontalIndex != 0)) { return; }
 	if (abs(LocationToMoveTo->VerticalIndex - LocationOfCharacter->VerticalIndex) > 1) { return; }
 	if ((LocationToMoveTo->HorizontalIndex != LocationOfCharacter->HorizontalIndex) && (LocationToMoveTo->VerticalIndex != LocationOfCharacter->VerticalIndex)) { return; }
-	// Check if another location is too far 
-	//if (abs(abs(LocationOfLocationTemplate.Y) - abs(LocationOfCharacter.Y)) > CharacterMovementLimit) { return; }
-	//if (abs(abs(LocationOfLocationTemplate.Z) - abs(LocationOfCharacter.Z)) > CharacterMovementLimit) { return; }
-	//if ((LocationOfLocationTemplate.Z != LocationOfCharacter.Z) && (LocationOfLocationTemplate.Y != LocationOfCharacter.Y)) { return; }
 
 	CharacterToMove->SetActorLocation(LocationToMoveTo->AvailableSocketPlayer[0]->GetComponentLocation());
 
@@ -864,6 +861,7 @@ bool AWeirdThingsPlayerController::PerformAction(AAction* Action, int32 Modifier
 
 		MoveCharacter(pSelectedCharacter, SpawnLocation(Action, true, false));
 
+
 		return true;
 		break;
 
@@ -890,7 +888,8 @@ bool AWeirdThingsPlayerController::PerformAction(AAction* Action, int32 Modifier
 
 	case EActionType::Arrow_Move:
 
-		MoveCharacter(pSelectedCharacter, Action->LocationArrowPointsTo);
+		//MoveCharacter(pSelectedCharacter, Action->LocationArrowPointsTo);
+		TeleportCharacter(pSelectedCharacter, Action->LocationArrowPointsTo);
 
 		return true;
 		break;

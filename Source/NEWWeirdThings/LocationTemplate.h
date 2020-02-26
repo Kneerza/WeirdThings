@@ -33,6 +33,9 @@ public:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Mesh)
 		UStaticMeshComponent* pGround;
+	
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Mesh)
+		UChildActorComponent* Door;
 
 	AArrowTemplate* ArrowRight = nullptr;
 	AArrowTemplate* ArrowUp = nullptr;
@@ -40,6 +43,8 @@ public:
 	AAction* ForcedAction = nullptr;
 
 	TArray<FVector> SocketsLockations;
+
+
 
 	// Actions formation
 	float SocketLocationsStepBetweenColumns = 430.f;
@@ -123,6 +128,9 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		UStaticMeshComponent* SocketDynamicPlayerAction_4;
 
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+		UStaticMeshComponent* SocketDoor;
+
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Mesh)
 		TArray <UStaticMeshComponent*> AvailableSocketDynamicAction;
 
@@ -147,10 +155,14 @@ public:
 
 	TArray<UChildActorComponent*> DynamicAction = { nullptr, nullptr, nullptr };
 
-	void CreateAction(TSubclassOf<AAction> ActionClass, AEncounter_Dead* EntangledDead);
+	void CreateDynamicAction(TSubclassOf<AAction> ActionClass, AEncounter_Dead* EntangledDead);
+	void CreateDynamicAction(TSubclassOf<AAction> ActionClass, UChildActorComponent* ActorToEntangleWith);
 
 	UPROPERTY(EditAnywhere, Category = Setup)
 		TSubclassOf<AArrowTemplate> ArrowBlueprint;
+
+	//UPROPERTY(EditAnywhere, Category = Setup)
+	//	TSubclassOf<AAction> TeleportActionToCreateClass;
 
 	UPROPERTY(EditAnywhere, Category = "Arrow")
 		bool HasArrowUp = true;
@@ -190,6 +202,8 @@ public:
 
 	//UFUNCTION(BlueprintCallable, Category = "Custom")
 	//	void TreatAsSameAction(TArray<AAction*> SameActions);
+
+	void CreateDoor(TSubclassOf<AInteractiveLocationDecoration> DoorToCreateClass, TSubclassOf<AAction> TeleportActionToCreateClass);
 
 protected:
 	// Called when the game starts or when spawned
