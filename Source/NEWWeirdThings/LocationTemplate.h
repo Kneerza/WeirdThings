@@ -17,6 +17,7 @@ class AAction;
 class UPaperFlipbookComponent;
 class AInteractiveLocationDecoration;
 class AEncounter_Dead;
+class AWTPlayerCharacter;
 
 UCLASS()
 class NEWWEIRDTHINGS_API ALocationTemplate : public AActor
@@ -107,8 +108,26 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		UStaticMeshComponent* SocketDynamicAction_2;
 
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+		UStaticMeshComponent* SocketDynamicPlayerAction_0;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+		UStaticMeshComponent* SocketDynamicPlayerAction_1;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+		UStaticMeshComponent* SocketDynamicPlayerAction_2;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+		UStaticMeshComponent* SocketDynamicPlayerAction_3;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+		UStaticMeshComponent* SocketDynamicPlayerAction_4;
+
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Mesh)
 		TArray <UStaticMeshComponent*> AvailableSocketDynamicAction;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Mesh)
+		TArray <UStaticMeshComponent*> AvailableSocketDynamicPlayerAction;
 	//---------------------------------------------------
 
 	TArray<FTransform> SocketPlayer_Transform;
@@ -126,7 +145,7 @@ public:
 
 	AActor* pArrowUp;
 
-	UChildActorComponent* CreatedAction;
+	TArray<UChildActorComponent*> DynamicAction = { nullptr, nullptr, nullptr };
 
 	void CreateAction(TSubclassOf<AAction> ActionClass, AEncounter_Dead* EntangledDead);
 
@@ -162,6 +181,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void IncludeInAvailableDynamicActionSocket(UPrimitiveComponent* ComponentToInclude);
+
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void ExcludeFromAvailableDynamicPlayerActionSocket(UPrimitiveComponent* ComponentToExclude);
+
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void IncludeInAvailableDynamicPlayerActionSocket(UPrimitiveComponent* ComponentToInclude);
 
 	//UFUNCTION(BlueprintCallable, Category = "Custom")
 	//	void TreatAsSameAction(TArray<AAction*> SameActions);

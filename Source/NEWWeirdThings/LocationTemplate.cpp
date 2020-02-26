@@ -2,6 +2,7 @@
 
 #include "LocationTemplate.h"
 #include "Action.h"
+#include "WTPlayerCharacter.h"
 #include "InteractiveLocationDecoration.h"
 #include "WeirdThingsPlayerController.h"
 #include "PaperFlipbook.h"
@@ -62,7 +63,8 @@ ALocationTemplate::ALocationTemplate()
 
 	FVector PlayerIncrement = FVector(13.f, 50.f, 3.56f);
 	FVector EncounterIncrement = FVector(13.f, -50.f, 3.56f);
-	FVector DynamicActionIncrement = FVector(0.f, 300.f, 0.f);
+	FVector DynamicActionIncrement = FVector(0.f, -200.f, 0.f);
+	FVector DynamicPlayerActionIncrement = FVector(0.f, 200.f, 0.f);
 	FVector OriginalPosition = FVector(-471.f, -367.f, -74.5f);
 	FVector CampFireOffset = FVector(0.f, 150.f, 0.f);
 	FVector EncounterOffset = FVector(0.f, 600.f, 0.f);
@@ -179,8 +181,8 @@ ALocationTemplate::ALocationTemplate()
 	SocketEncounter_4->CastShadow = false;
 	AvailableSocketEncounter.Emplace(SocketEncounter_4);
 
-	OriginalPosition = FVector(-526.f, 182.f, -907.f);
-
+	OriginalPosition = FVector(-526.f, 908.f, -907.f);
+	Scale = FVector(1.f, 1.f, 1.f);
 	
 	SocketDynamicAction_0 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SocketDynamicAction_0"));
 	SocketDynamicAction_0->SetupAttachment(pRootComponent);
@@ -211,6 +213,63 @@ ALocationTemplate::ALocationTemplate()
 	SocketDynamicAction_2->SetMobility(EComponentMobility::Movable);
 	SocketDynamicAction_2->CastShadow = false;
 	AvailableSocketDynamicAction.Emplace(SocketDynamicAction_2);
+
+	OriginalPosition = FVector(-526.f, -852.f, -907.f);
+
+	SocketDynamicPlayerAction_0 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SocketPlayerDynamicAction_0"));
+	SocketDynamicPlayerAction_0->SetupAttachment(pRootComponent);
+	SocketDynamicPlayerAction_0->SetCollisionResponseToChannels(CollisionResponseContainer);
+	SocketDynamicPlayerAction_0->SetRelativeScale3D(Scale);
+	SocketDynamicPlayerAction_0->SetRelativeLocation(OriginalPosition + (0 * DynamicPlayerActionIncrement));
+	SocketDynamicPlayerAction_0->SetRelativeRotation(FRotator(0.f, 90.f, 0.f).Quaternion());
+	SocketDynamicPlayerAction_0->SetHiddenInGame(true);
+	SocketDynamicPlayerAction_0->SetMobility(EComponentMobility::Movable);
+	SocketDynamicPlayerAction_0->CastShadow = false;
+	AvailableSocketDynamicPlayerAction.Emplace(SocketDynamicPlayerAction_0);
+
+	SocketDynamicPlayerAction_1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SocketPlayerDynamicAction_1"));
+	SocketDynamicPlayerAction_1->SetupAttachment(pRootComponent);
+	SocketDynamicPlayerAction_1->SetCollisionResponseToChannels(CollisionResponseContainer);
+	SocketDynamicPlayerAction_1->SetRelativeScale3D(Scale);
+	SocketDynamicPlayerAction_1->SetRelativeLocation(OriginalPosition + (1 * DynamicPlayerActionIncrement));
+	SocketDynamicPlayerAction_1->SetRelativeRotation(FRotator(0.f, 90.f, 0.f).Quaternion());
+	SocketDynamicPlayerAction_1->SetHiddenInGame(true);
+	SocketDynamicPlayerAction_1->SetMobility(EComponentMobility::Movable);
+	SocketDynamicPlayerAction_1->CastShadow = false;
+	AvailableSocketDynamicPlayerAction.Emplace(SocketDynamicPlayerAction_1);
+
+	SocketDynamicPlayerAction_2 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SocketPlayerDynamicAction_2"));
+	SocketDynamicPlayerAction_2->SetupAttachment(pRootComponent);
+	SocketDynamicPlayerAction_2->SetCollisionResponseToChannels(CollisionResponseContainer);
+	SocketDynamicPlayerAction_2->SetRelativeScale3D(Scale);
+	SocketDynamicPlayerAction_2->SetRelativeLocation(OriginalPosition + (2 * DynamicPlayerActionIncrement));
+	SocketDynamicPlayerAction_2->SetRelativeRotation(FRotator(0.f, 90.f, 0.f).Quaternion());
+	SocketDynamicPlayerAction_2->SetHiddenInGame(true);
+	SocketDynamicPlayerAction_2->SetMobility(EComponentMobility::Movable);
+	SocketDynamicPlayerAction_2->CastShadow = false;
+	AvailableSocketDynamicPlayerAction.Emplace(SocketDynamicPlayerAction_2);
+
+	SocketDynamicPlayerAction_3 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SocketPlayerDynamicAction_3"));
+	SocketDynamicPlayerAction_3->SetupAttachment(pRootComponent);
+	SocketDynamicPlayerAction_3->SetCollisionResponseToChannels(CollisionResponseContainer);
+	SocketDynamicPlayerAction_3->SetRelativeScale3D(Scale);
+	SocketDynamicPlayerAction_3->SetRelativeLocation(OriginalPosition + (3 * DynamicPlayerActionIncrement));
+	SocketDynamicPlayerAction_3->SetRelativeRotation(FRotator(0.f, 90.f, 0.f).Quaternion());
+	SocketDynamicPlayerAction_3->SetHiddenInGame(true);
+	SocketDynamicPlayerAction_3->SetMobility(EComponentMobility::Movable);
+	SocketDynamicPlayerAction_3->CastShadow = false;
+	AvailableSocketDynamicPlayerAction.Emplace(SocketDynamicPlayerAction_3);
+
+	SocketDynamicPlayerAction_4 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SocketPlayerDynamicAction_4"));
+	SocketDynamicPlayerAction_4->SetupAttachment(pRootComponent);
+	SocketDynamicPlayerAction_4->SetCollisionResponseToChannels(CollisionResponseContainer);
+	SocketDynamicPlayerAction_4->SetRelativeScale3D(Scale);
+	SocketDynamicPlayerAction_4->SetRelativeLocation(OriginalPosition + (4 * DynamicPlayerActionIncrement));
+	SocketDynamicPlayerAction_4->SetRelativeRotation(FRotator(0.f, 90.f, 0.f));
+	SocketDynamicPlayerAction_4->SetHiddenInGame(true);
+	SocketDynamicPlayerAction_4->SetMobility(EComponentMobility::Movable);
+	SocketDynamicPlayerAction_4->CastShadow = false;
+	AvailableSocketDynamicPlayerAction.Emplace(SocketDynamicPlayerAction_4);
 	
 	//-----------------------Initializing arrays--------------------------------
 	SocketsLockations.Init(FVector(0.f), 16);
@@ -357,12 +416,32 @@ void ALocationTemplate::IncludeInAvailableDynamicActionSocket(UPrimitiveComponen
 	AvailableSocketDynamicAction.Emplace(Cast<UStaticMeshComponent>(ComponentToInclude));
 }
 
+void ALocationTemplate::ExcludeFromAvailableDynamicPlayerActionSocket(UPrimitiveComponent* ComponentToExclude)
+{
+	AvailableSocketDynamicPlayerAction.RemoveSingle(Cast<UStaticMeshComponent>(ComponentToExclude));
+}
+
+void ALocationTemplate::IncludeInAvailableDynamicPlayerActionSocket(UPrimitiveComponent* ComponentToInclude)
+{
+	AvailableSocketDynamicPlayerAction.Emplace(Cast<UStaticMeshComponent>(ComponentToInclude));
+}
+
 void ALocationTemplate::CreateAction(TSubclassOf<AAction> ActionClass, AEncounter_Dead* EntangledDead)
 {
-	CreatedAction = NewObject<UChildActorComponent>(this, ("Action_Dead"));
+	for (int32 i = 0; i < DynamicAction.Num(); i++)
+	{
+		if (DynamicAction[i]) {
+			continue;
+		}
+		DynamicAction[i] = NewObject<UChildActorComponent>(this, ("Action_Dead"+i));
 
-	CreatedAction->RegisterComponent();
-	CreatedAction->SetChildActorClass(ActionClass);
-	CreatedAction->SetWorldLocation(AvailableSocketDynamicAction[0]->GetComponentLocation());
-	Cast<AAction>(CreatedAction->GetChildActor())->EntangledDeadEncounter = EntangledDead;
+		DynamicAction[i]->RegisterComponent();
+		DynamicAction[i]->SetChildActorClass(ActionClass);
+		DynamicAction[i]->SetWorldLocation(AvailableSocketDynamicAction[0]->GetComponentLocation());
+		Cast<AAction>(DynamicAction[i]->GetChildActor())->EntangledDeadEncounter = EntangledDead;
+		
+			EntangledDead->CreatedAction = DynamicAction[i];
+		
+		return;
+	}
 }

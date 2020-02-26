@@ -20,12 +20,15 @@ enum class EDurabilityState : uint8
 class UMaterial;
 class UMaterialInterface;
 class AActor;
+class AAction;
 class AItemTemplate;
 class ALocationTemplate;
 class UWidgetComponent;
 class UAttackDefenseComponent;
 class UArrowComponent;
 class UPaperSpriteComponent;
+class UPaperFlipbookComponent;
+class UPaperFlipbook;
 class UTexture2D;
 
 UCLASS()
@@ -98,6 +101,20 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		UTexture2D* GetCharacterPortrait();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+		TSubclassOf<AAction> ActionClassToSpawn;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+		UPaperFlipbookComponent* AvatarComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+		UPaperFlipbook* AvatarFlipbook;
+
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void CreateAvatar();
+
+	void UpdateAvatar();
 
 	void GetItem(AItemTemplate* ItemToPick);
 

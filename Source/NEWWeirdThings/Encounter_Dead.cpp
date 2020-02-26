@@ -74,7 +74,6 @@ void AEncounter_Dead::BeginPlay()
 	PlayerController->Encounter_DeadsInPlay.Add(this);
 
 	if (GetParentActor()){ 
-		UE_LOG(LogTemp, Warning, TEXT("Dead action is created"))
 		CurrentLocation = Cast<ALocationTemplate>(GetParentActor()); }
 
 	// TODO move to LocationTemplate as a Function, that will be called here
@@ -126,13 +125,6 @@ void AEncounter_Dead::CreateAction()
 	if (CreatedAction) { return; }
 	if (GetParentActor() && ActionClassToSpawn ) {
 		UE_LOG(LogTemp, Warning, TEXT("DEAD IS CREATING ACTION"))
-			//	CurrentLocation = Cast<ALocationTemplate>(GetParentActor());
-			//CreatedAction = NewObject<UChildActorComponent>(this, ("Action_Dead"));
-
-		//CreatedAction->RegisterComponent();
-		//CreatedAction->SetChildActorClass(ActionClassToSpawn);
-		//CreatedAction->SetWorldLocation(CurrentLocation->AvailableSocketDynamicAction[0]->GetComponentLocation());
-
 			CurrentLocation->CreateAction(ActionClassToSpawn, this);
 	}
 }

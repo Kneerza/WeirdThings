@@ -32,7 +32,7 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Mesh)
 		UPaperFlipbookComponent* SleepingDeadFlipbookComponent;
 
-	UChildActorComponent* CreatedAction;
+	UChildActorComponent* CreatedAction = nullptr;
 
 	AWeirdThingsPlayerController* PlayerController = nullptr;
 

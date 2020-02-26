@@ -281,6 +281,7 @@ void AWeirdThingsPlayerController::MoveCharacter(AWTPlayerCharacter* CharacterTo
 		ForcedAction->EntangledInteractiveLocationDecoration->ChangeState_InteractiveLocationDecoration();
 	}
 	CharacterToMove->MovementPoints--;
+	CharacterToMove->UpdateAvatar();
 }
 
 void AWeirdThingsPlayerController::TeleportCharacter(AWTPlayerCharacter* CharacterToMove, ALocationTemplate* LocationToMoveTo)
@@ -299,6 +300,7 @@ void AWeirdThingsPlayerController::TeleportCharacter(AWTPlayerCharacter* Charact
 		ForcedAction->EntangledInteractiveLocationDecoration->ChangeState_InteractiveLocationDecoration();
 	}
 	CharacterToMove->MovementPoints--;
+	CharacterToMove->UpdateAvatar();
 }
 
 void AWeirdThingsPlayerController::FightBack(AEncounter* Enemy, AWTPlayerCharacter* PlayerCharacter)
@@ -827,6 +829,9 @@ bool AWeirdThingsPlayerController::PerformAction(AAction* Action, int32 Modifier
 				EffectTransform.SetLocation(Action->EntangledDeadEncounter->GetActorLocation());
 				Encounter_DeadsInPlay.RemoveSingle(Action->EntangledDeadEncounter);
 				Action->EntangledDeadEncounter->Destroy();
+				if (!(Action->EntangledDeadEncounter->IsOnPlot)) {
+					Action->EntangledDeadEncounter->CreatedAction->UnregisterComponent();
+				}
 				if (BurningEffectClass) {
 
 					GetWorld()->SpawnActor<AActor>(BurningEffectClass, EffectTransform);

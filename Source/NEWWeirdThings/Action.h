@@ -20,6 +20,7 @@ enum class EActionType : uint8
 	Get_EncounterRandom,
 	Get_Injury,
 	Get_Exhaustion,
+	Portrait,
 	ArrowRight_Good,
 	ArrowRight_Bad,
 	ArrowRight_Ugly,

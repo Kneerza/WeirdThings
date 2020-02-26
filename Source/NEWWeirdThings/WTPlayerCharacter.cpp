@@ -1,12 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "WTPlayerCharacter.h"
+#include "LocationTemplate.h"
 #include "WeirdThingsPlayerController.h"
 #include "Runtime/Engine/Classes/Materials/MaterialInstanceDynamic.h"
 //#include "Runtime/Engine/Classes/Components/MeshComponent.h"
 #include "Components/ArrowComponent.h"
 #include "PaperSpriteComponent.h"
 #include "PaperSprite.h"
+#include "PaperFlipbookComponent.h"
+#include "PaperFlipbook.h"
 #include "Runtime/Engine/Classes/Components/StaticMeshComponent.h"
 #include "AttackDefenseComponent.h"
 #include "Runtime/CoreUObject/Public/UObject/UObjectGlobals.h"
@@ -64,6 +67,8 @@ void AWTPlayerCharacter::BeginPlay()
 	PlayerController->PlayerCharacters.Emplace(this);
 
 	CurrentActionPoints = ActionPoints;
+
+	//CreateAvatar();
 }
 
 // Called every frame
@@ -227,4 +232,41 @@ UTexture2D* AWTPlayerCharacter::GetCharacterPortrait()
 {
 	if (!ensure(CharacterPortrait)) { return nullptr; }
 	return CharacterPortrait;
+}
+
+void AWTPlayerCharacter::CreateAvatar()
+{
+	if (!AvatarFlipbook) {
+
+		UE_LOG(LogTemp, Error, TEXT("Avatar flipbook is not set"))
+			return;
+	}
+
+	if (!CurrentLocation) {
+
+		UE_LOG(LogTemp, Error, TEXT("Current Location does not exist"))
+			return;
+	}
+	AvatarComponent = NewObject<UPaperFlipbookComponent>(this, ("Avatar"));
+
+	AvatarComponent->RegisterComponent();
+
+	FCollisionResponseContainer AvatarComponentResponseContainer;
+	AvatarComponentResponseContainer.SetAllChannels(ECollisionResponse::ECR_Overlap);
+	AvatarComponentResponseContainer.SetResponse(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
+	AvatarComponentResponseContainer.SetResponse(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+
+	AvatarComponent->SetCollisionResponseToChannels(AvatarComponentResponseContainer);
+	AvatarComponent->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
+
+	AvatarComponent->SetFlipbook(AvatarFlipbook);
+	AvatarComponent->SetWorldTransform(CurrentLocation->AvailableSocketDynamicPlayerAction[0]->GetComponentTransform());
+	//AvatarComponent->SetWorldLocation(CurrentLocation->AvailableSocketDynamicPlayerAction[0]->GetComponentLocation());
+	//AvatarComponent->SetWorldRotation(CurrentLocation->AvailableSocketDynamicPlayerAction[0]->GetComponentRotation());
+
+}
+
+void AWTPlayerCharacter::UpdateAvatar()
+{
+	AvatarComponent->SetWorldTransform(CurrentLocation->AvailableSocketDynamicPlayerAction[0]->GetComponentTransform());
 }

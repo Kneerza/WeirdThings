@@ -65,16 +65,16 @@ AAction::AAction()
 	ActionFlipBookComponent->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
 
 	//----------------------Creating Collision Sphere------------------------
-	CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("Ground"));
-	CollisionSphere->SetupAttachment(pRootComponent);
+	//CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("Ground"));
+	//CollisionSphere->SetupAttachment(pRootComponent);
 
 	//Setting up relative transform
-	FTransform CollisionSphereRelativeTransform;
-	CollisionSphereRelativeTransform.SetLocation(FVector(0.f, 0.f, 0.f));
-	CollisionSphereRelativeTransform.SetRotation(FRotator(0.f, 0.f, 0.f).Quaternion());
-	CollisionSphereRelativeTransform.SetScale3D(FVector(2.f, 2.f, 2.f));
+	//FTransform CollisionSphereRelativeTransform;
+	//CollisionSphereRelativeTransform.SetLocation(FVector(0.f, 0.f, 0.f));
+	//CollisionSphereRelativeTransform.SetRotation(FRotator(0.f, 0.f, 0.f).Quaternion());
+	//CollisionSphereRelativeTransform.SetScale3D(FVector(2.f, 2.f, 2.f));
 
-	CollisionSphere->SetRelativeTransform(CollisionSphereRelativeTransform);
+	//CollisionSphere->SetRelativeTransform(CollisionSphereRelativeTransform);
 
 	//-----------------------Initializing arrays-----------------------------
 	ActionLock.Init(nullptr, 8);
@@ -258,7 +258,7 @@ void AAction::Deactivate()
 
 		// --- Disabling Collision on deactivated Action ---
 		ActionFlipBookComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		CollisionSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		//CollisionSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		if (EntangledInteractiveLocationDecoration) {
 			EntangledInteractiveLocationDecoration->InteractiveLocationDecoration_SpriteComponent_0->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		}
@@ -294,7 +294,7 @@ void AAction::Activate()
 
 	// --- Setting collision of activated Action ---
 	ActionFlipBookComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	CollisionSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	//CollisionSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	if (EntangledInteractiveLocationDecoration) {
 		EntangledInteractiveLocationDecoration->InteractiveLocationDecoration_SpriteComponent_0->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	}
