@@ -146,7 +146,13 @@ public:
 		void SelectCharacter(AActor* CharacterToSelect);
 
 	void Combat(AWTPlayerCharacter* PlayerCharacter, AEncounter* Enemy);
-	void AttackDefenseEvent(AWTPlayerCharacter* Attacker, AEncounter* Defender);
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void InitiateCombat();
+
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void EndCombat();
+
+	void AttackDefenseEvent(AWTPlayerCharacter* Attacker, AEncounter* Defender, bool IsFightingBack);
 	void AttackDefenseEvent(AEncounter* Attacker, AWTPlayerCharacter* Defender);
 	void FightBack(AEncounter* Enemy, AWTPlayerCharacter* PlayerCharacter);
 
@@ -156,6 +162,11 @@ public:
 	void TryToUnlock(AAction* CurrentAction);
 	bool FindAndUseItemToUnlock(EItemType BackpackItemType);
 	bool FindAndUseItemToUnlock(EItemValue BackpackItemValue);
+
+	bool bIsCombatOn = false;
+	TArray<AWTPlayerCharacter*> PlayersChosenToFight; // = { nullptr };
+
+	void PlayerCharactersAttack(TArray<AWTPlayerCharacter*> CharactersAttackers, AEncounter* Defender);
 
 	void PassItemToPlayer(EItemValue ItemValue);
 

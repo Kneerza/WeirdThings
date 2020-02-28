@@ -53,6 +53,7 @@ public:
 	bool IsLast = false;
 
 	float LifeTime = 2.5f;
+	float HoldTime = 0.f;
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void CollisionResolve();

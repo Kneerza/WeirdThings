@@ -39,11 +39,13 @@ AWTPlayerCharacter::AWTPlayerCharacter()
 	FTransform SelectingArrowRelativeTransform;
 	SelectingArrowRelativeTransform.SetLocation(FVector(0.f, 0.f, 200.f));
 	SelectingArrowRelativeTransform.SetRotation(FRotator(0.f, 90.f, 0.f).Quaternion());
-	SelectingArrowRelativeTransform.SetScale3D(FVector(0.05f, 0.05f, 0.05f));
+	SelectingArrowRelativeTransform.SetScale3D(FVector(1.f, 1.f, 1.f));
 
 	SelectingArrow->SetRelativeTransform(SelectingArrowRelativeTransform);
 
-	SelectingArrow->SetSprite(LoadObject<UPaperSprite>(nullptr, (TEXT("PaperSprite'/Game/Blueprints/SelectingArrow_Sprite.SelectingArrow_Sprite'"))));
+	SelectingArrowSprite = LoadObject<UPaperSprite>(nullptr, (TEXT("PaperSprite'/Game/Blueprints/SelectingArrows/Sprite/SelectingArrow_Sprite.SelectingArrow_Sprite'")));
+	SelectingArrowForCombatSprite = LoadObject<UPaperSprite>(nullptr, (TEXT("PaperSprite'/Game/Blueprints/SelectingArrows/Sprite/SelectingArrow_Combat_Sprite.SelectingArrow_Combat_Sprite'")));
+	//SelectingArrow->SetSprite(LoadObject<UPaperSprite>(nullptr, (TEXT("PaperSprite'/Game/Blueprints/SelectingArrow_Sprite.SelectingArrow_Sprite'"))));
 	SelectingArrow->SetVisibility(false);
 
 	SelectingArrow->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -80,6 +82,13 @@ void AWTPlayerCharacter::Tick(float DeltaTime)
 
 void AWTPlayerCharacter::SetSelected(bool IsSelected)
 {
+	SelectingArrow->SetSprite(SelectingArrowSprite);
+	SelectingArrow->SetVisibility(IsSelected);
+}
+
+void AWTPlayerCharacter::SetSelectedForCombat(bool IsSelected)
+{
+	SelectingArrow->SetSprite(SelectingArrowForCombatSprite);
 	SelectingArrow->SetVisibility(IsSelected);
 }
 

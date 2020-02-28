@@ -26,6 +26,7 @@ class ALocationTemplate;
 class UWidgetComponent;
 class UAttackDefenseComponent;
 class UArrowComponent;
+class UPaperSprite;
 class UPaperSpriteComponent;
 class UPaperFlipbookComponent;
 class UPaperFlipbook;
@@ -68,6 +69,9 @@ public:
 		UStaticMeshComponent* pCone;
 
 	USceneComponent* pRootComponent;
+
+	UPaperSprite* SelectingArrowSprite;
+	UPaperSprite* SelectingArrowForCombatSprite;
 
 	//UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Custom")
 	//	UWidgetComponent* pHealthWidget;
@@ -134,6 +138,7 @@ public:
 		void RemoveExhaustion(int32 ExhaustionAmountToRemove);
 
 	void SetSelected(bool IsSelected);
+	void SetSelectedForCombat(bool IsSelected);
 
 	//	void ShowDamage();
 

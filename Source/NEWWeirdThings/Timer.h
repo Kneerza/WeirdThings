@@ -21,6 +21,7 @@ public:
 	AEncounter* Enemy = nullptr;
 	AWTPlayerCharacter* PlayerCharacter = nullptr;
 
+	bool bIsFightingBack = false;
 
 	// TODO make time frames dependable
 	float TimeCreated;

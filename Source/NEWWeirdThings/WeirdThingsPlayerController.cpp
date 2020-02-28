@@ -60,32 +60,74 @@ void AWeirdThingsPlayerController::LeftClickEvents()
 {
 
 	if (AreClickEventsDisabled) { return; }
-	for (int32 i = 0; i < AllLocationsInPlay.Num() - 1; i++)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *AllLocationsInPlay[i]->GetName())
-	}
+	//for (int32 i = 0; i < AllLocationsInPlay.Num() - 1; i++)
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("%s"), *AllLocationsInPlay[i]->GetName())
+	//}
 	GetComponentUnderCursor(pClickedActor, ClickedActorClassName);
 
 	if (!pClickedActor) { return; }
+	if (bIsCombatOn) {
 
-	if (ClickedActorClassName == "WTPlayerCharacter") {
+		if (ClickedActorClassName == "WTPlayerCharacter") {
+			
+			if (!(PlayersChosenToFight.Contains(pClickedActor))) {
+			auto ReadyForCombatCharacter = Cast<AWTPlayerCharacter>(pClickedActor);
+				PlayersChosenToFight.Add(ReadyForCombatCharacter);
+				ReadyForCombatCharacter->SetSelectedForCombat(true);
+			}
+			for (int32 i = 0; i < PlayersChosenToFight.Num(); i++)
+			{
+				if (PlayersChosenToFight[i]) {
+					UE_LOG(LogTemp, Warning, TEXT("%s is ready to fight"), *PlayersChosenToFight[i]->GetName())
+				}
+			}
+		}
+
+	}else if (ClickedActorClassName == "WTPlayerCharacter") {
 
 		SelectCharacter(pClickedActor);
 	}
-	if (GetPawn()) {
-		UE_LOG(LogTemp, Warning, TEXT("Possessing %s"), *GetPawn()->GetName())
-	}
-	else {
-		UE_LOG(LogTemp, Warning, TEXT("Not possessing"))
-	}
-
+	
 }
 
 void AWeirdThingsPlayerController::RightClickEvents()
 {
 
 	if (AreClickEventsDisabled) { return; }
-	if (CharacterIsSelected) {
+	GetComponentUnderCursor(pClickedActor, ClickedActorClassName);
+	if (bIsCombatOn) {
+
+		if (ClickedActorClassName == "WTPlayerCharacter") {
+
+			if (PlayersChosenToFight.Contains(pClickedActor)) {
+				auto RemovedFromCombatCharacter = Cast<AWTPlayerCharacter>(pClickedActor);
+				PlayersChosenToFight.Remove(RemovedFromCombatCharacter);
+				RemovedFromCombatCharacter->SetSelectedForCombat(false);
+			}
+			UE_LOG(LogTemp, Warning, TEXT("--------------------------"))
+			for (int32 i = 0; i < PlayersChosenToFight.Num(); i++)
+			{
+				if (PlayersChosenToFight[i]) {
+					UE_LOG(LogTemp, Warning, TEXT("%s is ready to fight"), *PlayersChosenToFight[i]->GetName())
+				}
+			}
+		}
+		else if (ClickedActorClassName == "Encounter_Bad")
+		{
+			Combat(pSelectedCharacter, Cast<AEncounter>(pClickedActor));
+		}
+		else if (ClickedActorClassName == "Encounter_Good")
+		{
+			Combat(pSelectedCharacter, Cast<AEncounter>(pClickedActor));
+		}
+		else if (ClickedActorClassName == "Encounter_Dead")
+		{
+			if (Cast<AEncounter_Dead>(pClickedActor)->IsAwake) {
+				Combat(pSelectedCharacter, Cast<AEncounter>(pClickedActor));
+			}
+		}
+	}else if (CharacterIsSelected) {
 		GetComponentUnderCursor(pClickedActor, ClickedActorClassName);
 		if (!pClickedActor) { return; }
 		if (ClickedActorClassName == "ArrowTemplate")
@@ -309,28 +351,157 @@ void AWeirdThingsPlayerController::FightBack(AEncounter* Enemy, AWTPlayerCharact
 void AWeirdThingsPlayerController::Combat(AWTPlayerCharacter* PlayerCharacter, AEncounter* Enemy)
 {
 
-	AttackDefenseEvent(PlayerCharacter, Enemy);
+	if (!PlayersChosenToFight.IsValidIndex(0)) { return; }
+	UE_LOG(LogTemp, Warning, TEXT("Players are ready to fight"))
+		PlayerCharactersAttack(PlayersChosenToFight, Enemy);
+	
+}
 
-	ItemDurabilityCheck(PlayerCharacter);
-	/*
-	auto ActiveItem = PlayerCharacter->ActiveItem;
-	auto Backpack = PlayerCharacter->Backpack;
-				if (!ActiveItem) { return; }
+void AWeirdThingsPlayerController::PlayerCharactersAttack(TArray<AWTPlayerCharacter*> CharactersAttackers, AEncounter* Defender)
+{
+	for (int32 j = 0; j < CharactersAttackers.Num(); j++)
+	{
+		TArray<EAttackType> AttackRowToGenerate = CharactersAttackers[j]->pAttackDefenseComponent->AttackPoolRow_1;
+		TArray<AAttackDefenseActor*> AttackRowActors;
+		AttackRowActors.Init(nullptr, AttackRowToGenerate.Num());
 
 
-				for (int32 i = 0; i < ActiveItem->ItemType.Num(); i++)
-				{
-					if (ActiveItem->ItemType[i] == EItemType::Weapon)
-					{
-						if (ActiveItem->ItemDurabilityByType[i] < FMath::RandRange(1, 6)) {
-							ActiveItem->Destroy();
-							Backpack[7] = nullptr;  // [7] - currently active item
-							PlayerCharacter->Backpack[7] = Backpack[7];  //// [7] - currently active item
-						}
-					}
 
-				}
-				*/
+		for (int32 i = 0; i < AttackRowToGenerate.Num(); i++)
+		{
+			FVector LocationToSpawn = (CharactersAttackers[j]->GetActorLocation() + FVector(0.f, 0.f, 300.f) + FVector(0.f, 0.f, 140.f*i));
+
+			// TODO move Rows generation to AAttackDefenseActor
+			if (!ensure(AttackDefenceActorClass)) { UE_LOG(LogTemp, Warning, TEXT("AttackDefence actor class is not set in PlayerController")) }
+			switch (AttackRowToGenerate[i])
+			{
+			case EAttackType::No_Attack:
+
+				break;
+
+			case EAttackType::Sharp:
+				AttackRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(AttackDefenceActorClass, LocationToSpawn, FRotator(0.0f, 180.0f, 0.0f));
+				if (!ensure(AttackRowActors[i])) { return; }
+
+				AttackRowActors[i]->StartLocation = CharactersAttackers[j]->GetActorLocation();
+				AttackRowActors[i]->EndLocation = Defender->GetActorLocation();
+
+				AttackRowActors[i]->AttackState = EAttackType::Sharp;
+				AttackRowActors[i]->Initialize();
+				break;
+
+			case EAttackType::Blunt:
+				AttackRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(AttackDefenceActorClass, LocationToSpawn, FRotator(0.0f, 180.0f, 0.0f));
+				if (!ensure(AttackRowActors[i])) { return; }
+
+				AttackRowActors[i]->StartLocation = CharactersAttackers[j]->GetActorLocation();
+				AttackRowActors[i]->EndLocation = Defender->GetActorLocation();
+
+				AttackRowActors[i]->AttackState = EAttackType::Blunt;
+				AttackRowActors[i]->Initialize();
+				break;
+
+			case EAttackType::Unavoidable:
+				AttackRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(AttackDefenceActorClass, LocationToSpawn, FRotator(0.0f, 180.0f, 0.0f));
+				if (!ensure(AttackRowActors[i])) { return; }
+
+				AttackRowActors[i]->StartLocation = CharactersAttackers[j]->GetActorLocation();
+				AttackRowActors[i]->EndLocation = Defender->GetActorLocation();
+
+				AttackRowActors[i]->AttackState = EAttackType::Unavoidable;
+				AttackRowActors[i]->Initialize();
+				break;
+
+			case EAttackType::Tricky:
+				AttackRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(AttackDefenceActorClass, LocationToSpawn, FRotator(0.0f, 180.0f, 0.0f));
+				if (!ensure(AttackRowActors[i])) { return; }
+
+				AttackRowActors[i]->StartLocation = CharactersAttackers[j]->GetActorLocation();
+				AttackRowActors[i]->EndLocation = Defender->GetActorLocation();
+
+				AttackRowActors[i]->AttackState = EAttackType::Tricky;
+				AttackRowActors[i]->Initialize();
+				break;
+
+			default:
+				break;
+			}
+			AttackRowActors[i]->HoldTime = j*0.2f;
+		}
+	}
+	UE_LOG(LogTemp, Error, TEXT("Attack created"))
+
+		TArray<EDefenseType> DefenseRowToGenerate = Defender->pAttackDefenseComponent->DefensePoolRow_1;
+	TArray<AAttackDefenseActor*> DefenseRowActors;
+	DefenseRowActors.Init(nullptr, DefenseRowToGenerate.Num());
+
+	for (int32 i = 0; i < DefenseRowToGenerate.Num(); i++)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *GETENUMSTRING("EUsesEnum", DefenseRowToGenerate[i]))
+
+			FVector LocationToSpawnDefense = (Defender->GetActorLocation() + FVector(0.f, 0.f, 300.f) + FVector(0.f, 0.f, 140.f*i));
+
+		switch (DefenseRowToGenerate[i])
+		{
+		case EDefenseType::No_Defense:
+
+			break;
+
+		case EDefenseType::Absorb:
+			DefenseRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(AttackDefenceActorClass, LocationToSpawnDefense, FRotator(0.0f, 180.0f, 0.0f));
+
+			DefenseRowActors[i]->DefenseState = EDefenseType::Absorb;
+			DefenseRowActors[i]->Initialize();
+
+			if (DefenseRowToGenerate[i] != EDefenseType::No_Defense) {
+				DefenseRowActors[i]->IsAttacking = false;
+				DefenseRowActors[i]->StartLocation = Defender->GetActorLocation();
+			}
+			break;
+
+		case EDefenseType::Evade:
+			DefenseRowActors[i] = GetWorld()->SpawnActor<AAttackDefenseActor>(AttackDefenceActorClass, LocationToSpawnDefense, FRotator(0.0f, 180.0f, 0.0f));
+
+			DefenseRowActors[i]->DefenseState = EDefenseType::Evade;
+			DefenseRowActors[i]->Initialize();
+
+			if (DefenseRowToGenerate[i] != EDefenseType::No_Defense) {
+				DefenseRowActors[i]->IsAttacking = false;
+				DefenseRowActors[i]->StartLocation = Defender->GetActorLocation();
+			}
+			break;
+
+		default:
+			break;
+		}
+	}
+	auto Timer = GetWorld()->SpawnActor<ATimer>(FVector(), FRotator(0.0f, 180.0f, 0.0f));
+	UE_LOG(LogTemp, Warning, TEXT("Timer is spawned"))
+		Timer->bIsFightingBack = true;
+	Timer->LifeTime += (CharactersAttackers.Num()-1)*0.2f;
+	Timer->Enemy = Defender;
+
+	int32 Min = 0;
+	Timer->PlayerCharacter = CharactersAttackers[FMath::RandRange(Min, (CharactersAttackers.Num()-1))];
+}
+
+void AWeirdThingsPlayerController::InitiateCombat()
+{
+	bIsCombatOn = true;
+	if (pSelectedCharacter) { pSelectedCharacter->SetSelected(false); }
+	UE_LOG(LogTemp, Error, TEXT("Combat initiated"))
+}
+
+void AWeirdThingsPlayerController::EndCombat()
+{
+	bIsCombatOn = false;
+	if (!PlayersChosenToFight.IsValidIndex(0)) { return; }
+	for (int32 i = 0; i < PlayersChosenToFight.Num(); i++)
+	{
+		PlayersChosenToFight[i]->SetSelectedForCombat(false);
+	}
+	PlayersChosenToFight.Empty();
+
 }
 
 void AWeirdThingsPlayerController::ItemDurabilityCheck(AWTPlayerCharacter* ItemOwner)
@@ -357,7 +528,7 @@ void AWeirdThingsPlayerController::ItemDurabilityCheck(AWTPlayerCharacter* ItemO
 	}
 }
 
-void AWeirdThingsPlayerController::AttackDefenseEvent(AWTPlayerCharacter* Attacker, AEncounter* Defender)
+void AWeirdThingsPlayerController::AttackDefenseEvent(AWTPlayerCharacter* Attacker, AEncounter* Defender, bool IsFightingBack)
 {
 
 	TArray<EAttackType> AttackRowToGenerate = Attacker->pAttackDefenseComponent->AttackPoolRow_1;
@@ -471,13 +642,14 @@ void AWeirdThingsPlayerController::AttackDefenseEvent(AWTPlayerCharacter* Attack
 	}
 	auto Timer = GetWorld()->SpawnActor<ATimer>(FVector(), FRotator(0.0f, 180.0f, 0.0f));
 	UE_LOG(LogTemp, Warning, TEXT("Timer is spawned"))
+		Timer->bIsFightingBack = IsFightingBack;
 		Timer->Enemy = Defender;
 	Timer->PlayerCharacter = Attacker;
 }
 
 void AWeirdThingsPlayerController::AttackDefenseEvent(AEncounter* Attacker, AWTPlayerCharacter* Defender)
 {
-
+	InitiateCombat();
 	TArray<EAttackType> AttackRowToGenerate = Attacker->pAttackDefenseComponent->AttackPoolRow_1;
 	TArray<AAttackDefenseActor*> AttackRowActors;
 	AttackRowActors.Init(nullptr, AttackRowToGenerate.Num());

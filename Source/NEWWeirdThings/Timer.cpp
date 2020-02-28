@@ -30,8 +30,10 @@ void ATimer::Tick(float DeltaTime)
 
 	if ((FPlatformTime::Seconds() - TimeCreated) >= LifeTime)
 	{
-		Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController())->FightBack(Enemy, PlayerCharacter);
-		//UE_LOG(LogTemp, Warning, TEXT("%f"), (FPlatformTime::Seconds() - TimeCreated))
+		if (bIsFightingBack) {
+			Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController())->FightBack(Enemy, PlayerCharacter);
+			//UE_LOG(LogTemp, Warning, TEXT("%f"), (FPlatformTime::Seconds() - TimeCreated))
+		}
 
 		Cast< AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController())->AreClickEventsDisabled = false;
 		Destroy();

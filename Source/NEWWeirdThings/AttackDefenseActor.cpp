@@ -70,26 +70,27 @@ void AAttackDefenseActor::BeginPlay()
 void AAttackDefenseActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if ((FPlatformTime::Seconds() - CreationTime) > LifeTime)
+	if ((FPlatformTime::Seconds() - CreationTime) > (LifeTime + HoldTime))
 	{
 		Destroy();
 	}
 
 	if (IsAttacking) {
-		if (GetActorLocation().Z < (StartLocation.Z + 1000) && (GetActorLocation().Y == StartLocation.Y))
-		{
-			SetActorLocation(GetActorLocation() + FVector(0.f, 0.f, 40.f));
-		}
-		else if (GetActorLocation().Y == StartLocation.Y)
-		{
-			SetActorLocation(EndLocation + FVector(0.f, 0.f, 1400.f));
-		}
-		else
-		{
-			SetActorLocation(GetActorLocation() + FVector(0.f, 0.f, -40.f));
+		if ((FPlatformTime::Seconds() - CreationTime) > HoldTime) {
+			if (GetActorLocation().Z < (StartLocation.Z + 1000) && (GetActorLocation().Y == StartLocation.Y))
+			{
+				SetActorLocation(GetActorLocation() + FVector(0.f, 0.f, 40.f));
+			}
+			else if (GetActorLocation().Y == StartLocation.Y)
+			{
+				SetActorLocation(EndLocation + FVector(0.f, 0.f, 1400.f));
+			}
+			else
+			{
+				SetActorLocation(GetActorLocation() + FVector(0.f, 0.f, -40.f));
+			}
 		}
 	}
-
 
 }
 
