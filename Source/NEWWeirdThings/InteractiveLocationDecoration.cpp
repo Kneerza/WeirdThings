@@ -68,6 +68,7 @@ void AInteractiveLocationDecoration::Tick(float DeltaTime)
 
 void AInteractiveLocationDecoration::ChangeState_InteractiveLocationDecoration()
 {
+	if (!(InteractiveLocationDecoration_SpriteComponent_1->bHiddenInGame)) { return; }
 	if (InteractiveLocationDecoration_SpriteComponent_1->GetSprite())
 	{
 		InteractiveLocationDecoration_SpriteComponent_0->DestroyComponent();

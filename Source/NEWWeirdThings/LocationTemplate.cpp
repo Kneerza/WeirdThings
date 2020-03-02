@@ -455,28 +455,37 @@ void ALocationTemplate::CreateDynamicAction(TSubclassOf<AAction> ActionClass, AE
 	}
 }
 
-void ALocationTemplate::CreateDynamicAction(TSubclassOf<AAction> ActionClass, UChildActorComponent* ActorToEntangleWith)
+void ALocationTemplate::CreateDynamicAction(TSubclassOf<AAction> ActionClass, UChildActorComponent* ActorToEntangleWith, ALocationTemplate* LocationInstigator)
 {
+	
 	for (int32 i = 0; i < DynamicAction.Num(); i++)
 	{
-		if (DynamicAction[i]) {
-			continue;
+		if (!DynamicAction[i]) {
+			DynamicAction[i] = NewObject<UChildActorComponent>(this, ("Action_Dynamic" + i));
+
+			DynamicAction[i]->RegisterComponent();
+			DynamicAction[i]->SetChildActorClass(ActionClass);
+			DynamicAction[i]->SetWorldLocation(AvailableSocketDynamicAction[0]->GetComponentLocation());
+			//Cast<AAction>(DynamicAction[i]->GetChildActor())->EntangledDeadEncounter = EntangledDead;
+
+			//EntangledDead->CreatedAction = DynamicAction[i];
+			AAction* CreatedAction = nullptr;
+
+			EntangleActionWithActor(DynamicAction[i], ActorToEntangleWith);
+			CreatedAction = Cast<AAction>(DynamicAction[i]->GetChildActor());
+
+			CreatedAction->ActionPointsRequired = 0;
+			if (LocationInstigator) {
+				CreatedAction->LocationArrowPointsTo = LocationInstigator;
+			}
+			CreatedAction->ActionType = EActionType::Arrow_Move;
+			CreatedAction->UpdateArrowActionVisual();
+			return;
 		}
-		DynamicAction[i] = NewObject<UChildActorComponent>(this, ("Action_Dynamic" + i));
-
-		DynamicAction[i]->RegisterComponent();
-		DynamicAction[i]->SetChildActorClass(ActionClass);
-		DynamicAction[i]->SetWorldLocation(AvailableSocketDynamicAction[0]->GetComponentLocation());
-		//Cast<AAction>(DynamicAction[i]->GetChildActor())->EntangledDeadEncounter = EntangledDead;
-
-		//EntangledDead->CreatedAction = DynamicAction[i];
-
-		EntangleActionWithActor(DynamicAction[i], ActorToEntangleWith);
-		return;
 	}
 }
 
-void ALocationTemplate::CreateDoor(TSubclassOf<AInteractiveLocationDecoration> DoorToCreateClass, TSubclassOf<AAction> TeleportActionToCreateClass)
+void ALocationTemplate::CreateDoor(TSubclassOf<AInteractiveLocationDecoration> DoorToCreateClass, TSubclassOf<AAction> TeleportActionToCreateClass, ALocationTemplate* LocationInstigator)
 {
 	if (Door) {
 
@@ -499,5 +508,5 @@ void ALocationTemplate::CreateDoor(TSubclassOf<AInteractiveLocationDecoration> D
 	Door->RegisterComponent();
 	Door->SetChildActorClass(DoorToCreateClass);
 	Door->SetWorldLocation(SocketDoor->GetComponentLocation());
-	CreateDynamicAction(TeleportActionToCreateClass, Door);
+	CreateDynamicAction(TeleportActionToCreateClass, Door, LocationInstigator);
 }

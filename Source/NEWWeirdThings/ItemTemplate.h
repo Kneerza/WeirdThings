@@ -16,6 +16,13 @@ enum class EItemType : uint8
 	Flamable,
 	Armor,
 	Axe,
+	Medicine,
+	Tonic,
+	ExploringEquipment,
+	PowderCharge,
+	FishingEquipment,
+	HuntingEquipment,
+	Shovel,
 	Shield
 };
 
@@ -61,10 +68,13 @@ public:
 		UTexture2D* ItemIcon;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
-		UTexture2D* ItemCard;
+		int32 ActionPointsRequiredToUse = 0;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
-		int32 Damage = 2;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+	//	UTexture2D* ItemCard;
+
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+	//	int32 Damage = 2;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		TArray<EItemType> ItemType;

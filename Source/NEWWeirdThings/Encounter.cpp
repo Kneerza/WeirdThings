@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Encounter.h"
+#include "Encounter_Dead.h"
+#include "WeirdThingsPlayerController.h"
 #include "QuitManagement.h"
 #include "AttackDefenseActor.h"
 #include "AttackDefenseComponent.h"
@@ -72,7 +74,9 @@ void AEncounter::LooseHealth()
 	HealthPoints--;
 	if (HealthPoints < 1)
 	{
-
+		if (Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController())->Encounter_DeadsInPlay.Contains(this)) {
+			Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController())->Encounter_DeadsInPlay.Remove(Cast<AEncounter_Dead>(this));
+		}
 		Destroy();
 	}
 }

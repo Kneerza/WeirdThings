@@ -72,6 +72,9 @@ void AWeirdThingsPlayerController::LeftClickEvents()
 		if (ClickedActorClassName == "WTPlayerCharacter") {
 			
 			if (!(PlayersChosenToFight.Contains(pClickedActor))) {
+				if (CombatInitiator) {
+					if (!(Cast<AWTPlayerCharacter>(pClickedActor)->CurrentLocation == CombatInitiator->CurrentLocation)) { return; }
+				}
 			auto ReadyForCombatCharacter = Cast<AWTPlayerCharacter>(pClickedActor);
 				PlayersChosenToFight.Add(ReadyForCombatCharacter);
 				ReadyForCombatCharacter->SetSelectedForCombat(true);
@@ -99,7 +102,7 @@ void AWeirdThingsPlayerController::RightClickEvents()
 	if (bIsCombatOn) {
 
 		if (ClickedActorClassName == "WTPlayerCharacter") {
-
+			if (Cast<AWTPlayerCharacter>(pClickedActor)->CurrentLocation != CombatInitiator->CurrentLocation) { return; }
 			if (PlayersChosenToFight.Contains(pClickedActor)) {
 				auto RemovedFromCombatCharacter = Cast<AWTPlayerCharacter>(pClickedActor);
 				PlayersChosenToFight.Remove(RemovedFromCombatCharacter);
@@ -115,16 +118,22 @@ void AWeirdThingsPlayerController::RightClickEvents()
 		}
 		else if (ClickedActorClassName == "Encounter_Bad")
 		{
-			Combat(pSelectedCharacter, Cast<AEncounter>(pClickedActor));
+			auto ClickedEncounter = Cast<AEncounter>(pClickedActor);
+			CombatInitiator = ClickedEncounter;
+			Combat(pSelectedCharacter, ClickedEncounter);
 		}
 		else if (ClickedActorClassName == "Encounter_Good")
 		{
-			Combat(pSelectedCharacter, Cast<AEncounter>(pClickedActor));
+			auto ClickedEncounter = Cast<AEncounter>(pClickedActor);
+			CombatInitiator = ClickedEncounter;
+			Combat(pSelectedCharacter, ClickedEncounter);
 		}
 		else if (ClickedActorClassName == "Encounter_Dead")
 		{
 			if (Cast<AEncounter_Dead>(pClickedActor)->IsAwake) {
-				Combat(pSelectedCharacter, Cast<AEncounter>(pClickedActor));
+				auto ClickedEncounter = Cast<AEncounter>(pClickedActor);
+				CombatInitiator = ClickedEncounter;
+				Combat(pSelectedCharacter, ClickedEncounter);
 			}
 		}
 	}else if (CharacterIsSelected) {
@@ -154,16 +163,16 @@ void AWeirdThingsPlayerController::RightClickEvents()
 		}
 		else if (ClickedActorClassName == "Encounter_Bad")
 		{
-			Combat(pSelectedCharacter, Cast<AEncounter>(pClickedActor));
+			InitiateCombat(Cast<AEncounter>(pClickedActor));
 		}
 		else if (ClickedActorClassName == "Encounter_Good")
 		{
-			Combat(pSelectedCharacter, Cast<AEncounter>(pClickedActor));
+			InitiateCombat(Cast<AEncounter>(pClickedActor));
 		}
 		else if (ClickedActorClassName == "Encounter_Dead")
 		{
 			if (Cast<AEncounter_Dead>(pClickedActor)->IsAwake) {
-				Combat(pSelectedCharacter, Cast<AEncounter>(pClickedActor));
+				InitiateCombat(Cast<AEncounter>(pClickedActor));
 			}
 		}
 		else if (ClickedActorClassName == "InteractiveLocationDecoration")
@@ -236,22 +245,42 @@ void AWeirdThingsPlayerController::ClickedActionHandle(AAction* CurrentAction)
 
 void AWeirdThingsPlayerController::SelectCharacter(AActor* CharacterToSelect)
 {
-
 	if (!ensure(CharacterToSelect)) { return; }
-	if (pSelectedCharacter) { pSelectedCharacter->SetSelected(false); } // Make sure previous SelectedCharacter is unselected
-	pSelectedCharacter = Cast <AWTPlayerCharacter>(CharacterToSelect);
-	if (pSelectedCharacter)
-	{
-		pSelectedCharacter->SetSelected(true);
-		CharacterIsSelected = true;
-		//Possess(pSelectedCharacter);
-	}
+	if (bIsCombatOn) {
 
+
+
+		if (!(PlayersChosenToFight.Contains(CharacterToSelect))) {
+			if (CombatInitiator) {
+				if (!(Cast<AWTPlayerCharacter>(CharacterToSelect)->CurrentLocation == CombatInitiator->CurrentLocation)) { return; }
+			}
+			auto ReadyForCombatCharacter = Cast<AWTPlayerCharacter>(CharacterToSelect);
+			PlayersChosenToFight.Add(ReadyForCombatCharacter);
+			ReadyForCombatCharacter->SetSelectedForCombat(true);
+		}
+		for (int32 i = 0; i < PlayersChosenToFight.Num(); i++)
+		{
+			if (PlayersChosenToFight[i]) {
+				UE_LOG(LogTemp, Warning, TEXT("%s is ready to fight"), *PlayersChosenToFight[i]->GetName())
+			}
+		}
+	}
+	else
+	{
+		if (pSelectedCharacter) { pSelectedCharacter->SetSelected(false); } // Make sure previous SelectedCharacter is unselected
+		pSelectedCharacter = Cast <AWTPlayerCharacter>(CharacterToSelect);
+		if (pSelectedCharacter)
+		{
+			pSelectedCharacter->SetSelected(true);
+			CharacterIsSelected = true;
+			//Possess(pSelectedCharacter);
+		}
+
+	}
 }
 
 void AWeirdThingsPlayerController::GetComponentUnderCursor(AActor* &ClickedActor, FString &ClickedActorClassName)
 {
-
 	FHitResult HitResult;
 	if (this->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, HitResult))
 	{
@@ -262,7 +291,6 @@ void AWeirdThingsPlayerController::GetComponentUnderCursor(AActor* &ClickedActor
 			UE_LOG(LogTemp, Warning, TEXT("Hit component: %s"), *HitResult.GetComponent()->GetName())
 	}
 	else { ClickedActor = nullptr; }
-
 }
 
 void AWeirdThingsPlayerController::GetCurrentLocationOfActor(AActor* Actor, ALocationTemplate* &CurrentLocation) // TODO replace 
@@ -325,6 +353,9 @@ void AWeirdThingsPlayerController::MoveCharacter(AWTPlayerCharacter* CharacterTo
 
 void AWeirdThingsPlayerController::TeleportCharacter(AWTPlayerCharacter* CharacterToMove, ALocationTemplate* LocationToMoveTo)
 {
+	if (!LocationToMoveTo) { return; }
+	if (CharacterToMove->MovementPoints < 1) { return; }
+
 	CharacterToMove->SetActorLocation(LocationToMoveTo->AvailableSocketPlayer[0]->GetComponentLocation());
 
 	CharacterToMove->CurrentLocation = LocationToMoveTo;
@@ -369,6 +400,7 @@ void AWeirdThingsPlayerController::PlayerCharactersAttack(TArray<AWTPlayerCharac
 
 		for (int32 i = 0; i < AttackRowToGenerate.Num(); i++)
 		{
+			int32 HoldModificator = 0;
 			FVector LocationToSpawn = (CharactersAttackers[j]->GetActorLocation() + FVector(0.f, 0.f, 300.f) + FVector(0.f, 0.f, 140.f*i));
 
 			// TODO move Rows generation to AAttackDefenseActor
@@ -388,6 +420,7 @@ void AWeirdThingsPlayerController::PlayerCharactersAttack(TArray<AWTPlayerCharac
 
 				AttackRowActors[i]->AttackState = EAttackType::Sharp;
 				AttackRowActors[i]->Initialize();
+				HoldModificator++;
 				break;
 
 			case EAttackType::Blunt:
@@ -399,6 +432,7 @@ void AWeirdThingsPlayerController::PlayerCharactersAttack(TArray<AWTPlayerCharac
 
 				AttackRowActors[i]->AttackState = EAttackType::Blunt;
 				AttackRowActors[i]->Initialize();
+				HoldModificator++;
 				break;
 
 			case EAttackType::Unavoidable:
@@ -410,6 +444,7 @@ void AWeirdThingsPlayerController::PlayerCharactersAttack(TArray<AWTPlayerCharac
 
 				AttackRowActors[i]->AttackState = EAttackType::Unavoidable;
 				AttackRowActors[i]->Initialize();
+				HoldModificator++;
 				break;
 
 			case EAttackType::Tricky:
@@ -421,12 +456,13 @@ void AWeirdThingsPlayerController::PlayerCharactersAttack(TArray<AWTPlayerCharac
 
 				AttackRowActors[i]->AttackState = EAttackType::Tricky;
 				AttackRowActors[i]->Initialize();
+				HoldModificator++;
 				break;
 
 			default:
 				break;
 			}
-			AttackRowActors[i]->HoldTime = j*0.2f;
+			AttackRowActors[i]->HoldTime = j*0.2f*HoldModificator;
 		}
 	}
 	UE_LOG(LogTemp, Error, TEXT("Attack created"))
@@ -487,7 +523,19 @@ void AWeirdThingsPlayerController::PlayerCharactersAttack(TArray<AWTPlayerCharac
 
 void AWeirdThingsPlayerController::InitiateCombat()
 {
+
 	bIsCombatOn = true;
+	if (pSelectedCharacter) { 
+		pSelectedCharacter->SetSelected(false); 
+	}
+	UE_LOG(LogTemp, Error, TEXT("Combat initiated"))
+}
+
+void AWeirdThingsPlayerController::InitiateCombat(AEncounter* Initiator)
+{
+	if (bIsCombatOn) { return; }
+	bIsCombatOn = true;
+	CombatInitiator = Initiator;
 	if (pSelectedCharacter) { pSelectedCharacter->SetSelected(false); }
 	UE_LOG(LogTemp, Error, TEXT("Combat initiated"))
 }
@@ -504,28 +552,68 @@ void AWeirdThingsPlayerController::EndCombat()
 
 }
 
-void AWeirdThingsPlayerController::ItemDurabilityCheck(AWTPlayerCharacter* ItemOwner)
+void AWeirdThingsPlayerController::ItemDurabilityCheck(AWTPlayerCharacter* ItemOwner, AItemTemplate* ItemToCheck, EItemType ItemTypeToCheck)
 {
-	auto ActiveItem = ItemOwner->ActiveItem;
-	auto Backpack = ItemOwner->Backpack;
-	if (!ActiveItem) { return; }
+	//auto ActiveItem = ItemOwner->ActiveItem;
+	//auto Backpack = ItemOwner->Backpack;
+	//if (!ActiveItem) { return; }
 
 	auto Rand = FMath::RandRange(1, 6);
 
-	for (int32 i = 0; i < ActiveItem->ItemType.Num(); i++)
+	for (int32 i = 0; i < ItemToCheck->ItemType.Num(); i++)
 	{
-		if (ActiveItem->ItemType[i] == EItemType::Weapon)
+		if (ItemToCheck->ItemType[i] == ItemTypeToCheck)
 		{
-			if (ActiveItem->ItemDurabilityByType[i] < Rand) {//FMath::RandRange(1, 6)) {
+			if (ItemToCheck->ItemDurabilityByType[i] < Rand) {//FMath::RandRange(1, 6)) {
 
-				ActiveItem->Destroy();
-				Backpack[7] = nullptr;  // [7] - currently active item
-				ItemOwner->Backpack[7] = Backpack[7];  //// [7] - currently active item
+				ItemOwner->Backpack.Remove(ItemToCheck);
+				ItemToCheck->Destroy();
+				//Backpack[7] = nullptr;  // [7] - currently active item
+				//ItemOwner->Backpack[7] = Backpack[7];  //// [7] - currently active item
 			}
 			UE_LOG(LogTemp, Error, TEXT("%i"), Rand)
 		}
 
 	}
+}
+
+void AWeirdThingsPlayerController::UseItem(AItemTemplate* ItemToUse, AWTPlayerCharacter* ItemOwner)
+{
+	if (ItemOwner->CurrentActionPoints < ItemToUse->ActionPointsRequiredToUse)
+	{
+		return;
+	}
+	//UE_LOG(LogTemp, Warning, TEXT("Inside UseItem: checking if ItemToUse exists"))
+	if (!ItemToUse) { return; }
+	auto ItemToUseType = ItemToUse->ItemType;
+	for (int32 i = 0; i < ItemToUseType.Num(); i++)
+	{
+		switch (ItemToUseType[i])
+
+		{
+		case EItemType::Medicine:
+
+			
+			if (ItemOwner->RemoveInjury(1))
+			{
+				ItemDurabilityCheck(ItemOwner, ItemToUse, EItemType::Medicine);
+			}
+			break;
+
+		case EItemType::Tonic:
+
+			ItemOwner->GetActionPoints(1);
+			ItemDurabilityCheck(ItemOwner, ItemToUse, EItemType::Tonic);
+
+			break;
+
+		default:
+
+			break;
+			
+		}
+	}
+	ItemOwner->CurrentActionPoints -= ItemToUse->ActionPointsRequiredToUse;
 }
 
 void AWeirdThingsPlayerController::AttackDefenseEvent(AWTPlayerCharacter* Attacker, AEncounter* Defender, bool IsFightingBack)
@@ -649,7 +737,7 @@ void AWeirdThingsPlayerController::AttackDefenseEvent(AWTPlayerCharacter* Attack
 
 void AWeirdThingsPlayerController::AttackDefenseEvent(AEncounter* Attacker, AWTPlayerCharacter* Defender)
 {
-	InitiateCombat();
+	InitiateCombat(Attacker);
 	TArray<EAttackType> AttackRowToGenerate = Attacker->pAttackDefenseComponent->AttackPoolRow_1;
 	TArray<AAttackDefenseActor*> AttackRowActors;
 	AttackRowActors.Init(nullptr, AttackRowToGenerate.Num());
@@ -1152,6 +1240,14 @@ void AWeirdThingsPlayerController::TryToUnlock(AAction* CurrentAction)
 
 		break;
 
+	case EActionLockType::Need_Shovel:
+
+		if (FindAndUseItemToUnlock(EItemType::Shovel)) {
+			CurrentAction->Unlock();
+		}
+
+		break;
+
 	default:
 
 		break;
@@ -1345,7 +1441,7 @@ void AWeirdThingsPlayerController::SetTimeNight()
 		//else { ConsumeFood(1, PlayerCharacters[i]); }
 		PlayerCharacters[i]->GetHunger(1);
 
-		if (PlayerCharacters[i]->Wood <= 0) { PlayerCharacters[i]->GetInsanity(1); }
+		if (!(PlayerCharacters[i]->CurrentLocation->AvailableSocketCampFire.Num()<1)) { PlayerCharacters[i]->GetInsanity(1); }
 		//else { ConsumeWood(1, PlayerCharacters[i]); }
 	}
 

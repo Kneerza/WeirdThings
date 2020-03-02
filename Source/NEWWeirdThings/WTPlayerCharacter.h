@@ -130,9 +130,13 @@ public:
 
 	void GetExhaustion(int32 ExhaustionAmountToGet);
 
+	void GetActionPoints(int32 ActionPointsAmountToGet);
+
 	void RemoveInsanity(int32 InsanityAmountToRemove);
 
 	void RemoveHunger(int32 HungerAmountToRemove);
+
+	bool RemoveInjury(int32 InjuryAmountToRemove);
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void RemoveExhaustion(int32 ExhaustionAmountToRemove);

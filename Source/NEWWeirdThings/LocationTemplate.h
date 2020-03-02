@@ -156,7 +156,8 @@ public:
 	TArray<UChildActorComponent*> DynamicAction = { nullptr, nullptr, nullptr };
 
 	void CreateDynamicAction(TSubclassOf<AAction> ActionClass, AEncounter_Dead* EntangledDead);
-	void CreateDynamicAction(TSubclassOf<AAction> ActionClass, UChildActorComponent* ActorToEntangleWith);
+	//void CreateDynamicAction(TSubclassOf<AAction> ActionClass, UChildActorComponent* ActorToEntangleWith);
+	void CreateDynamicAction(TSubclassOf<AAction> ActionClass, UChildActorComponent* ActorToEntangleWith, ALocationTemplate* LocationInstigator);
 
 	UPROPERTY(EditAnywhere, Category = Setup)
 		TSubclassOf<AArrowTemplate> ArrowBlueprint;
@@ -203,7 +204,7 @@ public:
 	//UFUNCTION(BlueprintCallable, Category = "Custom")
 	//	void TreatAsSameAction(TArray<AAction*> SameActions);
 
-	void CreateDoor(TSubclassOf<AInteractiveLocationDecoration> DoorToCreateClass, TSubclassOf<AAction> TeleportActionToCreateClass);
+	void CreateDoor(TSubclassOf<AInteractiveLocationDecoration> DoorToCreateClass, TSubclassOf<AAction> TeleportActionToCreateClass, ALocationTemplate* LocationInstigator);
 
 protected:
 	// Called when the game starts or when spawned

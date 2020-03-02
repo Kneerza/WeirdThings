@@ -17,6 +17,8 @@ UQuitManagement::UQuitManagement()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	// ...
+
+	QuitType.Init(EQuitType::No_QuitType, 3);
 }
 
 
@@ -39,7 +41,6 @@ void UQuitManagement::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 void UQuitManagement::CheckQuitConditions()
 {
-	UE_LOG(LogTemp, Error, TEXT(" Number of availible fire sockets: %i"), Cast<AEncounter>(GetOwner())->CurrentLocation->AvailableSocketCampFire.Num())
 	auto PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
 	auto CurrentlySelectedCharacter = PlayerController->pSelectedCharacter;
 	TArray<AItemTemplate*> Backpack = { nullptr };

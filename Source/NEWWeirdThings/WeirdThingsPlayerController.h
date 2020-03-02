@@ -102,11 +102,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		AWTPlayerCharacter* PlayerCharacterRef = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
-		int32 ResultPlayerDamage;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+	//	int32 ResultPlayerDamage;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
-		int32 ResultEnemyDamage;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+	//	int32 ResultEnemyDamage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		TSubclassOf<ADirectionalLight> DirectionalLight_BP;
@@ -149,8 +149,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void InitiateCombat();
 
+		void InitiateCombat(AEncounter* Initiator);
+
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void EndCombat();
+
+	AEncounter* CombatInitiator;
 
 	void AttackDefenseEvent(AWTPlayerCharacter* Attacker, AEncounter* Defender, bool IsFightingBack);
 	void AttackDefenseEvent(AEncounter* Attacker, AWTPlayerCharacter* Defender);
@@ -170,7 +174,7 @@ public:
 
 	void PassItemToPlayer(EItemValue ItemValue);
 
-	void ItemDurabilityCheck(AWTPlayerCharacter* ItemOwner);
+	void ItemDurabilityCheck(AWTPlayerCharacter* ItemOwner, AItemTemplate* ItemToCheck, EItemType ItemTypeToCheck);
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		bool ConsumeFood(int32 FoodAmountToConsume, AWTPlayerCharacter* AffectedCharacter);
@@ -215,6 +219,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void Sleep(AWTPlayerCharacter* PlayerCharacter);
 
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void UseItem(AItemTemplate* ItemToUse, AWTPlayerCharacter* ItemOwner);
 
 
 private:

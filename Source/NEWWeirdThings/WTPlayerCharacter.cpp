@@ -126,6 +126,7 @@ void AWTPlayerCharacter::RefreshItems()
 
 void AWTPlayerCharacter::GetItem(AItemTemplate* ItemToPick)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Getting Item: %s"),*ItemToPick->GetName())
 	if (!ItemToPick) { return; }
 	for (int32 i = 3; i < Backpack.Num(); i++)
 	{
@@ -198,6 +199,11 @@ void AWTPlayerCharacter::GetExhaustion(int32 ExhaustionAmountToGet)
 	if (this->Injuries.Last() != EDurabilityState::Empty) { this->Destroy(); return; }
 }
 
+void AWTPlayerCharacter::GetActionPoints(int32 ActionPointsAmountToGet)
+{
+	CurrentActionPoints += ActionPointsAmountToGet;
+}
+
 void AWTPlayerCharacter::RemoveInsanity(int32 InsanityAmountToRemove)
 {
 	if (InsanityAmountToRemove == 0) { return; }
@@ -222,6 +228,21 @@ void AWTPlayerCharacter::RemoveHunger(int32 HungerAmountToRemove)
 			HungerAmountToRemove--;
 		}
 	}
+}
+
+bool AWTPlayerCharacter::RemoveInjury(int32 InjuryAmountToRemove)
+{
+	if (InjuryAmountToRemove == 0) { return false; }
+	for (int32 i = (Injuries.Num() - 1); i >= 0; i--)
+	{
+		if ((Injuries[i] == EDurabilityState::Injury && (InjuryAmountToRemove != 0)))
+		{
+			Injuries[i] = EDurabilityState::Empty;
+			InjuryAmountToRemove--;
+			return true;
+		}
+	}
+	return false;
 }
 
 void AWTPlayerCharacter::RemoveExhaustion(int32 ExhaustionAmountToRemove)

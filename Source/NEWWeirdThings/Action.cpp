@@ -37,6 +37,7 @@ AAction::AAction()
 	pLockItem_G = LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Action_Locks/Flipbooks/Lock_Item_Gold_Flipbook.Lock_Item_Gold_Flipbook'")));
 	pLockExhaustion = LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Action_Locks/Flipbooks/Exhaustion_Flipbook.Exhaustion_Flipbook'")));
 	pLockInsanity = LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Action_Locks/Flipbooks/Insanity_Flipbook.Insanity_Flipbook'")));
+	pLockShovel = LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Action_Locks/Flipbooks/ActionLock_Shovel_Flipbook.ActionLock_Shovel_Flipbook'")));
 	pActionForced = LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Flipbooks/Action_Forced_Flipbook.Action_Forced_Flipbook'")));
 
 	//----------------------Creating Root Component--------------------------
@@ -162,6 +163,11 @@ void AAction::ConstructActionLocks()
 		case EActionLockType::Need_Item_G:
 
 			ActionLock[i]->SetFlipbook(pLockItem_G);
+			break;
+
+		case EActionLockType::Need_Shovel:
+
+			ActionLock[i]->SetFlipbook(pLockShovel);
 			break;
 
 		default:
@@ -339,6 +345,8 @@ void AAction::UpdateArrowActionVisual()
 		EntangledInteractiveLocationDecoration->InteractiveLocationDecoration_SpriteComponent_0->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 
+	if (ActionType == EActionType::Arrow_Move) { return; }
+
 	auto ParentLocation = Cast<ALocationTemplate>(GetParentActor());
 	auto ParentLocationHorizontalIndex = ParentLocation->HorizontalIndex;
 	auto ParentLocationVerticalIndex = ParentLocation->VerticalIndex;
@@ -346,7 +354,7 @@ void AAction::UpdateArrowActionVisual()
 	auto PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
 	auto LocationsInPlay = PlayerController->AllLocationsInPlay;
 
-	if (ActionType == EActionType::Arrow_Move) {return;}
+	
 	if (ActionType == EActionType::ArrowUp_Plot) {
 		for (int32 i = 0; i < LocationsInPlay.Num(); i++)
 		{
@@ -398,5 +406,5 @@ void AAction::SetTeleport()
 		}
 	}
 
-	PlayerController->AllLocationsInPlay[Rand]->CreateDoor(DoorToCreateClass, TeleportActionToCreateClass);
+	PlayerController->AllLocationsInPlay[Rand]->CreateDoor(DoorToCreateClass, TeleportActionToCreateClass, Cast<ALocationTemplate>(GetParentActor()));
 }

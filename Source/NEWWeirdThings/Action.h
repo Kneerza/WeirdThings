@@ -46,6 +46,7 @@ enum class EActionLockType : uint8
 	Need_Tool,
 	Need_Axe,
 	Need_Exhaustion,
+	Need_Shovel,
 	No_Need
 };
 
@@ -114,12 +115,14 @@ public:
 	UPaperFlipbook* pLockWood;
 	UPaperFlipbook* pLockTool;
 	UPaperFlipbook* pLockAxe;
+	UPaperFlipbook* pLockShovel;
 	UPaperFlipbook* pLockItem_C;
 	UPaperFlipbook* pLockItem_S;
 	UPaperFlipbook* pLockItem_G;
 	UPaperFlipbook* pLockExhaustion;
 	UPaperFlipbook* pLockInsanity;
 	UPaperFlipbook* pActionForced;
+	
 
 	TArray<UPaperFlipbookComponent*> ActionLock;
 
