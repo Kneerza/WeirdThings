@@ -104,10 +104,10 @@ void AWTPlayerCharacter::RefreshItems()
 	for (int32 i = 0; i < Backpack.Num(); i++)
 	{
 		if (!Backpack[i]) { continue; }
-		if (i == (Backpack.Num() - 1)) {
+		if (i ==( (Backpack.Num() - 1)||(Backpack.Num() - 2))) {
 			Backpack[i]->IsActive = true;
-			ActiveItem = Backpack[i];
-			pAttackDefenseComponent->AttackPoolRow_1 = ActiveItem->AttackPoolRow_1;
+			//ActiveItem = Backpack[i];
+			//pAttackDefenseComponent->AttackPoolRow_1 = ActiveItem->AttackPoolRow_1;
 			//pAttackDefenseComponent->DefensePoolRow_1 = ActiveItem->DefensePoolRow_1;
 		}
 		else if (i < 3) {

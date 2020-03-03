@@ -84,7 +84,11 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Custom")
 		UPaperSpriteComponent* SelectingArrow;
 
-	AItemTemplate* ActiveItem = nullptr;
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
+	AItemTemplate* FirstActiveItem = nullptr;
+
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
+	AItemTemplate* SecondActiveItem = nullptr;
 
 	float DamageWidgetAlphaChannel = 1;
 

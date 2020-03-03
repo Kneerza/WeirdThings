@@ -154,6 +154,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void EndCombat();
 
+	AAction* CurrentlyHoveredByMouseAction = nullptr;
+
+	void SetCurrentlyHoveredByMouseAction(bool IsHovered, AAction* ActionToSet);
+
 	AEncounter* CombatInitiator;
 
 	void AttackDefenseEvent(AWTPlayerCharacter* Attacker, AEncounter* Defender, bool IsFightingBack);
@@ -164,6 +168,10 @@ public:
 
 	bool PerformAction(AAction* Action, int32 Modifier);
 	void TryToUnlock(AAction* CurrentAction);
+
+	bool CanFirstActiveItemUnlock(EItemType BackpackItemType);
+	bool CanSecondActiveItemUnlock(EItemType BackpackItemType);
+
 	bool FindAndUseItemToUnlock(EItemType BackpackItemType);
 	bool FindAndUseItemToUnlock(EItemValue BackpackItemValue);
 
@@ -186,6 +194,7 @@ public:
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 	//ALocationTemplate* SelectedCharacter_CurrentLocation;
 
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
 	AWTPlayerCharacter* pSelectedCharacter;
 
 	ADirectionalLight* pDirectionalLight;

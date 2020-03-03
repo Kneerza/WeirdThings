@@ -408,3 +408,17 @@ void AAction::SetTeleport()
 
 	PlayerController->AllLocationsInPlay[Rand]->CreateDoor(DoorToCreateClass, TeleportActionToCreateClass, Cast<ALocationTemplate>(GetParentActor()));
 }
+
+void AAction::SetIsHovered(bool IsHovered)
+{
+	auto PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
+
+	if (IsHovered)
+	{
+		PlayerController->SetCurrentlyHoveredByMouseAction(true, this);
+	}
+	else
+	{
+		PlayerController->SetCurrentlyHoveredByMouseAction(false, nullptr);
+	}
+}

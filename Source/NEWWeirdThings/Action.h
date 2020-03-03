@@ -158,6 +158,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void SetEntangledDeadEncounter(AEncounter_Dead* EntangledDeadEncounterToSet);
 
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void SetIsHovered(bool IsHovered);
+
 	void SetTeleport();
 
 protected:

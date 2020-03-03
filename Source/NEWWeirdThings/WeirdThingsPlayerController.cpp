@@ -243,6 +243,63 @@ void AWeirdThingsPlayerController::ClickedActionHandle(AAction* CurrentAction)
 	}
 }
 
+void AWeirdThingsPlayerController::SetCurrentlyHoveredByMouseAction(bool IsHovered, AAction* ActionToSet)
+{
+	if (IsHovered)
+	{
+		CurrentlyHoveredByMouseAction = ActionToSet;
+	}
+	else
+	{
+		CurrentlyHoveredByMouseAction = nullptr;
+	}
+
+	if (CurrentlyHoveredByMouseAction)
+	{
+
+		TryToUnlock(CurrentlyHoveredByMouseAction);
+	/*	CurrentlyHoveredByMouseAction->GetTypeOfLock();
+		auto Backpack = pSelectedCharacter->Backpack;
+
+		for (int32 i = (Backpack.Num()-1); i > (Backpack.Num() - 3); i--)
+		{
+
+			if (!(Backpack[i])) { continue; }
+
+			auto ItemType = Backpack[i]->ItemType;
+			for (int32 j = 0; j < ItemType.Num(); j++)
+			{
+				if (ItemType[j] == CurrentlyHoveredByMouseAction->ActionLockType[CurrentlyHoveredByMouseAction->CurrentLockTypeIndex])
+				{
+					if (Backpack[i]->ItemDurabilityByType[j] < FMath::RandRange(1, 6)) {
+						Backpack[i]->Destroy();
+						Backpack[i] = nullptr;
+						pSelectedCharacter->Backpack[i] = Backpack[i];
+						//UE_LOG(LogTemp, Warning, TEXT("%s is destroyed"), *Backpack[i]->GetName())
+						return true;
+					}
+					return true;
+				}
+
+			}
+		}
+
+
+		
+		if (Backpack[Backpack.Num() - 1])
+		{
+			UE_LOG(LogTemp, Warning, TEXT("%s"),*Backpack[Backpack.Num() - 1]->GetName())
+		}
+
+		if (Backpack[Backpack.Num() - 2])
+		{
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *Backpack[Backpack.Num() - 2]->GetName())
+		}
+		*/
+	}
+	
+}
+
 void AWeirdThingsPlayerController::SelectCharacter(AActor* CharacterToSelect)
 {
 	if (!ensure(CharacterToSelect)) { return; }
@@ -1188,17 +1245,23 @@ void AWeirdThingsPlayerController::TryToUnlock(AAction* CurrentAction)
 
 	case EActionLockType::Need_Tool:
 
-		if (FindAndUseItemToUnlock(EItemType::Tool)) {
-			CurrentAction->Unlock();
-		}
+		CanFirstActiveItemUnlock(EItemType::Tool);
+		CanSecondActiveItemUnlock(EItemType::Tool);
+
+		//if (FindAndUseItemToUnlock(EItemType::Tool)) {
+		//	CurrentAction->Unlock();
+		//}
 
 		break;
 
 	case EActionLockType::Need_Axe:
 
-		if (FindAndUseItemToUnlock(EItemType::Axe)) {
-			CurrentAction->Unlock();
-		}
+		CanFirstActiveItemUnlock(EItemType::Axe);
+		CanSecondActiveItemUnlock(EItemType::Axe);
+
+		//if (FindAndUseItemToUnlock(EItemType::Axe)) {
+		//	CurrentAction->Unlock();
+		//}
 
 		break;
 
@@ -1242,9 +1305,12 @@ void AWeirdThingsPlayerController::TryToUnlock(AAction* CurrentAction)
 
 	case EActionLockType::Need_Shovel:
 
-		if (FindAndUseItemToUnlock(EItemType::Shovel)) {
-			CurrentAction->Unlock();
-		}
+		CanFirstActiveItemUnlock(EItemType::Shovel);
+		CanSecondActiveItemUnlock(EItemType::Shovel);
+
+		//if (FindAndUseItemToUnlock(EItemType::Shovel)) {
+		//	CurrentAction->Unlock();
+		//}
 
 		break;
 
@@ -1254,11 +1320,96 @@ void AWeirdThingsPlayerController::TryToUnlock(AAction* CurrentAction)
 	}
 }
 
+bool AWeirdThingsPlayerController::CanFirstActiveItemUnlock(EItemType BackpackItemType)
+{
+	if (pSelectedCharacter) {
+
+		auto Backpack = pSelectedCharacter->Backpack;
+		auto FirstActiveItemIndex = Backpack.Num() - 1;
+
+		if (Backpack[FirstActiveItemIndex])
+		{
+			auto ItemType = Backpack[FirstActiveItemIndex]->ItemType;
+			for (int32 i = 0; i < ItemType.Num(); i++)
+			{
+				if (ItemType[i] == BackpackItemType)
+				{
+					pSelectedCharacter->FirstActiveItem = Backpack[FirstActiveItemIndex];
+					UE_LOG(LogTemp, Warning, TEXT("%s is ready for use"), *Backpack[FirstActiveItemIndex]->GetName())
+					return true;
+				}
+
+			}
+			pSelectedCharacter->FirstActiveItem = nullptr;
+			return false;
+		}
+		pSelectedCharacter->FirstActiveItem = nullptr;
+		return false;
+	}
+	return false;
+}
+
+bool AWeirdThingsPlayerController::CanSecondActiveItemUnlock(EItemType BackpackItemType)
+{
+	if (pSelectedCharacter) {
+
+		auto Backpack = pSelectedCharacter->Backpack;
+		auto SecondActiveItemIndex = Backpack.Num() - 2;
+
+		if (Backpack[SecondActiveItemIndex])
+		{
+			auto ItemType = Backpack[SecondActiveItemIndex]->ItemType;
+			for (int32 i = 0; i < ItemType.Num(); i++)
+			{
+				if (ItemType[i] == BackpackItemType)
+				{
+					pSelectedCharacter->SecondActiveItem = Backpack[SecondActiveItemIndex];
+					UE_LOG(LogTemp, Warning, TEXT("%s is ready for use"), *Backpack[SecondActiveItemIndex]->GetName())
+					return true;
+				}
+
+			}
+			pSelectedCharacter->SecondActiveItem = nullptr;
+			return false;
+		}
+		pSelectedCharacter->SecondActiveItem = nullptr;
+		return false;
+	}
+	return false;
+}
+
 bool AWeirdThingsPlayerController::FindAndUseItemToUnlock(EItemType BackpackItemType)
 {
 	if (pSelectedCharacter) {
 
 		auto Backpack = pSelectedCharacter->Backpack;
+		/* auto BackpackLength = Backpack.Num();
+		auto FirstActiveItemIndex = BackpackLength - 1;
+		auto SecondActiveItemIndex = BackpackLength - 2;
+
+		if (Backpack[FirstActiveItemIndex])
+		{
+			auto ItemType = Backpack[FirstActiveItemIndex]->ItemType;
+			for (int32 i = 0; i < ItemType.Num(); i++)
+			{
+				if (ItemType[i] == BackpackItemType)
+				{
+					
+					if (Backpack[FirstActiveItemIndex]->ItemDurabilityByType[FirstActiveItemIndex] < FMath::RandRange(1, 6)) {
+						Backpack[FirstActiveItemIndex]->Destroy();
+						Backpack[FirstActiveItemIndex] = nullptr;
+						pSelectedCharacter->Backpack[FirstActiveItemIndex] = Backpack[FirstActiveItemIndex];
+						//UE_LOG(LogTemp, Warning, TEXT("%s is destroyed"), *Backpack[i]->GetName())
+						return true;
+					}
+					
+					return true;
+				}
+
+			}
+		}
+
+		*/
 
 		for (int32 i = 0; i < Backpack.Num(); i++)
 		{
