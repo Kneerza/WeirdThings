@@ -142,6 +142,8 @@ public:
 
 	bool RemoveInjury(int32 InjuryAmountToRemove);
 
+	void SortInjuries();
+
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void RemoveExhaustion(int32 ExhaustionAmountToRemove);
 

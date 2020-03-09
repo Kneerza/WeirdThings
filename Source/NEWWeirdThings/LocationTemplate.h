@@ -102,6 +102,18 @@ public:
 		UStaticMeshComponent* SocketEncounter_4;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Mesh)
+		TArray<UStaticMeshComponent*> AvailableSocketEncounter_Good;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+		UStaticMeshComponent* SocketEncounter_Good_0;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+		UStaticMeshComponent* SocketEncounter_Good_1;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+		UStaticMeshComponent* SocketEncounter_Good_2;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Mesh)
 		TArray <UStaticMeshComponent*> AvailableSocketCampFire;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
@@ -179,6 +191,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void IncludeInAvailableEncounterSockets(UPrimitiveComponent* ComponentToInclude);
+
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void ExcludeFromAvailableEncounter_GoodSockets(UPrimitiveComponent* ComponentToExclude);
+
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void IncludeInAvailableEncounter_GoodSockets(UPrimitiveComponent* ComponentToInclude);
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void Connect(bool IsInfinite, UChildActorComponent* Parent, UPaperFlipbookComponent* Connector_0, UChildActorComponent* Child_0, UPaperFlipbookComponent* Connector_1, UChildActorComponent* Child_1, UPaperFlipbookComponent* Connector_2, UChildActorComponent* Child_2, UPaperFlipbookComponent* Connector_3, UChildActorComponent* Child_3, UPaperFlipbookComponent* Connector_4, UChildActorComponent* Child_4);

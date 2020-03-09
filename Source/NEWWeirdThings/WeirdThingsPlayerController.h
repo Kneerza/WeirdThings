@@ -31,6 +31,7 @@ class AAttackDefenseActor;
 class UDeckManager;
 class AEncounter;
 class AEncounter_Dead;
+class AEncounter_Good;
 
 
 /**
@@ -126,9 +127,9 @@ public:
 	void MoveCharacter(AWTPlayerCharacter* CharacterToMove, ALocationTemplate* LocationToMoveTo);
 	void TeleportCharacter(AWTPlayerCharacter* CharacterToMove, ALocationTemplate* LocationToMoveTo);
 
-	void SpawnEnemy(AAction* ActionInstigator);
+	bool SpawnEnemy(AAction* ActionInstigator);
 	ALocationTemplate* SpawnLocation(AAction* Action, bool IsSpawningOnRight, bool IsPlotLocation);
-	void SpawnGoodEnc(AAction* ActionInstigator);
+	bool SpawnGoodEnc(AAction* ActionInstigator);
 
 	void ClickedArrowTemplateHandle(AArrowTemplate* ClickedArrow);
 	void ClickedActionHandle(AAction* CurrentAction);
@@ -154,9 +155,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void EndCombat();
 
-	AAction* CurrentlyHoveredByMouseAction = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+		AAction* CurrentlyHoveredByMouseAction = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+		AEncounter_Good* CurrentlyHoveredByMouseEncounter_Good = nullptr;
 
 	void SetCurrentlyHoveredByMouseAction(bool IsHovered, AAction* ActionToSet);
+	void SetCurrentlyHoveredByMouseEncounter_Good(bool IsHovered, AEncounter_Good* Encounter_GoodToSet);
 
 	AEncounter* CombatInitiator;
 
@@ -166,6 +172,7 @@ public:
 
 	bool AreOnSameLocation(AActor* Actor1, AActor* Actor2);
 
+	bool Trade(EActionType ResultOfTrading, EActionLockType ItemRequiredToTrade);
 	bool PerformAction(AAction* Action, int32 Modifier);
 	void TryToUnlock(AAction* CurrentAction);
 
@@ -185,8 +192,10 @@ public:
 	void ItemDurabilityCheck(AWTPlayerCharacter* ItemOwner, AItemTemplate* ItemToCheck, EItemType ItemTypeToCheck);
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
-		bool ConsumeFood(int32 FoodAmountToConsume, AWTPlayerCharacter* AffectedCharacter);
-	bool ConsumeWood(int32 WoodAmountToConsume, AWTPlayerCharacter* AffectedCharacter);
+		bool ConsumeFood(int32 FoodAmountToConsume, AWTPlayerCharacter* AffectedCharacter, int32 ActionPointsRequired);
+	bool ConsumeWood(int32 WoodAmountToConsume, AWTPlayerCharacter* AffectedCharacter, int32 ActionPointsRequired);
+
+	bool RemoveFood(int32 FoodAmountToConsume, AWTPlayerCharacter* AffectedCharacter, int32 ActionPointsRequired);
 
 	bool GetFood(int32 FoodAmountToGet);
 	bool GetWood(int32 WoodAmountToGet);

@@ -68,6 +68,7 @@ ALocationTemplate::ALocationTemplate()
 	FVector OriginalPosition = FVector(-471.f, -367.f, -74.5f);
 	FVector CampFireOffset = FVector(0.f, 150.f, 0.f);
 	FVector EncounterOffset = FVector(0.f, 600.f, 0.f);
+	FVector Encounter_GoodOffset = FVector(182.f, 400.f, 49.84f);
 
 	FVector Scale = FVector(0.01f, 0.3f, 1.f);
 
@@ -189,6 +190,36 @@ ALocationTemplate::ALocationTemplate()
 	SocketEncounter_4->SetMobility(EComponentMobility::Movable);
 	SocketEncounter_4->CastShadow = false;
 	AvailableSocketEncounter.Emplace(SocketEncounter_4);
+
+	SocketEncounter_Good_0 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SocketEncounter_Good_0"));
+	SocketEncounter_Good_0->SetupAttachment(pRootComponent);
+	SocketEncounter_Good_0->SetCollisionResponseToChannels(CollisionResponseContainer);
+	SocketEncounter_Good_0->SetRelativeScale3D(Scale);
+	SocketEncounter_Good_0->SetRelativeLocation(OriginalPosition + Encounter_GoodOffset + (0 * EncounterIncrement));
+	SocketEncounter_Good_0->SetHiddenInGame(true);
+	SocketEncounter_Good_0->SetMobility(EComponentMobility::Movable);
+	SocketEncounter_Good_0->CastShadow = false;
+	AvailableSocketEncounter_Good.Emplace(SocketEncounter_Good_0);
+
+	SocketEncounter_Good_1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SocketEncounter_Good_1"));
+	SocketEncounter_Good_1->SetupAttachment(pRootComponent);
+	SocketEncounter_Good_1->SetCollisionResponseToChannels(CollisionResponseContainer);
+	SocketEncounter_Good_1->SetRelativeScale3D(Scale);
+	SocketEncounter_Good_1->SetRelativeLocation(OriginalPosition + Encounter_GoodOffset + (1 * EncounterIncrement));
+	SocketEncounter_Good_1->SetHiddenInGame(true);
+	SocketEncounter_Good_1->SetMobility(EComponentMobility::Movable);
+	SocketEncounter_Good_1->CastShadow = false;
+	AvailableSocketEncounter_Good.Emplace(SocketEncounter_Good_1);
+
+	SocketEncounter_Good_2 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SocketEncounter_Good_2"));
+	SocketEncounter_Good_2->SetupAttachment(pRootComponent);
+	SocketEncounter_Good_2->SetCollisionResponseToChannels(CollisionResponseContainer);
+	SocketEncounter_Good_2->SetRelativeScale3D(Scale);
+	SocketEncounter_Good_2->SetRelativeLocation(OriginalPosition + Encounter_GoodOffset + (2 * EncounterIncrement));
+	SocketEncounter_Good_2->SetHiddenInGame(true);
+	SocketEncounter_Good_2->SetMobility(EComponentMobility::Movable);
+	SocketEncounter_Good_2->CastShadow = false;
+	AvailableSocketEncounter_Good.Emplace(SocketEncounter_Good_2);
 
 	OriginalPosition = FVector(-526.f, 908.f, -907.f);
 	Scale = FVector(1.f, 1.f, 1.f);
@@ -325,6 +356,16 @@ void ALocationTemplate::ExcludeFromAvailableEncounterSockets(UPrimitiveComponent
 void ALocationTemplate::IncludeInAvailableEncounterSockets(UPrimitiveComponent* ComponentToInclude)
 {
 	AvailableSocketEncounter.Emplace(Cast<UStaticMeshComponent>(ComponentToInclude));
+}
+
+void ALocationTemplate::ExcludeFromAvailableEncounter_GoodSockets(UPrimitiveComponent* ComponentToExclude)
+{
+	AvailableSocketEncounter_Good.RemoveSingle(Cast<UStaticMeshComponent>(ComponentToExclude));
+}
+
+void ALocationTemplate::IncludeInAvailableEncounter_GoodSockets(UPrimitiveComponent* ComponentToInclude)
+{
+	AvailableSocketEncounter_Good.Emplace(Cast<UStaticMeshComponent>(ComponentToInclude));
 }
 
 void ALocationTemplate::Connect(bool IsInfinite, UChildActorComponent* Parent, UPaperFlipbookComponent* Connector_0, UChildActorComponent* Child_0, UPaperFlipbookComponent* Connector_1, UChildActorComponent* Child_1, UPaperFlipbookComponent* Connector_2, UChildActorComponent* Child_2, UPaperFlipbookComponent* Connector_3, UChildActorComponent* Child_3, UPaperFlipbookComponent* Connector_4, UChildActorComponent* Child_4)

@@ -213,6 +213,8 @@ void AWTPlayerCharacter::RemoveInsanity(int32 InsanityAmountToRemove)
 		{
 			Injuries[i] = EDurabilityState::Empty;
 			InsanityAmountToRemove--;
+
+			SortInjuries();
 		}
 	}
 }
@@ -226,6 +228,8 @@ void AWTPlayerCharacter::RemoveHunger(int32 HungerAmountToRemove)
 		{
 			Injuries[i] = EDurabilityState::Empty;
 			HungerAmountToRemove--;
+
+			SortInjuries();
 		}
 	}
 }
@@ -239,9 +243,13 @@ bool AWTPlayerCharacter::RemoveInjury(int32 InjuryAmountToRemove)
 		{
 			Injuries[i] = EDurabilityState::Empty;
 			InjuryAmountToRemove--;
+
+			SortInjuries();
+
 			return true;
 		}
 	}
+
 	return false;
 }
 
@@ -254,6 +262,19 @@ void AWTPlayerCharacter::RemoveExhaustion(int32 ExhaustionAmountToRemove)
 		{
 			Injuries[i] = EDurabilityState::Empty;
 			ExhaustionAmountToRemove--;
+
+			SortInjuries();
+		}
+	}
+}
+
+void AWTPlayerCharacter::SortInjuries()
+{
+	for (int32 i = 0; i < (Injuries.Num() - 1); i++)
+	{
+		if (Injuries[i] == EDurabilityState::Empty)
+		{
+			Injuries.Swap(i, (i + 1));
 		}
 	}
 }

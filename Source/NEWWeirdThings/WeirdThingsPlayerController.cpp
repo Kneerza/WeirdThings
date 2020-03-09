@@ -91,6 +91,29 @@ void AWeirdThingsPlayerController::LeftClickEvents()
 
 		SelectCharacter(pClickedActor);
 	}
+	else if (ClickedActorClassName == "Action") {
+
+		if (pSelectedCharacter->FirstActiveItem)
+		{
+			Cast<AAction>(pClickedActor)->Unlock();
+			pSelectedCharacter->FirstActiveItem->Destroy();
+			pSelectedCharacter->FirstActiveItem = nullptr;
+			pSelectedCharacter->RefreshItems();
+			pSelectedCharacter->Backpack[pSelectedCharacter->Backpack.Num() - 1] = nullptr;
+		}
+	}
+	else if (ClickedActorClassName == "Encounter_Good") {
+
+		if (CurrentlyHoveredByMouseEncounter_Good)
+		{
+			if (Trade(CurrentlyHoveredByMouseEncounter_Good->LBTradingAction, CurrentlyHoveredByMouseEncounter_Good->LBTradingRequiredItem))
+			{
+				CurrentlyHoveredByMouseEncounter_Good->LBTradingAction = EActionType::No_Action;
+				CurrentlyHoveredByMouseEncounter_Good->LBTradingRequiredItem = EActionLockType::No_Need;
+			}
+		}
+		
+	}
 	
 }
 
@@ -159,7 +182,19 @@ void AWeirdThingsPlayerController::RightClickEvents()
 		}
 		else if (ClickedActorClassName == "Action")
 		{
-			ClickedActionHandle(Cast <AAction>(pClickedActor));
+			auto CurrentAction = Cast<AAction>(pClickedActor);
+			if (CurrentAction->ActionLock[0]) {
+				if (pSelectedCharacter->SecondActiveItem)
+				{
+					CurrentAction->Unlock();
+					pSelectedCharacter->SecondActiveItem->Destroy();
+					pSelectedCharacter->SecondActiveItem = nullptr;
+					pSelectedCharacter->Backpack[pSelectedCharacter->Backpack.Num() - 2] = nullptr;
+				}
+			}
+			else {
+				ClickedActionHandle(CurrentAction);
+			}
 		}
 		else if (ClickedActorClassName == "Encounter_Bad")
 		{
@@ -167,7 +202,15 @@ void AWeirdThingsPlayerController::RightClickEvents()
 		}
 		else if (ClickedActorClassName == "Encounter_Good")
 		{
-			InitiateCombat(Cast<AEncounter>(pClickedActor));
+			if (CurrentlyHoveredByMouseEncounter_Good)
+			{
+				if (Trade(CurrentlyHoveredByMouseEncounter_Good->RBTradingAction, CurrentlyHoveredByMouseEncounter_Good->RBTradingRequiredItem))
+				{
+					CurrentlyHoveredByMouseEncounter_Good->RBTradingAction = EActionType::No_Action;
+					CurrentlyHoveredByMouseEncounter_Good->RBTradingRequiredItem = EActionLockType::No_Need;
+				}
+			}
+
 		}
 		else if (ClickedActorClassName == "Encounter_Dead")
 		{
@@ -256,48 +299,26 @@ void AWeirdThingsPlayerController::SetCurrentlyHoveredByMouseAction(bool IsHover
 
 	if (CurrentlyHoveredByMouseAction)
 	{
-
 		TryToUnlock(CurrentlyHoveredByMouseAction);
-	/*	CurrentlyHoveredByMouseAction->GetTypeOfLock();
-		auto Backpack = pSelectedCharacter->Backpack;
-
-		for (int32 i = (Backpack.Num()-1); i > (Backpack.Num() - 3); i--)
-		{
-
-			if (!(Backpack[i])) { continue; }
-
-			auto ItemType = Backpack[i]->ItemType;
-			for (int32 j = 0; j < ItemType.Num(); j++)
-			{
-				if (ItemType[j] == CurrentlyHoveredByMouseAction->ActionLockType[CurrentlyHoveredByMouseAction->CurrentLockTypeIndex])
-				{
-					if (Backpack[i]->ItemDurabilityByType[j] < FMath::RandRange(1, 6)) {
-						Backpack[i]->Destroy();
-						Backpack[i] = nullptr;
-						pSelectedCharacter->Backpack[i] = Backpack[i];
-						//UE_LOG(LogTemp, Warning, TEXT("%s is destroyed"), *Backpack[i]->GetName())
-						return true;
-					}
-					return true;
-				}
-
-			}
-		}
-
-
-		
-		if (Backpack[Backpack.Num() - 1])
-		{
-			UE_LOG(LogTemp, Warning, TEXT("%s"),*Backpack[Backpack.Num() - 1]->GetName())
-		}
-
-		if (Backpack[Backpack.Num() - 2])
-		{
-			UE_LOG(LogTemp, Warning, TEXT("%s"), *Backpack[Backpack.Num() - 2]->GetName())
-		}
-		*/
 	}
 	
+}
+
+void AWeirdThingsPlayerController::SetCurrentlyHoveredByMouseEncounter_Good(bool IsHovered, AEncounter_Good* Encounter_GoodToSet)
+{
+	if (IsHovered)
+	{
+		CurrentlyHoveredByMouseEncounter_Good = Encounter_GoodToSet;
+	}
+	else
+	{
+		CurrentlyHoveredByMouseEncounter_Good = nullptr;
+	}
+
+	//if (CurrentlyHoveredByMouseAction)
+	//{
+	//	TryToUnlock(CurrentlyHoveredByMouseAction);
+	//}
 }
 
 void AWeirdThingsPlayerController::SelectCharacter(AActor* CharacterToSelect)
@@ -950,9 +971,10 @@ void AWeirdThingsPlayerController::RefreshCharacterMP()
 	//}
 }
 
-void AWeirdThingsPlayerController::SpawnEnemy(AAction* ActionInstigator)
+bool AWeirdThingsPlayerController::SpawnEnemy(AAction* ActionInstigator)
 {
 	auto ParentLocation = Cast<ALocationTemplate>(ActionInstigator->GetParentActor());
+	if (ParentLocation->AvailableSocketEncounter.Num()==0) { return false; }
 	auto SpawningSocketTransform = ParentLocation->AvailableSocketEncounter[0]->GetComponentTransform();
 
 	SpawningSocketTransform.SetScale3D(FVector(1.f, 1.f, 1.f));
@@ -965,12 +987,14 @@ void AWeirdThingsPlayerController::SpawnEnemy(AAction* ActionInstigator)
 
 	if (!ensure(SpawningClass)) {
 		UE_LOG(LogTemp, Warning, TEXT("Enemy Not Spawned"))
-			return;
+			return false;
 	}
 	auto SpawnedEnemy = GetWorld()->SpawnActor<AEncounter_Bad>(SpawningClass, SpawningSocketTransform, SpawnParameters);
 	if (SpawnedEnemy) {
 		SpawnedEnemy->CurrentLocation = ParentLocation;
+		return true;
 	}
+	return false;
 }
 
 ALocationTemplate* AWeirdThingsPlayerController::SpawnLocation(AAction* Action, bool IsSpawningOnRight, bool IsPlotLocation)
@@ -1025,10 +1049,11 @@ ALocationTemplate* AWeirdThingsPlayerController::SpawnLocation(AAction* Action, 
 
 }
 
-void AWeirdThingsPlayerController::SpawnGoodEnc(AAction* ActionInstigator)
+bool AWeirdThingsPlayerController::SpawnGoodEnc(AAction* ActionInstigator)
 {
 	auto ParentLocation = Cast<ALocationTemplate>(ActionInstigator->GetParentActor());
-	auto SpawningSocketTransform = ParentLocation->AvailableSocketEncounter[0]->GetComponentTransform();
+	if (ParentLocation->AvailableSocketEncounter_Good.Num()==0) { return false; }
+	auto SpawningSocketTransform = ParentLocation->AvailableSocketEncounter_Good[0]->GetComponentTransform();
 
 	SpawningSocketTransform.SetScale3D(FVector(1.f, 1.f, 1.f));
 
@@ -1038,11 +1063,13 @@ void AWeirdThingsPlayerController::SpawnGoodEnc(AAction* ActionInstigator)
 
 	auto SpawningClass = DeckManager->DrawGoodEncFromDeck();
 
-	if (!ensure(SpawningClass)) { return; }
+	if (!ensure(SpawningClass)) { return false; }
 	auto SpawnedGoodEnc = GetWorld()->SpawnActor<AEncounter_Good>(SpawningClass, SpawningSocketTransform, SpawnParameters);
 	if (SpawnedGoodEnc) {
 		SpawnedGoodEnc->CurrentLocation = ParentLocation;
+		return true;
 	}
+	return false;
 }
 
 void AWeirdThingsPlayerController::PassItemToPlayer(EItemValue ItemValue)
@@ -1053,6 +1080,325 @@ void AWeirdThingsPlayerController::PassItemToPlayer(EItemValue ItemValue)
 
 	AItemTemplate* ItemToPick = GetWorld()->SpawnActor<AItemTemplate>(ItemToPickClass);
 	pSelectedCharacter->GetItem(ItemToPick);
+}
+
+bool AWeirdThingsPlayerController::Trade(EActionType ResultOfTrading, EActionLockType ItemRequiredToTrade)
+{
+	auto WasRequiredItemConsumed = false;
+	if (!pSelectedCharacter) { return false; }
+
+	switch (ItemRequiredToTrade)
+	{
+	case EActionLockType::Need_Food:
+		if (RemoveFood(1, pSelectedCharacter, 0)) {
+			WasRequiredItemConsumed = true;
+		}
+		break;
+
+	case EActionLockType::Need_Wood:
+		if (ConsumeWood(1, pSelectedCharacter, 0)) {
+			WasRequiredItemConsumed = true;
+		}
+		break;
+/*
+	case EActionLockType::Need_Tool:
+
+		CanFirstActiveItemUnlock(EItemType::Tool);
+		CanSecondActiveItemUnlock(EItemType::Tool);
+
+		//if (FindAndUseItemToUnlock(EItemType::Tool)) {
+		//	CurrentAction->Unlock();
+		//}
+
+		break;
+
+	case EActionLockType::Need_Axe:
+
+		CanFirstActiveItemUnlock(EItemType::Axe);
+		CanSecondActiveItemUnlock(EItemType::Axe);
+
+		//if (FindAndUseItemToUnlock(EItemType::Axe)) {
+		//	CurrentAction->Unlock();
+		//}
+
+		break;
+
+	case EActionLockType::Need_Exhaustion:
+
+		pSelectedCharacter->GetExhaustion(1);
+		CurrentAction->Unlock();
+
+		break;
+
+	case EActionLockType::Need_Insanity:
+
+		pSelectedCharacter->GetInsanity(1);
+		CurrentAction->Unlock();
+
+		break;
+
+	case EActionLockType::Need_Item_C:
+
+		if (FindAndUseItemToUnlock(EItemValue::C)) {
+			CurrentAction->Unlock();
+		}
+
+		break;
+
+	case EActionLockType::Need_Item_S:
+
+		if (FindAndUseItemToUnlock(EItemValue::S)) {
+			CurrentAction->Unlock();
+		}
+
+		break;
+
+	case EActionLockType::Need_Item_G:
+
+		if (FindAndUseItemToUnlock(EItemValue::G)) {
+			CurrentAction->Unlock();
+		}
+
+		break;
+
+	case EActionLockType::Need_Shovel:
+
+		CanFirstActiveItemUnlock(EItemType::Shovel);
+		CanSecondActiveItemUnlock(EItemType::Shovel);
+
+		//if (FindAndUseItemToUnlock(EItemType::Shovel)) {
+		//	CurrentAction->Unlock();
+		//}
+
+		break;
+		*/
+	default:
+
+		break;
+	}
+
+	if (WasRequiredItemConsumed)
+	{
+		switch (ResultOfTrading)
+		{
+			
+		case EActionType::Get_Item_C:
+			if (CurrentlyHoveredByMouseEncounter_Good) {
+				if (CurrentlyHoveredByMouseEncounter_Good->ItemToSellClass)
+					{
+					pSelectedCharacter->GetItem(GetWorld()->SpawnActor<AItemTemplate>(CurrentlyHoveredByMouseEncounter_Good->ItemToSellClass));
+					}
+				}
+			break;
+
+		case EActionType::Get_Item_S:
+
+			if (CurrentlyHoveredByMouseEncounter_Good) {
+				if (CurrentlyHoveredByMouseEncounter_Good->ItemToSellClass)
+				{
+					pSelectedCharacter->GetItem(GetWorld()->SpawnActor<AItemTemplate>(CurrentlyHoveredByMouseEncounter_Good->ItemToSellClass));
+				}
+			}
+			break;
+
+		case EActionType::Get_Item_G:
+
+			if (CurrentlyHoveredByMouseEncounter_Good) {
+				if (CurrentlyHoveredByMouseEncounter_Good->ItemToSellClass)
+				{
+					pSelectedCharacter->GetItem(GetWorld()->SpawnActor<AItemTemplate>(CurrentlyHoveredByMouseEncounter_Good->ItemToSellClass));
+				}
+			}
+			break;
+
+			/*
+		case EActionType::Get_EncounterBad:
+
+			if (SpawnEnemy(Action))
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+			break;
+
+		case EActionType::Get_EncounterGood:
+
+			if (SpawnGoodEnc(Action))
+			{
+				return true;
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Encounter_Good cannot be spawned"))
+					return false;
+			}
+			break;
+
+		case EActionType::Get_EncounterRandom:
+
+			if (FMath::RandBool())
+			{
+				if (SpawnGoodEnc(Action))
+				{
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			else {
+				if (SpawnEnemy(Action))
+				{
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			break;
+			*/
+		case EActionType::Get_Food:
+
+			GetFood(1);
+
+			break;
+
+		case EActionType::Get_Wood:
+
+			GetWood(1);
+
+			break;
+
+		case EActionType::Heal:
+
+			if (pSelectedCharacter) {
+				if (!(pSelectedCharacter->RemoveInjury(1))) {
+					UE_LOG(LogTemp, Error, TEXT("No injuries can be removed"))
+					return false;
+				}
+			}
+			break;
+		/*
+		case EActionType::Relief:
+
+			pSelectedCharacter->RemoveInsanity(Modifier);
+			return true;
+			break;
+
+		case EActionType::Fishing:
+
+			if (FindAndUseItemToUnlock(EItemType::Tool)) {
+				GetFood(Modifier);
+				return true;
+			}
+			UE_LOG(LogTemp, Warning, TEXT("No Tool for fishing"))
+				return false;
+			break;
+
+		case EActionType::Burn:
+
+			if (pSelectedCharacter->Wood > 0) {
+				ConsumeWood(1, pSelectedCharacter);
+				if (Action->EntangledDeadEncounter)
+				{
+					FTransform EffectTransform;
+					EffectTransform.SetLocation(Action->EntangledDeadEncounter->GetActorLocation());
+					Encounter_DeadsInPlay.RemoveSingle(Action->EntangledDeadEncounter);
+					Action->EntangledDeadEncounter->Destroy();
+					if (!(Action->EntangledDeadEncounter->IsOnPlot)) {
+						Action->EntangledDeadEncounter->CreatedAction->UnregisterComponent();
+					}
+					if (BurningEffectClass) {
+
+						GetWorld()->SpawnActor<AActor>(BurningEffectClass, EffectTransform);
+					}
+				}
+				else //if (Action->GetParentActor()->GetClass()->GetSuperClass()->GetName() == "Encounter_Dead") {
+				{
+					FTransform EffectTransform;
+					EffectTransform.SetLocation(Action->GetParentActor()->GetActorLocation());
+					Action->GetParentActor()->Destroy();
+					if (BurningEffectClass) {
+
+						GetWorld()->SpawnActor<AActor>(BurningEffectClass, EffectTransform);
+					}
+				}
+				return true;
+			}
+			UE_LOG(LogTemp, Warning, TEXT("Not enough wood"))
+				return false;
+			break;
+
+		case EActionType::Get_Injury:
+
+			pSelectedCharacter->GetInjury(Modifier);
+
+			return true;
+			break;
+
+
+		case EActionType::ArrowRight_Good:
+
+			MoveCharacter(pSelectedCharacter, SpawnLocation(Action, true, false));
+
+
+			return true;
+			break;
+
+		case EActionType::ArrowRight_Bad:
+
+			MoveCharacter(pSelectedCharacter, SpawnLocation(Action, true, false));
+
+			return true;
+			break;
+
+		case EActionType::ArrowRight_Ugly:
+
+			MoveCharacter(pSelectedCharacter, SpawnLocation(Action, true, false));
+
+			return true;
+			break;
+
+		case EActionType::ArrowUp_Plot:
+
+			MoveCharacter(pSelectedCharacter, SpawnLocation(Action, false, true));
+
+			return true;
+			break;
+
+		case EActionType::Arrow_Move:
+
+			//MoveCharacter(pSelectedCharacter, Action->LocationArrowPointsTo);
+			TeleportCharacter(pSelectedCharacter, Action->LocationArrowPointsTo);
+
+			return true;
+			break;
+
+		case EActionType::Teleport:
+
+			Action->SetTeleport();
+			TeleportCharacter(pSelectedCharacter, Action->LocationArrowPointsTo);
+
+
+			return true;
+			break;
+			*/
+		default:
+
+			
+			break;
+		}
+		return true;
+	}
+else {
+return false;
+}
+
 }
 
 bool AWeirdThingsPlayerController::PerformAction(AAction* Action, int32 Modifier)
@@ -1082,26 +1428,52 @@ bool AWeirdThingsPlayerController::PerformAction(AAction* Action, int32 Modifier
 
 	case EActionType::Get_EncounterBad:
 
-		SpawnEnemy(Action);
-		return true;
+		if (SpawnEnemy(Action))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 		break;
 
 	case EActionType::Get_EncounterGood:
 
-		SpawnGoodEnc(Action);
-		return true;
-		break;
+		if (SpawnGoodEnc(Action))
+			{
+				return true;
+			}
+			else
+			{
+			UE_LOG(LogTemp, Warning, TEXT("Encounter_Good cannot be spawned"))
+				return false;
+			}
+			break;
 
 	case EActionType::Get_EncounterRandom:
 
 		if (FMath::RandBool())
 		{
-			SpawnGoodEnc(Action);
+			if(SpawnGoodEnc(Action))
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 		else {
-			SpawnEnemy(Action);
+			if (SpawnEnemy(Action))
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
-		return true;
 		break;
 
 	case EActionType::Get_Food:
@@ -1136,7 +1508,7 @@ bool AWeirdThingsPlayerController::PerformAction(AAction* Action, int32 Modifier
 	case EActionType::Burn:
 		
 		if (pSelectedCharacter->Wood > 0) {
-			ConsumeWood(1, pSelectedCharacter);
+			ConsumeWood(1, pSelectedCharacter, 1);
 			if (Action->EntangledDeadEncounter)
 			{
 				FTransform EffectTransform;
@@ -1232,13 +1604,13 @@ void AWeirdThingsPlayerController::TryToUnlock(AAction* CurrentAction)
 	switch (CurrentAction->ActionLockType[CurrentAction->CurrentLockIndex])
 	{
 	case EActionLockType::Need_Food:
-		if (ConsumeFood(1, pSelectedCharacter)) {
+		if (ConsumeFood(1, pSelectedCharacter, 1)) {
 			CurrentAction->Unlock();
 		}
 		break;
 
 	case EActionLockType::Need_Wood:
-		if (ConsumeWood(1, pSelectedCharacter)) {
+		if (ConsumeWood(1, pSelectedCharacter, 1)) {
 			CurrentAction->Unlock();
 		}
 		break;
@@ -1605,11 +1977,11 @@ void AWeirdThingsPlayerController::SetTimeNight()
 	CurrentTimeOfDay = ETimeOfDay::Night;
 }
 
-bool AWeirdThingsPlayerController::ConsumeFood(int32 FoodAmountToConsume, AWTPlayerCharacter* AffectedCharacter) //TODO make applicable regardless selected character or not
+bool AWeirdThingsPlayerController::ConsumeFood(int32 FoodAmountToConsume, AWTPlayerCharacter* AffectedCharacter, int32 ActionPointsRequired) //TODO make applicable regardless selected character or not
 {
 	if (!AffectedCharacter) { return false; }
 
-	if (AffectedCharacter->CurrentActionPoints < 1)
+	if (AffectedCharacter->CurrentActionPoints < ActionPointsRequired)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Not enough AP"))
 			return false;
@@ -1623,20 +1995,51 @@ bool AWeirdThingsPlayerController::ConsumeFood(int32 FoodAmountToConsume, AWTPla
 	AffectedCharacter->Food -= FoodAmountToConsume;
 	AffectedCharacter->RemoveHunger(1);
 
-	AffectedCharacter->CurrentActionPoints--;
+	AffectedCharacter->CurrentActionPoints-= ActionPointsRequired;
 
 	return true;
 }
 
-bool AWeirdThingsPlayerController::ConsumeWood(int32 WoodAmountToConsume, AWTPlayerCharacter* AffectedCharacter) //TODO make applicable regardless selected character or not
+bool AWeirdThingsPlayerController::RemoveFood(int32 FoodAmountToConsume, AWTPlayerCharacter* AffectedCharacter, int32 ActionPointsRequired) //TODO make applicable regardless selected character or not
 {
 	if (!AffectedCharacter) { return false; }
+
+	if (AffectedCharacter->CurrentActionPoints < ActionPointsRequired)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Not enough AP"))
+			return false;
+	}
+
+	if ((AffectedCharacter->Food - FoodAmountToConsume) < 0)
+	{
+		// TODO "Not enough food"
+		return false;
+	}
+	AffectedCharacter->Food -= FoodAmountToConsume;
+	//AffectedCharacter->RemoveHunger(1);
+
+	AffectedCharacter->CurrentActionPoints -= ActionPointsRequired;
+
+	return true;
+}
+
+bool AWeirdThingsPlayerController::ConsumeWood(int32 WoodAmountToConsume, AWTPlayerCharacter* AffectedCharacter, int32 ActionPointsRequired) //TODO make applicable regardless selected character or not
+{
+	if (!AffectedCharacter) { return false; }
+
+	if (AffectedCharacter->CurrentActionPoints < ActionPointsRequired)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Not enough AP"))
+			return false;
+	}
+
 	if ((AffectedCharacter->Wood - WoodAmountToConsume) < 0)
 	{
 		// TODO "Not enough food"
 		return false;
 	}
 	AffectedCharacter->Wood -= WoodAmountToConsume;
+	AffectedCharacter->CurrentActionPoints -= ActionPointsRequired;
 	return true;
 }
 
@@ -1695,7 +2098,7 @@ bool AWeirdThingsPlayerController::GetWood(int32 WoodAmountToGet)
 		UE_LOG(LogTemp, Warning, TEXT("Campfire Not Spawned"))
 			return;
 	}
-	if (ConsumeWood(1, PlayerCharacter))
+	if (ConsumeWood(1, PlayerCharacter, 1))
 	{
 		GetWorld()->SpawnActor<AActor>(CampFireClassToSpawn, SpawningSocketTransform, SpawnParameters);
 	}

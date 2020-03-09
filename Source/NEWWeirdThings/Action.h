@@ -28,9 +28,11 @@ enum class EActionType : uint8
 	Arrow_Move,
 	Teleport,
 	Relief,
+	Heal,
 	Fishing,
 	Hide,
-	Burn
+	Burn,
+	No_Action
 };
 
 UENUM(BlueprintType)
