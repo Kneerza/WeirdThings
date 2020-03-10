@@ -31,6 +31,7 @@ enum class EActionType : uint8
 	Heal,
 	Fishing,
 	Hide,
+	Hire,
 	Burn,
 	No_Action
 };

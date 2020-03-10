@@ -413,6 +413,7 @@ void AWeirdThingsPlayerController::MoveCharacter(AWTPlayerCharacter* CharacterTo
 	if ((LocationToMoveTo->HorizontalIndex != LocationOfCharacter->HorizontalIndex) && (LocationToMoveTo->VerticalIndex != LocationOfCharacter->VerticalIndex)) { return; }
 
 	CharacterToMove->SetActorLocation(LocationToMoveTo->AvailableSocketPlayer[0]->GetComponentLocation());
+	CharacterToMove->HiredCompanion->SetActorLocation(CharacterToMove->GetActorLocation() + FVector(1.f, 30.f, 0.f));
 
 	CharacterToMove->CurrentLocation = LocationToMoveTo;
 	if (auto ForcedAction = LocationToMoveTo->ForcedAction)
@@ -471,6 +472,12 @@ void AWeirdThingsPlayerController::PlayerCharactersAttack(TArray<AWTPlayerCharac
 	for (int32 j = 0; j < CharactersAttackers.Num(); j++)
 	{
 		TArray<EAttackType> AttackRowToGenerate = CharactersAttackers[j]->pAttackDefenseComponent->AttackPoolRow_1;
+		
+		if (CharactersAttackers[j]->HiredCompanion)
+		{
+			AttackRowToGenerate.Append(Cast<AEncounter_Good>(CharactersAttackers[j]->HiredCompanion)->pAttackDefenseComponent->AttackPoolRow_2);
+		}
+
 		TArray<AAttackDefenseActor*> AttackRowActors;
 		AttackRowActors.Init(nullptr, AttackRowToGenerate.Num());
 
@@ -540,12 +547,15 @@ void AWeirdThingsPlayerController::PlayerCharactersAttack(TArray<AWTPlayerCharac
 			default:
 				break;
 			}
-			AttackRowActors[i]->HoldTime = j*0.2f*HoldModificator;
+			if (AttackRowActors[i]) {
+				AttackRowActors[i]->HoldTime = j * 0.2f*HoldModificator;
+			}
 		}
 	}
 	UE_LOG(LogTemp, Error, TEXT("Attack created"))
 
 		TArray<EDefenseType> DefenseRowToGenerate = Defender->pAttackDefenseComponent->DefensePoolRow_1;
+
 	TArray<AAttackDefenseActor*> DefenseRowActors;
 	DefenseRowActors.Init(nullptr, DefenseRowToGenerate.Num());
 
@@ -821,6 +831,12 @@ void AWeirdThingsPlayerController::AttackDefenseEvent(AEncounter* Attacker, AWTP
 	AttackRowActors.Init(nullptr, AttackRowToGenerate.Num());
 
 	TArray<EDefenseType> DefenseRowToGenerate = Defender->pAttackDefenseComponent->DefensePoolRow_1;
+
+	if (Defender->HiredCompanion)
+	{
+		DefenseRowToGenerate.Append(Cast<AEncounter_Good>(Defender->HiredCompanion)->pAttackDefenseComponent->DefensePoolRow_2);
+	}
+
 	TArray<AAttackDefenseActor*> DefenseRowActors;
 	DefenseRowActors.Init(nullptr, DefenseRowToGenerate.Num());
 
@@ -1184,9 +1200,9 @@ bool AWeirdThingsPlayerController::Trade(EActionType ResultOfTrading, EActionLoc
 			
 		case EActionType::Get_Item_C:
 			if (CurrentlyHoveredByMouseEncounter_Good) {
-				if (CurrentlyHoveredByMouseEncounter_Good->ItemToSellClass)
+				if (CurrentlyHoveredByMouseEncounter_Good->LBItemToSellClass)
 					{
-					pSelectedCharacter->GetItem(GetWorld()->SpawnActor<AItemTemplate>(CurrentlyHoveredByMouseEncounter_Good->ItemToSellClass));
+					pSelectedCharacter->GetItem(GetWorld()->SpawnActor<AItemTemplate>(CurrentlyHoveredByMouseEncounter_Good->LBItemToSellClass));
 					}
 				}
 			break;
@@ -1194,9 +1210,9 @@ bool AWeirdThingsPlayerController::Trade(EActionType ResultOfTrading, EActionLoc
 		case EActionType::Get_Item_S:
 
 			if (CurrentlyHoveredByMouseEncounter_Good) {
-				if (CurrentlyHoveredByMouseEncounter_Good->ItemToSellClass)
+				if (CurrentlyHoveredByMouseEncounter_Good->RBItemToSellClass)
 				{
-					pSelectedCharacter->GetItem(GetWorld()->SpawnActor<AItemTemplate>(CurrentlyHoveredByMouseEncounter_Good->ItemToSellClass));
+					pSelectedCharacter->GetItem(GetWorld()->SpawnActor<AItemTemplate>(CurrentlyHoveredByMouseEncounter_Good->RBItemToSellClass));
 				}
 			}
 			break;
@@ -1204,11 +1220,22 @@ bool AWeirdThingsPlayerController::Trade(EActionType ResultOfTrading, EActionLoc
 		case EActionType::Get_Item_G:
 
 			if (CurrentlyHoveredByMouseEncounter_Good) {
-				if (CurrentlyHoveredByMouseEncounter_Good->ItemToSellClass)
+				if (CurrentlyHoveredByMouseEncounter_Good->RBItemToSellClass)
 				{
-					pSelectedCharacter->GetItem(GetWorld()->SpawnActor<AItemTemplate>(CurrentlyHoveredByMouseEncounter_Good->ItemToSellClass));
+					pSelectedCharacter->GetItem(GetWorld()->SpawnActor<AItemTemplate>(CurrentlyHoveredByMouseEncounter_Good->RBItemToSellClass));
 				}
 			}
+			break;
+
+		case EActionType::Hire:
+
+			if (CurrentlyHoveredByMouseEncounter_Good) {
+				if (!pSelectedCharacter->SetHiredCompanion(CurrentlyHoveredByMouseEncounter_Good))
+				{
+					return false;
+				}
+			}
+
 			break;
 
 			/*

@@ -19,10 +19,16 @@ class NEWWEIRDTHINGS_API AEncounter_Good : public AEncounter
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
-		UTexture2D* ItemToSell = nullptr;
+		UTexture2D* LBItemToSell = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
-		TSubclassOf<AItemTemplate> ItemToSellClass;
+		TSubclassOf<AItemTemplate> LBItemToSellClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+		UTexture2D* RBItemToSell = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+		TSubclassOf<AItemTemplate> RBItemToSellClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom")
 		EActionType LBTradingAction = EActionType::Get_Wood;

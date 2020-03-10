@@ -321,3 +321,15 @@ void AWTPlayerCharacter::UpdateAvatar()
 {
 	AvatarComponent->SetWorldTransform(CurrentLocation->AvailableSocketDynamicPlayerAction[0]->GetComponentTransform());
 }
+
+bool AWTPlayerCharacter::SetHiredCompanion(AActor* CompanionToHire)
+{
+	if (HiredCompanion) {
+		UE_LOG(LogTemp, Error, TEXT("Already have a companion"))
+			return false;
+	}
+	HiredCompanion = CompanionToHire;
+	HiredCompanion->SetActorLocation(GetActorLocation() + FVector(1.f, 30.f, 0.f));
+	HiredCompanion->SetActorEnableCollision(ECollisionEnabled::NoCollision);
+	return true;
+}

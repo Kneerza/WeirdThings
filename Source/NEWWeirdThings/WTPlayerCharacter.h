@@ -68,6 +68,10 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Custom")
 		UStaticMeshComponent* pCone;
 
+	AActor* HiredCompanion = nullptr;
+
+	bool SetHiredCompanion(AActor* CompanionToHire);
+
 	USceneComponent* pRootComponent;
 
 	UPaperSprite* SelectingArrowSprite;
