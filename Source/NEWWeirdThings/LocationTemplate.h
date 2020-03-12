@@ -102,6 +102,24 @@ public:
 		UStaticMeshComponent* SocketEncounter_4;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Mesh)
+		TArray<UStaticMeshComponent*> AvailableSocketEncounter_Dead;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+		UStaticMeshComponent* SocketEncounter_Dead_0;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+		UStaticMeshComponent* SocketEncounter_Dead_1;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+		UStaticMeshComponent* SocketEncounter_Dead_2;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+		UStaticMeshComponent* SocketEncounter_Dead_3;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+		UStaticMeshComponent* SocketEncounter_Dead_4;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Mesh)
 		TArray<UStaticMeshComponent*> AvailableSocketEncounter_Good;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)

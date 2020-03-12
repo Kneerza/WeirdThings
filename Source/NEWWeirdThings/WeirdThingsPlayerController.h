@@ -30,8 +30,10 @@ class ADirectionalLight;
 class AAttackDefenseActor;
 class UDeckManager;
 class AEncounter;
+class AEncounter_Bad;
 class AEncounter_Dead;
 class AEncounter_Good;
+
 
 
 /**
@@ -122,6 +124,8 @@ public:
 	
 	TArray<AEncounter_Dead*>Encounter_DeadsInPlay;
 
+	TArray<AEncounter_Bad*>Encounter_BadInPlay;
+
 	void GetCurrentLocationOfActor(AActor* Actor, ALocationTemplate* &CurrentLocation);
 
 	void MoveCharacter(AWTPlayerCharacter* CharacterToMove, ALocationTemplate* LocationToMoveTo);
@@ -188,6 +192,8 @@ public:
 	void PlayerCharactersAttack(TArray<AWTPlayerCharacter*> CharactersAttackers, AEncounter* Defender);
 
 	void PassItemToPlayer(EItemValue ItemValue);
+
+	void PassItemToPlayer(AItemTemplate* ItemsToPick);
 
 	void ItemDurabilityCheck(AWTPlayerCharacter* ItemOwner, AItemTemplate* ItemToCheck, EItemType ItemTypeToCheck);
 

@@ -13,8 +13,12 @@ UCLASS()
 class NEWWEIRDTHINGS_API AEncounter_Bad : public AEncounter
 {
 	GENERATED_BODY()
-	
-	
-	
+
+
+
+		
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
 	
 };

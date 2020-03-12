@@ -2,10 +2,12 @@
 
 #include "QuitManagement.h"
 #include "LocationTemplate.h"
+#include "Encounter_Dead.h"
 #include "Runtime/Engine/Classes/Engine/World.h"
 #include "WeirdThingsPlayerController.h"
 #include "WTEnemy.h"
 #include "Encounter.h"
+#include "Encounter_Bad.h"
 #include "WTPlayerCharacter.h"
 
 
@@ -19,6 +21,7 @@ UQuitManagement::UQuitManagement()
 	// ...
 
 	QuitType.Init(EQuitType::No_QuitType, 3);
+	QuitTypeModifier.Init(1,3);
 }
 
 
@@ -47,82 +50,132 @@ void UQuitManagement::CheckQuitConditions()
 	if (CurrentlySelectedCharacter) {
 		 Backpack = CurrentlySelectedCharacter->Backpack;
 	}
-	switch (QuitType[0])
+	for (int32 i = 0; i < QuitType.Num(); i++)
 	{
-	case EQuitType::TooManyCharacters:
-
-		if ((5 - (Cast<AWTEnemy>(GetOwner())->CurrentLocation->AvailableSocketPlayer.Num())) >= Modifier)
+		switch (QuitType[i])
 		{
-			OwnerQuits();
-		}
-		break;
+		case EQuitType::TooManyCharacters:
 
-	case EQuitType::Food:
-
-		if (PlayerController->pSelectedCharacter->Food >= Modifier)
-		{
-			PlayerController->pSelectedCharacter->Food -= Modifier;
-			OwnerQuits();
-		}
-		break;
-
-	case EQuitType::Items:
-		if (!Backpack[0]) { return; }
-		for (int32 i = (Backpack.Num() - 1); i >= 0; i--)
-		{
-			if (Backpack[i])
+			if ((5 - (Cast<AWTEnemy>(GetOwner())->CurrentLocation->AvailableSocketPlayer.Num())) >= QuitTypeModifier[i])
 			{
-				(Cast<AWTEnemy>(GetOwner()))->Loot.Insert(Backpack[i], 2);
-				Backpack.RemoveAt(i, 1, false);
-				PlayerController->pSelectedCharacter->Backpack = Backpack;
+				OwnerQuits();
+			}
+			break;
+
+		case EQuitType::Food:
+			/*
+			if (PlayerController->pSelectedCharacter->Food >= QuitTypeModifier[i])
+			{
+				PlayerController->pSelectedCharacter->Food -= QuitTypeModifier[i];
+				OwnerQuits();
+			}
+			*/
+			break;
+
+		case EQuitType::Items:
+			/*
+			if (!Backpack[0]) { return; }
+			for (int32 i = (Backpack.Num() - 1); i >= 0; i--)
+			{
+				if (Backpack[i])
+				{
+					(Cast<AWTEnemy>(GetOwner()))->Loot.Insert(Backpack[i], 2);
+					Backpack.RemoveAt(i, 1, false);
+					PlayerController->pSelectedCharacter->Backpack = Backpack;
+					return;
+				}
+			}
+			*/
+			break;
+
+		case EQuitType::TimeOfDay_Morning:
+
+			if (PlayerController->CurrentTimeOfDay == ETimeOfDay::Morning)
+			{
+				OwnerQuits();
 				return;
 			}
+			break;
+
+		case EQuitType::TimeOfDay_Noon:
+
+			if (PlayerController->CurrentTimeOfDay == ETimeOfDay::Noon)
+			{
+				OwnerQuits();
+				return;
+			}
+			break;
+
+		case EQuitType::TimeOfDay_Evening:
+
+			if (PlayerController->CurrentTimeOfDay == ETimeOfDay::Evening)
+			{
+				OwnerQuits();
+				return;
+			}
+			break;
+
+		case EQuitType::TimeOfDay_Night:
+
+			if (PlayerController->CurrentTimeOfDay == ETimeOfDay::Night)
+			{
+				OwnerQuits();
+				return;
+			}
+			break;
+
+		case EQuitType::Fire:
+
+			if ((Cast<AEncounter>(GetOwner()))->CurrentLocation->AvailableSocketCampFire.Num() < 1)
+			{
+				OwnerQuits();
+				return;
+			}
+			break;
+
+		case EQuitType::DeadOnLocation:
+
+			UE_LOG(LogTemp, Error, TEXT("Checking if dead is on location"))
+
+				for (int32 i = 0; i < PlayerController->Encounter_DeadsInPlay.Num(); i++)
+				{
+					if (PlayerController->Encounter_DeadsInPlay[i]) {
+						UE_LOG(LogTemp, Error, TEXT("%s"), *Cast<AEncounter>(PlayerController->Encounter_DeadsInPlay[i])->CurrentLocation->GetName())
+					}
+
+					if (Cast<AEncounter>(GetOwner())->CurrentLocation) {
+						UE_LOG(LogTemp, Error, TEXT("%s"), *Cast<AEncounter>(GetOwner())->CurrentLocation->GetName())
+					}
+
+					if (Cast<AEncounter>(PlayerController->Encounter_DeadsInPlay[i])->CurrentLocation == Cast<AEncounter>(GetOwner())->CurrentLocation)
+					{
+						UE_LOG(LogTemp, Error, TEXT("Dead is spotted"))
+							OwnerQuits();
+						return;
+					}
+				}
+			break;
+
+		case EQuitType::BadEncOnLocation:
+
+			UE_LOG(LogTemp, Error, TEXT("Checking if Enc_Bad is on location"))
+
+				for (int32 i = 0; i < PlayerController->Encounter_BadInPlay.Num(); i++)
+				{
+
+					if (Cast<AEncounter>(PlayerController->Encounter_BadInPlay[i])->CurrentLocation == Cast<AEncounter>(GetOwner())->CurrentLocation)
+					{
+						UE_LOG(LogTemp, Error, TEXT("Enc_Bad is spotted"))
+							OwnerQuits();
+						return;
+					}
+				}
+			break;
+
+		default:
+
+			break;
 		}
-		break;
-
-	case EQuitType::TimeOfDay_Morning:
-
-		if (PlayerController->CurrentTimeOfDay == ETimeOfDay::Morning)
-		{
-			OwnerQuits();
-		}
-		break;
-
-	case EQuitType::TimeOfDay_Noon:
-
-		if (PlayerController->CurrentTimeOfDay == ETimeOfDay::Noon)
-		{
-			OwnerQuits();
-		}
-		break;
-
-	case EQuitType::TimeOfDay_Evening:
-
-		if (PlayerController->CurrentTimeOfDay == ETimeOfDay::Evening)
-		{
-			OwnerQuits();
-		}
-		break;
-
-	case EQuitType::TimeOfDay_Night:
-
-		if (PlayerController->CurrentTimeOfDay == ETimeOfDay::Night)
-		{
-			OwnerQuits();
-		}
-		break;
-
-	case EQuitType::Fire:
-
-		if ((Cast<AEncounter>(GetOwner()))->CurrentLocation->AvailableSocketCampFire.Num()<1)
-		{
-			OwnerQuits();
-		}
-		break;
-
-	default:
-
-		break;
 	}
 }
 

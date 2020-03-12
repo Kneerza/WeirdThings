@@ -13,6 +13,7 @@ enum class EQuitType : uint8
 	TooManyCharacters,
 	Items,
 	Fire,
+	DeadOnLocation,
 	BadEncOnLocation,
 	Food,
 	TimeOfDay_Morning,
@@ -36,7 +37,10 @@ public:
 		TArray<EQuitType> QuitType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
-		int32 Modifier;
+		TArray<int32> QuitTypeModifier;
+
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+	//	int32 Modifier;
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void OwnerQuits();

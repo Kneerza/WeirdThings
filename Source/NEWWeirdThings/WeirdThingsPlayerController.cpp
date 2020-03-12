@@ -5,6 +5,7 @@
 #include "WeirdThingsPlayerController.h"
 #include "DeckManager.h"
 #include "InteractiveLocationDecoration.h"
+#include "QuitManagement.h"
 #include "Runtime/Engine/Classes/Components/PrimitiveComponent.h"
 #include "Runtime/Engine/Classes/Engine/EngineTypes.h"
 #include "Runtime/Engine/Classes/Components/StaticMeshComponent.h"
@@ -413,8 +414,11 @@ void AWeirdThingsPlayerController::MoveCharacter(AWTPlayerCharacter* CharacterTo
 	if ((LocationToMoveTo->HorizontalIndex != LocationOfCharacter->HorizontalIndex) && (LocationToMoveTo->VerticalIndex != LocationOfCharacter->VerticalIndex)) { return; }
 
 	CharacterToMove->SetActorLocation(LocationToMoveTo->AvailableSocketPlayer[0]->GetComponentLocation());
-	CharacterToMove->HiredCompanion->SetActorLocation(CharacterToMove->GetActorLocation() + FVector(1.f, 30.f, 0.f));
-
+	
+	if (CharacterToMove->HiredCompanion) {
+		CharacterToMove->HiredCompanion->SetActorLocation(CharacterToMove->GetActorLocation() + FVector(1.f, 30.f, 0.f));
+	}
+	
 	CharacterToMove->CurrentLocation = LocationToMoveTo;
 	if (auto ForcedAction = LocationToMoveTo->ForcedAction)
 	{
@@ -426,8 +430,10 @@ void AWeirdThingsPlayerController::MoveCharacter(AWTPlayerCharacter* CharacterTo
 		}
 		ForcedAction->EntangledInteractiveLocationDecoration->ChangeState_InteractiveLocationDecoration();
 	}
+
 	CharacterToMove->MovementPoints--;
 	CharacterToMove->UpdateAvatar();
+	
 }
 
 void AWeirdThingsPlayerController::TeleportCharacter(AWTPlayerCharacter* CharacterToMove, ALocationTemplate* LocationToMoveTo)
@@ -1083,6 +1089,7 @@ bool AWeirdThingsPlayerController::SpawnGoodEnc(AAction* ActionInstigator)
 	auto SpawnedGoodEnc = GetWorld()->SpawnActor<AEncounter_Good>(SpawningClass, SpawningSocketTransform, SpawnParameters);
 	if (SpawnedGoodEnc) {
 		SpawnedGoodEnc->CurrentLocation = ParentLocation;
+		SpawnedGoodEnc->pQuitManagementComponent->CheckQuitConditions();
 		return true;
 	}
 	return false;
@@ -1096,6 +1103,13 @@ void AWeirdThingsPlayerController::PassItemToPlayer(EItemValue ItemValue)
 
 	AItemTemplate* ItemToPick = GetWorld()->SpawnActor<AItemTemplate>(ItemToPickClass);
 	pSelectedCharacter->GetItem(ItemToPick);
+}
+
+void AWeirdThingsPlayerController::PassItemToPlayer(AItemTemplate* ItemsToPick)
+{
+	if (!ItemsToPick) { return; }
+
+	pSelectedCharacter->GetItem(ItemsToPick);
 }
 
 bool AWeirdThingsPlayerController::Trade(EActionType ResultOfTrading, EActionLockType ItemRequiredToTrade)

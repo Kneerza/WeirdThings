@@ -69,6 +69,7 @@ ALocationTemplate::ALocationTemplate()
 	FVector CampFireOffset = FVector(0.f, 150.f, 0.f);
 	FVector EncounterOffset = FVector(0.f, 600.f, 0.f);
 	FVector Encounter_GoodOffset = FVector(182.f, 400.f, 49.84f);
+	FVector Encounter_DeadOffset = FVector(65.f, 800.f, 17.8f);
 
 	FVector Scale = FVector(0.01f, 0.3f, 1.f);
 
@@ -190,6 +191,56 @@ ALocationTemplate::ALocationTemplate()
 	SocketEncounter_4->SetMobility(EComponentMobility::Movable);
 	SocketEncounter_4->CastShadow = false;
 	AvailableSocketEncounter.Emplace(SocketEncounter_4);
+
+	SocketEncounter_Dead_0 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SocketEncounter_Dead_0"));
+	SocketEncounter_Dead_0->SetupAttachment(pRootComponent);
+	SocketEncounter_Dead_0->SetCollisionResponseToChannels(CollisionResponseContainer);
+	SocketEncounter_Dead_0->SetRelativeScale3D(Scale);
+	SocketEncounter_Dead_0->SetRelativeLocation(OriginalPosition + Encounter_DeadOffset + (0 * EncounterIncrement));
+	SocketEncounter_Dead_0->SetHiddenInGame(true);
+	SocketEncounter_Dead_0->SetMobility(EComponentMobility::Movable);
+	SocketEncounter_Dead_0->CastShadow = false;
+	AvailableSocketEncounter_Dead.Emplace(SocketEncounter_0);
+
+	SocketEncounter_Dead_1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SocketEncounter_Dead_1"));
+	SocketEncounter_Dead_1->SetupAttachment(pRootComponent);
+	SocketEncounter_Dead_1->SetCollisionResponseToChannels(CollisionResponseContainer);
+	SocketEncounter_Dead_1->SetRelativeScale3D(Scale);
+	SocketEncounter_Dead_1->SetRelativeLocation(OriginalPosition + Encounter_DeadOffset + (1 * EncounterIncrement));
+	SocketEncounter_Dead_1->SetHiddenInGame(true);
+	SocketEncounter_Dead_1->SetMobility(EComponentMobility::Movable);
+	SocketEncounter_Dead_1->CastShadow = false;
+	AvailableSocketEncounter_Dead.Emplace(SocketEncounter_1);
+
+	SocketEncounter_Dead_2 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SocketEncounter_Dead_2"));
+	SocketEncounter_Dead_2->SetupAttachment(pRootComponent);
+	SocketEncounter_Dead_2->SetCollisionResponseToChannels(CollisionResponseContainer);
+	SocketEncounter_Dead_2->SetRelativeScale3D(Scale);
+	SocketEncounter_Dead_2->SetRelativeLocation(OriginalPosition + Encounter_DeadOffset + (2 * EncounterIncrement));
+	SocketEncounter_Dead_2->SetHiddenInGame(true);
+	SocketEncounter_Dead_2->SetMobility(EComponentMobility::Movable);
+	SocketEncounter_Dead_2->CastShadow = false;
+	AvailableSocketEncounter_Dead.Emplace(SocketEncounter_2);
+
+	SocketEncounter_Dead_3 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SocketEncounter_Dead_3"));
+	SocketEncounter_Dead_3->SetupAttachment(pRootComponent);
+	SocketEncounter_Dead_3->SetCollisionResponseToChannels(CollisionResponseContainer);
+	SocketEncounter_Dead_3->SetRelativeScale3D(Scale);
+	SocketEncounter_Dead_3->SetRelativeLocation(OriginalPosition + Encounter_DeadOffset + (3 * EncounterIncrement));
+	SocketEncounter_Dead_3->SetHiddenInGame(true);
+	SocketEncounter_Dead_3->SetMobility(EComponentMobility::Movable);
+	SocketEncounter_Dead_3->CastShadow = false;
+	AvailableSocketEncounter_Dead.Emplace(SocketEncounter_3);
+
+	SocketEncounter_Dead_4 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SocketEncounter_Dead_4"));
+	SocketEncounter_Dead_4->SetupAttachment(pRootComponent);
+	SocketEncounter_Dead_4->SetCollisionResponseToChannels(CollisionResponseContainer);
+	SocketEncounter_Dead_4->SetRelativeScale3D(Scale);
+	SocketEncounter_Dead_4->SetRelativeLocation(OriginalPosition + Encounter_DeadOffset + (4 * EncounterIncrement));
+	SocketEncounter_Dead_4->SetHiddenInGame(true);
+	SocketEncounter_Dead_4->SetMobility(EComponentMobility::Movable);
+	SocketEncounter_Dead_4->CastShadow = false;
+	AvailableSocketEncounter_Dead.Emplace(SocketEncounter_4);
 
 	SocketEncounter_Good_0 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SocketEncounter_Good_0"));
 	SocketEncounter_Good_0->SetupAttachment(pRootComponent);

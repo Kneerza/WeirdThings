@@ -77,6 +77,10 @@ void AEncounter::LooseHealth()
 		if (Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController())->Encounter_DeadsInPlay.Contains(this)) {
 			Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController())->Encounter_DeadsInPlay.Remove(Cast<AEncounter_Dead>(this));
 		}
+		for (int32 i = 0; i < Loot.Num(); i++)
+		{
+			Cast< AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController())->PassItemToPlayer(Loot[i]);
+		}
 		Destroy();
 	}
 }

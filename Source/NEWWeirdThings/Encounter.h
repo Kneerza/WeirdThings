@@ -45,6 +45,7 @@ public:
 
 	AAttackDefenseActor* AttackDefenseActorToIgnore;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 	ALocationTemplate* CurrentLocation = nullptr;
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
