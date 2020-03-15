@@ -45,6 +45,7 @@ AWTPlayerCharacter::AWTPlayerCharacter()
 
 	SelectingArrowSprite = LoadObject<UPaperSprite>(nullptr, (TEXT("PaperSprite'/Game/Blueprints/SelectingArrows/Sprite/SelectingArrow_Sprite.SelectingArrow_Sprite'")));
 	SelectingArrowForCombatSprite = LoadObject<UPaperSprite>(nullptr, (TEXT("PaperSprite'/Game/Blueprints/SelectingArrows/Sprite/SelectingArrow_Combat_Sprite.SelectingArrow_Combat_Sprite'")));
+	SelectingArrowForPickingEnemyToFight = LoadObject<UPaperSprite>(nullptr, (TEXT("PaperSprite'/Game/Blueprints/SelectingArrows/Sprite/SelectingArrow_PickingEnemyForFight_Sprite.SelectingArrow_PickingEnemyForFight_Sprite'")));
 	//SelectingArrow->SetSprite(LoadObject<UPaperSprite>(nullptr, (TEXT("PaperSprite'/Game/Blueprints/SelectingArrow_Sprite.SelectingArrow_Sprite'"))));
 	SelectingArrow->SetVisibility(false);
 
@@ -92,6 +93,12 @@ void AWTPlayerCharacter::SetSelectedForCombat(bool IsSelected)
 	SelectingArrow->SetVisibility(IsSelected);
 }
 
+void AWTPlayerCharacter::SetSelectedForPickingEnemy(bool IsSelected)
+{
+	SelectingArrow->SetSprite(SelectingArrowForPickingEnemyToFight);
+	SelectingArrow->SetVisibility(IsSelected);
+}
+
 // Called to bind functionality to input
 void AWTPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -111,7 +118,8 @@ void AWTPlayerCharacter::RefreshItems()
 			//pAttackDefenseComponent->DefensePoolRow_1 = ActiveItem->DefensePoolRow_1;
 		}
 		else if (i < 3) {
-			pAttackDefenseComponent->DefensePoolRow_1 = Backpack[i]->DefensePoolRow_1;
+			Backpack[i]->IsActive = false;
+			//pAttackDefenseComponent->DefensePoolRow_1.Append(Backpack[i]->DefensePoolRow_1);
 		}
 		else {
 			Backpack[i]->IsActive = false;

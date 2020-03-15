@@ -141,6 +141,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = Setup)
 		FVector SpawnedLocationOffsetY = FVector(0.f, 3000.f, 0.f);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+		TArray<FString> Goals = { "","","" };
+
 	UPROPERTY(EditAnywhere, Category = Setup)
 		FVector SpawnedLocationOffsetZ = FVector(0.f, 0.f, 2000.f);
 
@@ -149,6 +152,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void SelectCharacter(AActor* CharacterToSelect);
+
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void DeselectCharacter(AActor* CharacterToDeselect);
 
 	void Combat(AWTPlayerCharacter* PlayerCharacter, AEncounter* Enemy);
 	UFUNCTION(BlueprintCallable, Category = "Custom")
@@ -165,8 +171,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		AEncounter_Good* CurrentlyHoveredByMouseEncounter_Good = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+		AEncounter_Bad* CurrentlyHoveredByMouseEncounter_Bad = nullptr;
+
 	void SetCurrentlyHoveredByMouseAction(bool IsHovered, AAction* ActionToSet);
 	void SetCurrentlyHoveredByMouseEncounter_Good(bool IsHovered, AEncounter_Good* Encounter_GoodToSet);
+	void SetCurrentlyHoveredByMouseEncounter_Bad(bool IsHovered, AEncounter_Bad* Encounter_BadToSet);
 
 	AEncounter* CombatInitiator;
 
@@ -186,10 +196,19 @@ public:
 	bool FindAndUseItemToUnlock(EItemType BackpackItemType);
 	bool FindAndUseItemToUnlock(EItemValue BackpackItemValue);
 
-	bool bIsCombatOn = false;
-	TArray<AWTPlayerCharacter*> PlayersChosenToFight; // = { nullptr };
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+		bool bIsCombatOn = false;
 
-	void PlayerCharactersAttack(TArray<AWTPlayerCharacter*> CharactersAttackers, AEncounter* Defender);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+	AWTPlayerCharacter* CharacterPickingToFight = nullptr;
+
+	bool bIsCharacterPickingToFight = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+	TArray<AWTPlayerCharacter*> PlayersChosenToFight = { nullptr, nullptr, nullptr, nullptr, nullptr };
+
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void PlayerCharactersAttack(TArray<AWTPlayerCharacter*> CharactersAttackers); //, AEncounter* Defender);
 
 	void PassItemToPlayer(EItemValue ItemValue);
 

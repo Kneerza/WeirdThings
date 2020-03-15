@@ -23,3 +23,17 @@ void AEncounter_Bad::BeginPlay()
 	
 	
 }
+
+void AEncounter_Bad::SetIsHovered(bool IsHovered)
+{
+	auto PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
+
+	if (IsHovered)
+	{
+		PlayerController->SetCurrentlyHoveredByMouseEncounter_Bad(true, this);
+	}
+	else
+	{
+		PlayerController->SetCurrentlyHoveredByMouseEncounter_Bad(false, nullptr);
+	}
+}

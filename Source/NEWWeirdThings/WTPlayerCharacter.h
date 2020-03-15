@@ -22,6 +22,7 @@ class UMaterialInterface;
 class AActor;
 class AAction;
 class AItemTemplate;
+class AEncounter;
 class ALocationTemplate;
 class UWidgetComponent;
 class UAttackDefenseComponent;
@@ -76,6 +77,7 @@ public:
 
 	UPaperSprite* SelectingArrowSprite;
 	UPaperSprite* SelectingArrowForCombatSprite;
+	UPaperSprite* SelectingArrowForPickingEnemyToFight;
 
 	//UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Custom")
 	//	UWidgetComponent* pHealthWidget;
@@ -93,6 +95,11 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = Setup)
 	AItemTemplate* SecondActiveItem = nullptr;
+
+	AItemTemplate* ItemPickedForFight = nullptr;
+
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
+	AEncounter* CurrentEnemyToAttack = nullptr;
 
 	float DamageWidgetAlphaChannel = 1;
 
@@ -153,6 +160,7 @@ public:
 
 	void SetSelected(bool IsSelected);
 	void SetSelectedForCombat(bool IsSelected);
+	void SetSelectedForPickingEnemy(bool IsSelected);
 
 	//	void ShowDamage();
 
