@@ -43,8 +43,8 @@ void AWeirdThingsPlayerController::BeginPlay()
 	// ...
 
 
-	Goals[0] = "Find food before night";
-	Goals[1] = "Find wood before night";
+	Goals[0] = "(" + FString::FromInt(CharactersFoodInPlay) + "/" + FString::FromInt(FoodRequired) + ")" + " Find food before night";
+	Goals[1] = "(" + FString::FromInt(CharactersWoodInPlay) + "/" + FString::FromInt(WoodRequired) + ")" + " Find wood before night";
 
 	/*
 	// Create SunLight
@@ -338,8 +338,9 @@ void AWeirdThingsPlayerController::RightClickEvents()
 		}
 		else if (ClickedActorClassName == "Action")
 		{
+			
 			auto CurrentAction = Cast<AAction>(pClickedActor);
-			if (CurrentAction->ActionLock[0]) {
+			if (CurrentAction->ActionLock[CurrentAction->CurrentLockIndex]) {
 				if (pSelectedCharacter->SecondActiveItem)
 				{
 					CurrentAction->Unlock();
@@ -2056,6 +2057,9 @@ void AWeirdThingsPlayerController::TryToUnlock(AAction* CurrentAction)
 
 	default:
 
+		CanFirstActiveItemUnlock(EItemType::No_Type);
+		CanSecondActiveItemUnlock(EItemType::No_Type);
+
 		break;
 	}
 }
@@ -2284,6 +2288,21 @@ void AWeirdThingsPlayerController::SetTimeMorning()
 
 	AddActionPointToEveryCharacter();
 
+	for (int32 i = 0; i < PlayerCharacters.Num(); i++)
+	{
+		if (PlayerCharacters[i]->DoesNeedToConsumeFood) {
+			PlayerCharacters[i]->GetHunger(1);
+		}
+
+		if (PlayerCharacters[i]->DoesNeedToSleep) {
+			PlayerCharacters[i]->GetExhaustion(1);
+		}
+
+		if (PlayerCharacters[i]->DoesNeedFire) {
+			PlayerCharacters[i]->DoesNeedFire = false;
+		}
+	}
+
 	for (int32 i = 0; i < Encounter_DeadsInPlay.Num(); i++)
 	{
 		Encounter_DeadsInPlay[i]->SetAwakened(false);
@@ -2318,6 +2337,21 @@ void AWeirdThingsPlayerController::SetTimeNoon()
 
 	AddActionPointToEveryCharacter();
 
+	for (int32 i = 0; i < PlayerCharacters.Num(); i++)
+	{
+		if (PlayerCharacters[i]->DoesNeedToConsumeFood) {
+			PlayerCharacters[i]->GetHunger(1);
+		}
+
+		if (PlayerCharacters[i]->DoesNeedToSleep) {
+			PlayerCharacters[i]->GetExhaustion(1);
+		}
+
+		if (PlayerCharacters[i]->DoesNeedFire) {
+			PlayerCharacters[i]->DoesNeedFire = false;
+		}
+	}
+
 	CurrentTimeOfDay = ETimeOfDay::Noon;
 }
 
@@ -2350,6 +2384,27 @@ void AWeirdThingsPlayerController::SetTimeEvening()
 	for (int32 i = 0; i < Encounter_DeadsInPlay.Num(); i++)
 	{
 		Encounter_DeadsInPlay[i]->SetAwakened(true);
+	}
+
+	for (int32 i = 0; i < PlayerCharacters.Num(); i++)
+	{
+		//if (PlayerCharacters[i]->Food <= 0) { PlayerCharacters[i]->GetHunger(1); }
+		//else { ConsumeFood(1, PlayerCharacters[i]); }
+		if (PlayerCharacters[i]->DoesNeedToConsumeFood) {
+			PlayerCharacters[i]->GetHunger(1);
+		}
+		PlayerCharacters[i]->DoesNeedToConsumeFood = true;
+
+		if (PlayerCharacters[i]->DoesNeedToSleep) {
+			PlayerCharacters[i]->GetExhaustion(1);
+		}
+
+		if (!(PlayerCharacters[i]->CurrentLocation->AvailableSocketCampFire.Num() < 1))
+		{ 
+			PlayerCharacters[i]->DoesNeedFire = true;
+			//PlayerCharacters[i]->GetInsanity(1);
+		}
+		//else { ConsumeWood(1, PlayerCharacters[i]); }
 	}
 
 	CurrentTimeOfDay = ETimeOfDay::Evening;
@@ -2386,9 +2441,21 @@ void AWeirdThingsPlayerController::SetTimeNight()
 	{
 		//if (PlayerCharacters[i]->Food <= 0) { PlayerCharacters[i]->GetHunger(1); }
 		//else { ConsumeFood(1, PlayerCharacters[i]); }
-		PlayerCharacters[i]->GetHunger(1);
+		if (PlayerCharacters[i]->DoesNeedToConsumeFood) {
+			PlayerCharacters[i]->GetHunger(1);
+		}
 
-		if (!(PlayerCharacters[i]->CurrentLocation->AvailableSocketCampFire.Num()<1)) { PlayerCharacters[i]->GetInsanity(1); }
+		if (PlayerCharacters[i]->DoesNeedToSleep) {
+			PlayerCharacters[i]->GetExhaustion(1);
+		}
+
+		PlayerCharacters[i]->DoesNeedToSleep = true;
+
+		if (!(PlayerCharacters[i]->CurrentLocation->AvailableSocketCampFire.Num()<1)) { 
+			PlayerCharacters[i]->GetInsanity(1);
+			
+			PlayerCharacters[i]->DoesNeedFire = false;
+		}
 		//else { ConsumeWood(1, PlayerCharacters[i]); }
 	}
 
@@ -2399,13 +2466,19 @@ void AWeirdThingsPlayerController::SetTimeNight()
 	}
 
 	CurrentTimeOfDay = ETimeOfDay::Night;
+
+	UpdateCharactersFoodInPlay();
+	UpdateCharactersWoodInPlay();
 }
 
 bool AWeirdThingsPlayerController::ConsumeFood(int32 FoodAmountToConsume, AWTPlayerCharacter* AffectedCharacter, int32 ActionPointsRequired) //TODO make applicable regardless selected character or not
 {
 	if (!AffectedCharacter) { return false; }
 
-	if (AffectedCharacter->CurrentActionPoints < ActionPointsRequired)
+	if (CurrentTimeOfDay == ETimeOfDay::Evening) {
+
+	}
+	else if (AffectedCharacter->CurrentActionPoints < ActionPointsRequired)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Not enough AP"))
 			return false;
@@ -2419,7 +2492,9 @@ bool AWeirdThingsPlayerController::ConsumeFood(int32 FoodAmountToConsume, AWTPla
 	AffectedCharacter->Food -= FoodAmountToConsume;
 	AffectedCharacter->RemoveHunger(1);
 
-	AffectedCharacter->CurrentActionPoints-= ActionPointsRequired;
+	if (!(CurrentTimeOfDay == ETimeOfDay::Evening)) {
+		AffectedCharacter->CurrentActionPoints -= ActionPointsRequired;
+	}
 
 	return true;
 }
@@ -2459,7 +2534,7 @@ bool AWeirdThingsPlayerController::ConsumeWood(int32 WoodAmountToConsume, AWTPla
 
 	if ((AffectedCharacter->Wood - WoodAmountToConsume) < 0)
 	{
-		// TODO "Not enough food"
+		// TODO "Not enough wood"
 		return false;
 	}
 	AffectedCharacter->Wood -= WoodAmountToConsume;
@@ -2477,6 +2552,7 @@ bool AWeirdThingsPlayerController::GetFood(int32 FoodAmountToGet)
 	}
 	*/
 	pSelectedCharacter->Food += FoodAmountToGet;
+	UpdateCharactersFoodInPlay();
 	return true;
 }
 
@@ -2490,6 +2566,7 @@ bool AWeirdThingsPlayerController::GetWood(int32 WoodAmountToGet)
 	}
 	*/
 	pSelectedCharacter->Wood += WoodAmountToGet;
+	UpdateCharactersWoodInPlay();
 	return true;
 }
 
@@ -2499,11 +2576,17 @@ bool AWeirdThingsPlayerController::GetWood(int32 WoodAmountToGet)
 	//GetWorld()->SpawnActor<AActor>(CampFireClassToSpawn, PlayerCharacter->CurrentLocation->SocketCampFire->GetComponentLocation());
 	//PlayerCharacter->CurrentLocation->SocketCampFire;
 
-	if (PlayerCharacter->CurrentActionPoints < 1)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Not enough AP"))
-			return;
-	}
+	 int32 ActionPointsRequired = 1;
+
+	 if ((CurrentTimeOfDay == ETimeOfDay::Evening)) {
+		 ActionPointsRequired = 0;
+	 }
+	 else if (PlayerCharacter->CurrentActionPoints < ActionPointsRequired)
+	 {
+
+		 UE_LOG(LogTemp, Warning, TEXT("Not enough AP"))
+			 return;
+	 }
 
 	auto AvailableCampFireSocket = PlayerCharacter->CurrentLocation->AvailableSocketCampFire[0];
 	if (!ensure(AvailableCampFireSocket)) { return; }
@@ -2522,15 +2605,22 @@ bool AWeirdThingsPlayerController::GetWood(int32 WoodAmountToGet)
 		UE_LOG(LogTemp, Warning, TEXT("Campfire Not Spawned"))
 			return;
 	}
-	if (ConsumeWood(1, PlayerCharacter, 1))
+	if (ConsumeWood(1, PlayerCharacter, ActionPointsRequired))
 	{
 		GetWorld()->SpawnActor<AActor>(CampFireClassToSpawn, SpawningSocketTransform, SpawnParameters);
+
+		for (int32 i = 0; i < PlayerCharacters.Num(); i++)
+		{
+			if (PlayerCharacters[i]->DoesNeedFire) {
+				PlayerCharacters[i]->DoesNeedFire = false;
+			}
+		}
 	}
 	else {
 		UE_LOG(LogTemp, Warning, TEXT("No wood available"))
 	}
 
-	PlayerCharacter->CurrentActionPoints--;
+	//PlayerCharacter->CurrentActionPoints--;
 }
 
 void AWeirdThingsPlayerController::Sleep(AWTPlayerCharacter* PlayerCharacter)
@@ -2542,7 +2632,9 @@ void AWeirdThingsPlayerController::Sleep(AWTPlayerCharacter* PlayerCharacter)
 	}
 
 	PlayerCharacter->RemoveExhaustion(1);
-	PlayerCharacter->CurrentActionPoints--;
+
+		PlayerCharacter->CurrentActionPoints = 0;
+		PlayerCharacter->MovementPoints = 0;
 }
 
 void AWeirdThingsPlayerController::AddActionPointToEveryCharacter()
@@ -2550,5 +2642,69 @@ void AWeirdThingsPlayerController::AddActionPointToEveryCharacter()
 	for (int32 i = 0; i < PlayerCharacters.Num(); i++)
 	{
 		PlayerCharacters[i]->CurrentActionPoints = PlayerCharacters[i]->ActionPoints;
+	}
+}
+
+void AWeirdThingsPlayerController::UpdateCharactersFoodInPlay()
+{
+	if (FoodGoalCompleted) { return; }
+	if (FoodGoalFailed) { return; }
+	CharactersFoodInPlay = 0;
+
+	if (CurrentTimeOfDay == ETimeOfDay::Night)
+	{
+		Goals[0] = "(" + FString::FromInt(CharactersFoodInPlay) + "/" + FString::FromInt(FoodRequired) + ")" + " Find food before night" + "(Failed)";
+		FoodGoalFailed = true;
+		return;
+	}
+
+	for (int32 i = 0; i < PlayerCharacters.Num(); i++)
+	{
+		
+		if (PlayerCharacters[i])
+		{
+			CharactersFoodInPlay += PlayerCharacters[i]->Food;
+		}
+	}
+
+	if (CharactersFoodInPlay == FoodRequired)
+	{
+		Goals[0] = "(" + FString::FromInt(CharactersFoodInPlay) + "/" + FString::FromInt(FoodRequired) + ")" + " Find food before night" + "(Completed)";
+		FoodGoalCompleted = true;
+	}
+	else {
+		Goals[0] = "(" + FString::FromInt(CharactersFoodInPlay) + "/" + FString::FromInt(FoodRequired) + ")" + " Find food before night";
+	}
+}
+
+void AWeirdThingsPlayerController::UpdateCharactersWoodInPlay()
+{
+	if (WoodGoalCompleted) { return; }
+	if (WoodGoalFailed) { return; }
+
+	if (CurrentTimeOfDay == ETimeOfDay::Night)
+	{
+		Goals[1] = "(" + FString::FromInt(CharactersWoodInPlay) + "/" + FString::FromInt(WoodRequired) + ")" + " Find wood before night" + "(Failed)";
+		WoodGoalFailed = true;
+		return;
+	}
+
+	CharactersWoodInPlay = 0;
+	for (int32 i = 0; i < PlayerCharacters.Num(); i++)
+	{
+
+		if (PlayerCharacters[i])
+		{
+			CharactersWoodInPlay += PlayerCharacters[i]->Wood;
+		}
+	}
+
+	if (CharactersWoodInPlay == WoodRequired)
+	{
+		Goals[1] = "(" + FString::FromInt(CharactersWoodInPlay) + "/" + FString::FromInt(WoodRequired) + ")" + " Find wood before night" + "(Completed)";
+		WoodGoalCompleted = true;
+	}
+	else {
+		Goals[1] = "(" + FString::FromInt(CharactersWoodInPlay) + "/" + FString::FromInt(WoodRequired) + ")" + " Find wood before night";
 	}
 }

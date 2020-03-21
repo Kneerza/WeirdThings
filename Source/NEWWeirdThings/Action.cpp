@@ -112,10 +112,17 @@ void AAction::SetEntangledDeadEncounter(AEncounter_Dead* EntangledDeadEncounterT
 
 void AAction::ConstructActionLocks()
 {
-	
 	for (int32 i = 0; i < ActionLockType.Num(); i++)
 	{
-		if (ActionLockType[i] == EActionLockType::No_Need) { return; }
+		if (ActionLockType[i] == EActionLockType::No_Need) { 
+			
+			if (ActionLock[0])
+			{
+				IsLocked = true;
+			}
+
+			return; }
+
 		ActionLock[i] = NewObject<UPaperFlipbookComponent>(this, ("Lock    " + i));
 		ActionLock[i]->RegisterComponent();
 		switch (ActionLockType[i])
@@ -184,6 +191,10 @@ void AAction::ConstructActionLocks()
 		ActionLock[i]->SetRelativeTransform(TransformLock);
 	}
 	
+	if (ActionLock[0])
+	{
+		IsLocked = true;
+	}
 }
 
 void AAction::ConstructModifierVisual()
@@ -231,10 +242,12 @@ void AAction::GetTypeOfLock()
 		{
 			CurrentLockIndex = i;
 			CurrentLockTypeIndex = i;
+			IsLocked = true;
 			return; 
 		}
 
 	}
+	IsLocked = false;
 	return;
 }
 
@@ -244,6 +257,7 @@ void AAction::Unlock()
 	ActionLockType[CurrentLockTypeIndex] = EActionLockType::No_Need;
 	ActionLock[CurrentLockIndex]->UnregisterComponent();
 	ActionLock[CurrentLockIndex] = nullptr;
+	GetTypeOfLock();
 }
 
 void AAction::Deactivate()

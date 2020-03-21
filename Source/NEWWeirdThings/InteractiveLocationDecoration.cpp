@@ -4,6 +4,8 @@
 #include "Action.h"
 #include "Runtime/Engine/Classes/Components/SceneComponent.h"
 #include "PaperSpriteComponent.h"
+#include "WeirdThingsPlayerController.h"
+#include "Runtime/Engine/Classes/Engine/World.h"
 #include "PaperSprite.h"
 
 
@@ -71,6 +73,7 @@ void AInteractiveLocationDecoration::ChangeState_InteractiveLocationDecoration()
 	if (!(InteractiveLocationDecoration_SpriteComponent_1->bHiddenInGame)) { return; }
 	if (InteractiveLocationDecoration_SpriteComponent_1->GetSprite())
 	{
+		InteractiveLocationDecoration_SpriteComponent_0->OnEndCursorOver.Broadcast(InteractiveLocationDecoration_SpriteComponent_0);
 		InteractiveLocationDecoration_SpriteComponent_0->DestroyComponent();
 		InteractiveLocationDecoration_SpriteComponent_1->SetHiddenInGame(false);
 	}
@@ -89,4 +92,18 @@ void AInteractiveLocationDecoration::ChangeState_InteractiveLocationDecoration()
 void AInteractiveLocationDecoration::Diactivate_InteractiveLocationDecoration()
 {
 	InteractiveLocationDecoration_SpriteComponent_0->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void AInteractiveLocationDecoration::SetIsHovered(bool IsHovered)
+{
+	auto PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
+
+	if (IsHovered)
+	{
+		PlayerController->SetCurrentlyHoveredByMouseAction(true, EntangledAction);
+	}
+	else
+	{
+		PlayerController->SetCurrentlyHoveredByMouseAction(false, nullptr);
+	}
 }

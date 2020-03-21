@@ -174,6 +174,34 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		AEncounter_Bad* CurrentlyHoveredByMouseEncounter_Bad = nullptr;
 
+
+
+	//------------ Goals --------------
+
+	int32 CharactersFoodInPlay = 0;
+	int32 FoodRequired = 4;
+
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
+		bool FoodGoalCompleted = false;
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
+		bool FoodGoalFailed = false;
+
+	void UpdateCharactersFoodInPlay();
+
+	int32 CharactersWoodInPlay = 0;
+	int32 WoodRequired = 2;
+
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
+		bool WoodGoalCompleted = false;
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
+		bool WoodGoalFailed = false;
+
+
+	void UpdateCharactersWoodInPlay();
+
+	//---------------------------------
+
+
 	void SetCurrentlyHoveredByMouseAction(bool IsHovered, AAction* ActionToSet);
 	void SetCurrentlyHoveredByMouseEncounter_Good(bool IsHovered, AEncounter_Good* Encounter_GoodToSet);
 	void SetCurrentlyHoveredByMouseEncounter_Bad(bool IsHovered, AEncounter_Bad* Encounter_BadToSet);

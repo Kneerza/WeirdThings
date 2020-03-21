@@ -82,7 +82,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = Setup)
 		int32 Modifier = 1;
 
-	UPROPERTY(EditAnywhere, Category = Setup)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		int32 ActionPointsRequired = 1;
 
 	UPROPERTY(EditAnywhere, Category = Setup)
@@ -131,6 +131,9 @@ public:
 
 	int32 CurrentLockTypeIndex = 0;
 	int32 CurrentLockIndex = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+	bool IsLocked = false;
 
 
 	// --- Pointers ----

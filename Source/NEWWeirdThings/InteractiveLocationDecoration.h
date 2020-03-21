@@ -33,6 +33,9 @@ public:
 	void ChangeState_InteractiveLocationDecoration();
 	void Diactivate_InteractiveLocationDecoration();
 
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void SetIsHovered(bool IsHovered);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		bool IsLastStateActive = false;
 

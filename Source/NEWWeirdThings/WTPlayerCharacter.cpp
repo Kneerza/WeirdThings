@@ -65,9 +65,10 @@ void AWTPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	auto PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
-	PlayerController->PlayerCharacterRef = this;
+	PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
+	//PlayerController->PlayerCharacterRef = this;
 	PlayerController->PlayerCharacters.Emplace(this);
+	PlayerController->UpdateCharactersFoodInPlay();
 
 	CurrentActionPoints = ActionPoints;
 
@@ -230,6 +231,16 @@ void AWTPlayerCharacter::RemoveInsanity(int32 InsanityAmountToRemove)
 void AWTPlayerCharacter::RemoveHunger(int32 HungerAmountToRemove)
 {
 	if (HungerAmountToRemove == 0) { return; }
+
+	if (DoesNeedToConsumeFood)
+	{
+		DoesNeedToConsumeFood = false;
+		HungerAmountToRemove--;
+		if (HungerAmountToRemove == 0) {
+			return;
+		}
+	}
+
 	for (int32 i = (Injuries.Num() - 1); i >= 0; i--)
 	{
 		if ((Injuries[i] == EDurabilityState::Hunger && (HungerAmountToRemove != 0)))
@@ -264,6 +275,16 @@ bool AWTPlayerCharacter::RemoveInjury(int32 InjuryAmountToRemove)
 void AWTPlayerCharacter::RemoveExhaustion(int32 ExhaustionAmountToRemove)
 {
 	if (ExhaustionAmountToRemove == 0) { return; }
+
+	if (DoesNeedToSleep)
+	{
+		DoesNeedToSleep = false;
+		ExhaustionAmountToRemove--;
+		if (ExhaustionAmountToRemove == 0) {
+			return;
+		}
+	}
+
 	for (int32 i = (Injuries.Num() - 1); i >= 0; i--)
 	{
 		if ((Injuries[i] == EDurabilityState::Exhaustion && (ExhaustionAmountToRemove != 0)))

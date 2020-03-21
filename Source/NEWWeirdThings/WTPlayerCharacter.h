@@ -21,6 +21,7 @@ class UMaterial;
 class UMaterialInterface;
 class AActor;
 class AAction;
+class AWeirdThingsPlayerController;
 class AItemTemplate;
 class AEncounter;
 class ALocationTemplate;
@@ -71,6 +72,8 @@ public:
 
 	AActor* HiredCompanion = nullptr;
 
+	AWeirdThingsPlayerController* PlayerController = nullptr;
+
 	bool SetHiredCompanion(AActor* CompanionToHire);
 
 	USceneComponent* pRootComponent;
@@ -102,6 +105,15 @@ public:
 	AEncounter* CurrentEnemyToAttack = nullptr;
 
 	float DamageWidgetAlphaChannel = 1;
+
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
+		bool DoesNeedToConsumeFood = false;
+
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
+		bool DoesNeedToSleep = false;
+
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
+		bool DoesNeedFire = false;
 
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 	//	int32 HealthPoints = 5;
