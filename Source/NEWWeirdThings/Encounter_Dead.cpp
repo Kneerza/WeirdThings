@@ -3,9 +3,7 @@
 #include "Encounter_Dead.h"
 #include "PaperFlipbookComponent.h"
 #include "Engine/World.h"
-#include "LocationTemplate.h"
 #include "QuitManagement.h"
-#include "WTPlayerCharacter.h"
 #include "Runtime/Engine/Classes/Components/StaticMeshComponent.h"
 #include "Runtime/Engine/Classes/Engine/StaticMesh.h"
 #include "Runtime/Engine/Classes/Components/BoxComponent.h"
@@ -74,7 +72,9 @@ void AEncounter_Dead::BeginPlay()
 	PlayerController->Encounter_DeadsInPlay.Add(this);
 
 	if (GetParentActor()){ 
-		CurrentLocation = Cast<ALocationTemplate>(GetParentActor()); }
+		CurrentLocation = GetParentActor();
+		UE_LOG(LogTemp, Error, TEXT("Current Location: %s"), *CurrentLocation->GetName())
+	}
 
 	// TODO move to LocationTemplate as a Function, that will be called here
 	CreateDynamicAction();
@@ -91,7 +91,7 @@ void AEncounter_Dead::SetAwakened(bool IsAwakened)
 		AwakenedDeadFlipbookComponent->SetHiddenInGame(false);
 		AwakenedDeadFlipbookComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		SleepingDeadFlipbookComponent->SetHiddenInGame(true);
-		FindPlayerToAttack();
+		PlayerController->Encounter_DeadLookForPlayerToAttack(this);
 	}
 	else {
 		IsAwake = false;
@@ -102,30 +102,16 @@ void AEncounter_Dead::SetAwakened(bool IsAwakened)
 	return;
 }
 
-void AEncounter_Dead::FindPlayerToAttack()
-{
-	//UE_LOG(LogTemp, Error, TEXT("Dead Is Attacking"))
-	auto PlayerCharactersInPlay = PlayerController->PlayerCharacters;
-	UE_LOG(LogTemp, Error, TEXT("Current Location: %s"),*CurrentLocation->GetName())
-	UE_LOG(LogTemp, Error, TEXT("Looking for player to attack"))
-	for (int32 i = 0; i < PlayerCharactersInPlay.Num(); i++)
-	{
-		if (PlayerCharactersInPlay[i]->CurrentLocation == CurrentLocation)
-		{
-			PlayerController->AttackDefenseEvent(this, PlayerCharactersInPlay[i]);
-			//UE_LOG(LogTemp, Error, TEXT("Attack-defense happened"))
-			return;
-		}
-	}
-}
-
 void AEncounter_Dead::CreateDynamicAction()
 {
 	if (IsOnPlot) { return; }
 	if (CreatedAction) { return; }
 	if (GetParentActor() && ActionClassToSpawn ) {
 		UE_LOG(LogTemp, Warning, TEXT("DEAD IS CREATING ACTION"))
-			CurrentLocation->CreateDynamicAction(ActionClassToSpawn, this);
+			PlayerController->CreateDynamicAction(CurrentLocation, ActionClassToSpawn, this);
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("Encounter Dead has no ActionClassToSpawn"))
 	}
 }
 
@@ -134,33 +120,11 @@ void AEncounter_Dead::SetAction(UChildActorComponent* ActionToSet)
 	CreatedAction = ActionToSet;
 }
 
-void AEncounter_Dead::Move()
+void AEncounter_Dead::Deactivate()
 {
-	if (!CurrentLocation) { 
-		UE_LOG(LogTemp, Warning, TEXT("CurrentLocation of Dead does not exist"))
-		return; }
-	if (CurrentLocation->HorizontalIndex > 0)
-	{
-		for (int32 i = 0; i < PlayerController->AllLocationsInPlay.Num(); i++)
-		{
-			if (!PlayerController->AllLocationsInPlay[i]) { 
-				UE_LOG(LogTemp, Warning, TEXT("Can't access AllLocationsInPlay[i]"))
-				continue; }
-			if ((CurrentLocation->VerticalIndex == PlayerController->AllLocationsInPlay[i]->VerticalIndex) && ((CurrentLocation->HorizontalIndex - PlayerController->AllLocationsInPlay[i]->HorizontalIndex) == 1))
-			{
-				CurrentLocation = PlayerController->AllLocationsInPlay[i];
-				CreatedAction->UnregisterComponent();
-				CreatedAction = nullptr;
-				DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-				AttachToActor(CurrentLocation, FAttachmentTransformRules::KeepWorldTransform);
-				SetActorLocation(CurrentLocation->AvailableSocketEncounter[0]->GetComponentLocation());
-				CreateDynamicAction();
-				FindPlayerToAttack();
-				return;
-			}
-		}
+	Super::Deactivate();
+
+	if (PlayerController->Encounter_DeadsInPlay.Contains(this)) {
+		PlayerController->Encounter_DeadsInPlay.Remove(Cast<AEncounter_Dead>(this));
 	}
-	
-	//CreatedAction->UnregisterComponent();
-	//DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 }

@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "InteractiveLocationDecoration.h"
-#include "Action.h"
 #include "Runtime/Engine/Classes/Components/SceneComponent.h"
 #include "PaperSpriteComponent.h"
 #include "WeirdThingsPlayerController.h"
@@ -68,7 +67,7 @@ void AInteractiveLocationDecoration::Tick(float DeltaTime)
 
 }
 
-void AInteractiveLocationDecoration::ChangeState_InteractiveLocationDecoration()
+void AInteractiveLocationDecoration::ChangeState()
 {
 	if (!(InteractiveLocationDecoration_SpriteComponent_1->bHiddenInGame)) { return; }
 	if (InteractiveLocationDecoration_SpriteComponent_1->GetSprite())
@@ -89,9 +88,9 @@ void AInteractiveLocationDecoration::ChangeState_InteractiveLocationDecoration()
 	return;
 }
 
-void AInteractiveLocationDecoration::Diactivate_InteractiveLocationDecoration()
+void AInteractiveLocationDecoration::Activate()
 {
-	InteractiveLocationDecoration_SpriteComponent_0->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	InteractiveLocationDecoration_SpriteComponent_0->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }
 
 void AInteractiveLocationDecoration::SetIsHovered(bool IsHovered)

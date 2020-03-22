@@ -1,11 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "WTPlayerCharacter.h"
-#include "LocationTemplate.h"
 #include "WeirdThingsPlayerController.h"
 #include "Runtime/Engine/Classes/Materials/MaterialInstanceDynamic.h"
-//#include "Runtime/Engine/Classes/Components/MeshComponent.h"
-#include "Components/ArrowComponent.h"
 #include "PaperSpriteComponent.h"
 #include "PaperSprite.h"
 #include "PaperFlipbookComponent.h"
@@ -14,7 +11,6 @@
 #include "AttackDefenseComponent.h"
 #include "Runtime/CoreUObject/Public/UObject/UObjectGlobals.h"
 #include "Runtime/UMG/Public/Components/WidgetComponent.h"
-#include "ItemTemplate.h"
 
 // Sets default values
 AWTPlayerCharacter::AWTPlayerCharacter()
@@ -340,15 +336,12 @@ void AWTPlayerCharacter::CreateAvatar()
 	AvatarComponent->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
 
 	AvatarComponent->SetFlipbook(AvatarFlipbook);
-	AvatarComponent->SetWorldTransform(CurrentLocation->AvailableSocketDynamicPlayerAction[0]->GetComponentTransform());
-	//AvatarComponent->SetWorldLocation(CurrentLocation->AvailableSocketDynamicPlayerAction[0]->GetComponentLocation());
-	//AvatarComponent->SetWorldRotation(CurrentLocation->AvailableSocketDynamicPlayerAction[0]->GetComponentRotation());
-
+	AvatarComponent->SetWorldTransform(PlayerController->GetAvailableSocketDynamicPlayerActionTransform(CurrentLocation));
 }
 
 void AWTPlayerCharacter::UpdateAvatar()
 {
-	AvatarComponent->SetWorldTransform(CurrentLocation->AvailableSocketDynamicPlayerAction[0]->GetComponentTransform());
+	AvatarComponent->SetWorldTransform(PlayerController->GetAvailableSocketDynamicPlayerActionTransform(CurrentLocation));
 }
 
 bool AWTPlayerCharacter::SetHiredCompanion(AActor* CompanionToHire)

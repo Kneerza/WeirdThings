@@ -49,6 +49,31 @@ public:
 
 	virtual void BeginPlay() override;
 
+
+
+
+
+	FTransform GetAvailableSocketDynamicPlayerActionTransform(AActor* LocationWithSocketActor);
+
+	void Encounter_DeadLookForPlayerToAttack(AEncounter_Dead* Encounter_Dead);
+
+	void Move_Encounter_Dead(AEncounter_Dead* Encounter_DeadToMove);
+
+	void CreateDynamicAction(AActor* CurrentLocationActor, TSubclassOf<AAction> ActionClass, AEncounter_Dead* EntangledDead);
+
+	AItemTemplate* SpawnItem(TSubclassOf<AItemTemplate> ItemToSpawnClass);
+
+	void ActivateEntangledILD(AAction* ActionEntangledWithILD);
+
+	void CreateDoor(AActor* LocationWithDoorCreatedActor, TSubclassOf<AInteractiveLocationDecoration> DoorToCreateClass, TSubclassOf<AAction> TeleportActionToCreateClass, AActor* LocationInstigatorActor);
+
+	void SetForcedActionForLocation(AActor* LocationToSetForcedActionOn, AActor* ActionToSetAsForced);
+
+	void EntangleActionWithActor(UChildActorComponent* Action, UChildActorComponent* InteractiveLocationDecoration);
+
+
+
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		TSubclassOf<AActor> CampFireClassToSpawn;
 
@@ -120,7 +145,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		TSubclassOf<AActor> BurningEffectClass = nullptr;
 
-	TArray<ALocationTemplate*> AllLocationsInPlay;
+	//TArray<ALocationTemplate*> AllLocationsInPlay;
+	TArray<AActor*> AllLocationsInPlay;
 	
 	TArray<AEncounter_Dead*>Encounter_DeadsInPlay;
 
@@ -129,11 +155,12 @@ public:
 	void GetCurrentLocationOfActor(AActor* Actor, ALocationTemplate* &CurrentLocation);
 
 	void MoveCharacter(AWTPlayerCharacter* CharacterToMove, ALocationTemplate* LocationToMoveTo);
-	void TeleportCharacter(AWTPlayerCharacter* CharacterToMove, ALocationTemplate* LocationToMoveTo);
+	void TeleportCharacter(AWTPlayerCharacter* CharacterToMove, AActor* LocationToMoveToActor);
 
 	bool SpawnEnemy(AAction* ActionInstigator);
 	ALocationTemplate* SpawnLocation(AAction* Action, bool IsSpawningOnRight, bool IsPlotLocation);
 	bool SpawnGoodEnc(AAction* ActionInstigator);
+
 
 	void ClickedArrowTemplateHandle(AArrowTemplate* ClickedArrow);
 	void ClickedActionHandle(AAction* CurrentAction);

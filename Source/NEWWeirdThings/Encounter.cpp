@@ -1,12 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Encounter.h"
-#include "Encounter_Dead.h"
 #include "WeirdThingsPlayerController.h"
 #include "QuitManagement.h"
-#include "AttackDefenseActor.h"
 #include "AttackDefenseComponent.h"
-#include "ItemTemplate.h"
 #include "Blueprint/UserWidget.h"
 #include "Math/Vector2D.h"
 #include "Runtime/UMG/Public/Components/WidgetComponent.h"
@@ -51,6 +48,8 @@ void AEncounter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
+
 	InitializeLoot();
 }
 
@@ -74,14 +73,12 @@ void AEncounter::LooseHealth()
 	HealthPoints--;
 	if (HealthPoints < 1)
 	{
-		if (Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController())->Encounter_DeadsInPlay.Contains(this)) {
-			Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController())->Encounter_DeadsInPlay.Remove(Cast<AEncounter_Dead>(this));
-		}
+		
 		for (int32 i = 0; i < Loot.Num(); i++)
 		{
-			Cast< AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController())->PassItemToPlayer(Loot[i]);
+			PlayerController->PassItemToPlayer(Loot[i]);
 		}
-		Destroy();
+		Deactivate();
 	}
 }
 
@@ -89,7 +86,10 @@ void AEncounter::InitializeLoot()
 {
 	for (int32 i = 0; i < LootClassesToSpawn.Num(); i++)
 	{
-		Loot[i] = GetWorld()->SpawnActor<AItemTemplate>(LootClassesToSpawn[i]);
+		//Loot[i] = GetWorld()->SpawnActor<AItemTemplate>(LootClassesToSpawn[i]);
+		if (LootClassesToSpawn[i]) {
+			Loot[i] = PlayerController->SpawnItem(LootClassesToSpawn[i]);
+		}
 	}
 }
 
@@ -109,4 +109,10 @@ void AEncounter::CreateInfoWidget(UUserWidget* WidgetToCreate, FVector2D WidgetO
 	WidgetTransform.Scale.X = 0.2f;
 	WidgetTransform.Scale.Y = 0.2f;
 	WidgetToCreate->SetRenderTransform(WidgetTransform);
+}
+
+void AEncounter::Deactivate()
+{
+	UE_LOG(LogTemp, Error, TEXT("Encounter is deactivated"))
+	Destroy();
 }

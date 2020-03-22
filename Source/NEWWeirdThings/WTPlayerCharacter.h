@@ -16,18 +16,13 @@ enum class EDurabilityState : uint8
 	Empty
 };
 
-//class UMaterialInstanceDynamic;
-class UMaterial;
-class UMaterialInterface;
 class AActor;
 class AAction;
 class AWeirdThingsPlayerController;
 class AItemTemplate;
 class AEncounter;
-class ALocationTemplate;
 class UWidgetComponent;
 class UAttackDefenseComponent;
-class UArrowComponent;
 class UPaperSprite;
 class UPaperSpriteComponent;
 class UPaperFlipbookComponent;
@@ -56,7 +51,7 @@ public:
 		int32 MovementPoints = 3;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
-		ALocationTemplate* CurrentLocation = nullptr;
+		AActor* CurrentLocation = nullptr;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Custom")
 		UAttackDefenseComponent* pAttackDefenseComponent;

@@ -331,7 +331,10 @@ void AWeirdThingsPlayerController::RightClickEvents()
 			// TODO collapse all ifs to function
 			auto ClickedLocation = Cast<ALocationTemplate>(pClickedActor);
 			if (pSelectedCharacter->CurrentLocation == ClickedLocation) { return; }
-			if (!(pSelectedCharacter->CurrentLocation->IsRestricting && ((ClickedLocation->VerticalIndex - pSelectedCharacter->CurrentLocation->VerticalIndex) == 1)))
+
+			auto CurrentLocation = Cast<ALocationTemplate>(pSelectedCharacter->CurrentLocation);
+
+			if (!(CurrentLocation->IsRestricting && ((ClickedLocation->VerticalIndex - CurrentLocation->VerticalIndex) == 1)))
 			{
 				MoveCharacter(pSelectedCharacter, ClickedLocation);
 			}
@@ -433,7 +436,7 @@ void AWeirdThingsPlayerController::ClickedActionHandle(AAction* CurrentAction)
 				return; 
 			}
 			
-			CurrentAction->EntangledInteractiveLocationDecoration->ChangeState_InteractiveLocationDecoration();
+			Cast<AInteractiveLocationDecoration>(CurrentAction->EntangledInteractiveLocationDecoration)->ChangeState();
 				
 		}
 	}
@@ -631,6 +634,7 @@ void AWeirdThingsPlayerController::DeselectCharacter(AActor* CharacterToDeselect
 
 void AWeirdThingsPlayerController::GetComponentUnderCursor(AActor* &ClickedActor, FString &ClickedActorClassName)
 {
+
 	FHitResult HitResult;
 	if (this->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, HitResult))
 	{
@@ -675,8 +679,9 @@ void AWeirdThingsPlayerController::MoveCharacter(AWTPlayerCharacter* CharacterTo
 {
 	if (CharacterToMove->MovementPoints < 1) { return; }
 
+	if (!ensure(LocationToMoveTo)) { return; }
 	//auto LocationOfLocationTemplate = LocationToMoveTo->GetActorLocation();
-	auto LocationOfCharacter = CharacterToMove->CurrentLocation;
+	auto LocationOfCharacter = Cast<ALocationTemplate>(CharacterToMove->CurrentLocation);
 
 	// Check if another location is too far 
 	if (abs(LocationToMoveTo->HorizontalIndex - LocationOfCharacter->HorizontalIndex) > 1) { return; }
@@ -699,7 +704,7 @@ void AWeirdThingsPlayerController::MoveCharacter(AWTPlayerCharacter* CharacterTo
 			UE_LOG(LogTemp, Error, TEXT("No EntangledILP for this action"))
 				return;
 		}
-		ForcedAction->EntangledInteractiveLocationDecoration->ChangeState_InteractiveLocationDecoration();
+		Cast<AInteractiveLocationDecoration>(ForcedAction->EntangledInteractiveLocationDecoration)->ChangeState();
 	}
 
 	CharacterToMove->MovementPoints--;
@@ -707,8 +712,11 @@ void AWeirdThingsPlayerController::MoveCharacter(AWTPlayerCharacter* CharacterTo
 	
 }
 
-void AWeirdThingsPlayerController::TeleportCharacter(AWTPlayerCharacter* CharacterToMove, ALocationTemplate* LocationToMoveTo)
+void AWeirdThingsPlayerController::TeleportCharacter(AWTPlayerCharacter* CharacterToMove, AActor* LocationToMoveToActor)
 {
+
+	auto LocationToMoveTo = Cast<ALocationTemplate>(LocationToMoveToActor);
+
 	if (!LocationToMoveTo) { return; }
 	if (CharacterToMove->MovementPoints < 1) { return; }
 
@@ -723,7 +731,7 @@ void AWeirdThingsPlayerController::TeleportCharacter(AWTPlayerCharacter* Charact
 			UE_LOG(LogTemp, Error, TEXT("No EntangledILP for this action"))
 				return;
 		}
-		ForcedAction->EntangledInteractiveLocationDecoration->ChangeState_InteractiveLocationDecoration();
+		Cast<AInteractiveLocationDecoration>(ForcedAction->EntangledInteractiveLocationDecoration)->ChangeState();
 	}
 	CharacterToMove->MovementPoints--;
 	CharacterToMove->UpdateAvatar();
@@ -1382,8 +1390,9 @@ ALocationTemplate* AWeirdThingsPlayerController::SpawnLocation(AAction* Action, 
 
 			if ((SpawnedLocationTransform.GetLocation().Y > LocationsRowLimit)) { return nullptr; }
 
-
-			return GetWorld()->SpawnActor<ALocationTemplate>(LocationClass, SpawnedLocationTransform, SpawningLocationParameters);
+			auto NewLocation = GetWorld()->SpawnActor<ALocationTemplate>(LocationClass, SpawnedLocationTransform, SpawningLocationParameters);
+			Action->LocationArrowPointsTo = NewLocation;
+			return NewLocation;
 
 		}
 		else {
@@ -1772,6 +1781,8 @@ return false;
 
 bool AWeirdThingsPlayerController::PerformAction(AAction* Action, int32 Modifier)
 {
+
+	UE_LOG(LogTemp, Warning, TEXT("Performing action: %s"),*Action->GetName())
 	auto ActionType = Action->ActionType;
 
 	switch (ActionType)
@@ -1880,12 +1891,14 @@ bool AWeirdThingsPlayerController::PerformAction(AAction* Action, int32 Modifier
 			ConsumeWood(1, pSelectedCharacter, 1);
 			if (Action->EntangledDeadEncounter)
 			{
+				auto EntangledDeadEncounter = Cast<AEncounter_Dead>(Action->EntangledDeadEncounter);
+
 				FTransform EffectTransform;
-				EffectTransform.SetLocation(Action->EntangledDeadEncounter->GetActorLocation());
-				Encounter_DeadsInPlay.RemoveSingle(Action->EntangledDeadEncounter);
+				EffectTransform.SetLocation(EntangledDeadEncounter->GetActorLocation());
+				Encounter_DeadsInPlay.RemoveSingle(EntangledDeadEncounter);
 				Action->EntangledDeadEncounter->Destroy();
-				if (!(Action->EntangledDeadEncounter->IsOnPlot)) {
-					Action->EntangledDeadEncounter->CreatedAction->UnregisterComponent();
+				if (!(EntangledDeadEncounter->IsOnPlot)) {
+					EntangledDeadEncounter->CreatedAction->UnregisterComponent();
 				}
 				if (BurningEffectClass) {
 
@@ -1954,7 +1967,16 @@ bool AWeirdThingsPlayerController::PerformAction(AAction* Action, int32 Modifier
 
 	case EActionType::Teleport:
 
-		Action->SetTeleport();
+		//TArray<AActor*> AllLocationsInPlayActors;
+		//for (int32 i = 0; i < AllLocationsInPlay.Num(); i++)
+		//{
+		//	if (AllLocationsInPlay[i])
+		//	{
+		//		AllLocationsInPlayActors.Add(Cast<AActor>(AllLocationsInPlay[i]));
+		//	}
+		//}
+
+		Action->SetTeleport(AllLocationsInPlay);
 		TeleportCharacter(pSelectedCharacter, Action->LocationArrowPointsTo);
 
 
@@ -2399,7 +2421,7 @@ void AWeirdThingsPlayerController::SetTimeEvening()
 			PlayerCharacters[i]->GetExhaustion(1);
 		}
 
-		if (!(PlayerCharacters[i]->CurrentLocation->AvailableSocketCampFire.Num() < 1))
+		if (!(Cast<ALocationTemplate>(PlayerCharacters[i]->CurrentLocation)->AvailableSocketCampFire.Num() < 1))
 		{ 
 			PlayerCharacters[i]->DoesNeedFire = true;
 			//PlayerCharacters[i]->GetInsanity(1);
@@ -2451,7 +2473,7 @@ void AWeirdThingsPlayerController::SetTimeNight()
 
 		PlayerCharacters[i]->DoesNeedToSleep = true;
 
-		if (!(PlayerCharacters[i]->CurrentLocation->AvailableSocketCampFire.Num()<1)) { 
+		if (!(Cast<ALocationTemplate>(PlayerCharacters[i]->CurrentLocation)->AvailableSocketCampFire.Num()<1)) { 
 			PlayerCharacters[i]->GetInsanity(1);
 			
 			PlayerCharacters[i]->DoesNeedFire = false;
@@ -2462,7 +2484,14 @@ void AWeirdThingsPlayerController::SetTimeNight()
 	//TODO collapse to function
 	for (int32 i = 0; i < Encounter_DeadsInPlay.Num(); i++)
 	{
-		Encounter_DeadsInPlay[i]->Move();
+		//auto CurrentLocation = Cast<ALocationTemplate>(Encounter_DeadsInPlay[i]->CurrentLocation);
+		//auto CurrentLocationHorizontalIndex = CurrentLocation->HorizontalIndex;
+		//auto CurrentLocationVerticalIndex = CurrentLocation->VerticalIndex;
+
+		//Encounter_DeadsInPlay[i]->Move(CurrentLocationHorizontalIndex, CurrentLocationVerticalIndex);
+		if (Encounter_DeadsInPlay[i]) {
+			Move_Encounter_Dead(Encounter_DeadsInPlay[i]);
+		}
 	}
 
 	CurrentTimeOfDay = ETimeOfDay::Night;
@@ -2588,7 +2617,7 @@ bool AWeirdThingsPlayerController::GetWood(int32 WoodAmountToGet)
 			 return;
 	 }
 
-	auto AvailableCampFireSocket = PlayerCharacter->CurrentLocation->AvailableSocketCampFire[0];
+	auto AvailableCampFireSocket = Cast<ALocationTemplate>(PlayerCharacter->CurrentLocation)->AvailableSocketCampFire[0];
 	if (!ensure(AvailableCampFireSocket)) { return; }
 
 	auto SpawningSocketTransform = AvailableCampFireSocket->GetComponentTransform();
@@ -2707,4 +2736,155 @@ void AWeirdThingsPlayerController::UpdateCharactersWoodInPlay()
 	else {
 		Goals[1] = "(" + FString::FromInt(CharactersWoodInPlay) + "/" + FString::FromInt(WoodRequired) + ")" + " Find wood before night";
 	}
+}
+
+
+
+
+
+void AWeirdThingsPlayerController::ActivateEntangledILD(AAction* ActionEntangledWithILD)
+{
+	Cast<AInteractiveLocationDecoration>(ActionEntangledWithILD->EntangledInteractiveLocationDecoration)->Activate();
+}
+
+void AWeirdThingsPlayerController::CreateDoor(AActor* LocationWithDoorCreatedActor, TSubclassOf<AInteractiveLocationDecoration> DoorToCreateClass, TSubclassOf<AAction> TeleportActionToCreateClass, AActor* LocationInstigatorActor)
+{
+	//Cast<ALocationTemplate>(LocationWithDoorCreated)->CreateDoor(DoorToCreateClass, TeleportActionToCreateClass, LocationInstigatorActor);
+
+	auto LocationWithDoorCreated = Cast<ALocationTemplate>(LocationWithDoorCreatedActor);
+	auto LocationInstigator = Cast<ALocationTemplate>(LocationInstigatorActor);
+	auto Door = LocationWithDoorCreated->Door;
+
+	if (!ensure(LocationInstigator)) { return; }
+
+	if (Door) {
+
+		UE_LOG(LogTemp, Warning, TEXT("Door already exists"))
+			return;
+	}
+	if (!DoorToCreateClass) {
+
+		UE_LOG(LogTemp, Error, TEXT("Door cannot be created: no ILD class"))
+			return;
+	}
+	if (!TeleportActionToCreateClass) {
+
+		UE_LOG(LogTemp, Error, TEXT("Door cannot be created: no action class"))
+			return;
+	}
+
+	Door = NewObject<UChildActorComponent>(this, ("Door"));
+
+	Door->RegisterComponent();
+	Door->SetChildActorClass(DoorToCreateClass);
+	Door->SetWorldLocation(LocationWithDoorCreated->SocketDoor->GetComponentLocation());
+	LocationWithDoorCreated->CreateDynamicAction(TeleportActionToCreateClass, Door, LocationInstigator);
+
+}
+
+void AWeirdThingsPlayerController::SetForcedActionForLocation(AActor* LocationToSetForcedActionOn, AActor* ActionToSetAsForced)
+{
+	Cast<ALocationTemplate>(LocationToSetForcedActionOn)->ForcedAction = Cast<AAction>(ActionToSetAsForced);
+}
+
+AItemTemplate* AWeirdThingsPlayerController::SpawnItem(TSubclassOf<AItemTemplate> ItemToSpawnClass)
+{
+	return GetWorld()->SpawnActor<AItemTemplate>(ItemToSpawnClass);
+}
+
+void AWeirdThingsPlayerController::CreateDynamicAction(AActor* CurrentLocationActor, TSubclassOf<AAction> ActionClass, AEncounter_Dead* EntangledDead)
+{
+	//Cast<ALocationTemplate>(CurrentLocation)->CreateDynamicAction(ActionClass, EntangledDead);
+
+	UE_LOG(LogTemp, Warning, TEXT("Inside CreateDynemicAction function "))
+
+	auto CurrentLocation = Cast<ALocationTemplate>(CurrentLocationActor);
+	auto DynamicAction = CurrentLocation->DynamicAction;
+
+	for (int32 i = 0; i < DynamicAction.Num(); i++)
+	{
+		if (DynamicAction[i]) {
+			continue;
+		}
+		DynamicAction[i] = NewObject<UChildActorComponent>(CurrentLocation, ("Action_Dead" + i));
+
+		DynamicAction[i]->RegisterComponent();
+		DynamicAction[i]->SetChildActorClass(ActionClass);
+		DynamicAction[i]->SetWorldLocation(CurrentLocation->AvailableSocketDynamicAction[0]->GetComponentLocation());
+		Cast<AAction>(DynamicAction[i]->GetChildActor())->EntangledDeadEncounter = EntangledDead;
+
+		EntangledDead->CreatedAction = DynamicAction[i];
+
+		return;
+	}
+
+}
+
+void AWeirdThingsPlayerController::Move_Encounter_Dead(AEncounter_Dead* Encounter_DeadToMove)
+{
+	auto CurrentLocation = Cast<ALocationTemplate>(Encounter_DeadToMove->CurrentLocation);
+	auto CurrentLocationHorizontalIndex = CurrentLocation->HorizontalIndex;
+	auto CurrentLocationVerticalIndex = CurrentLocation->VerticalIndex;
+
+
+	if (!CurrentLocation) {
+		UE_LOG(LogTemp, Warning, TEXT("CurrentLocation of Dead does not exist"))
+			return;
+	}
+	if (CurrentLocationHorizontalIndex > 0)
+	{
+		for (int32 i = 0; i < AllLocationsInPlay.Num(); i++)
+		{
+			if (!AllLocationsInPlay[i]) {
+				UE_LOG(LogTemp, Warning, TEXT("Can't access AllLocationsInPlay[i]"))
+					continue;
+			}
+			if ((CurrentLocationVerticalIndex == Cast<ALocationTemplate>(AllLocationsInPlay[i])->VerticalIndex) && ((CurrentLocation->HorizontalIndex - Cast<ALocationTemplate>(AllLocationsInPlay[i])->HorizontalIndex) == 1))
+			{
+				Encounter_DeadToMove->CurrentLocation = AllLocationsInPlay[i];
+				Encounter_DeadToMove->CreatedAction->UnregisterComponent();
+				Encounter_DeadToMove->CreatedAction = nullptr;
+				Encounter_DeadToMove->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+				Encounter_DeadToMove->AttachToActor(Encounter_DeadToMove->CurrentLocation, FAttachmentTransformRules::KeepWorldTransform);
+				Encounter_DeadToMove->SetActorLocation(Cast<ALocationTemplate>(Encounter_DeadToMove->CurrentLocation)->AvailableSocketEncounter[0]->GetComponentLocation());
+				Encounter_DeadToMove->CreateDynamicAction();
+				Encounter_DeadLookForPlayerToAttack(Encounter_DeadToMove);
+				return;
+			}
+		}
+	}
+}
+
+void AWeirdThingsPlayerController::Encounter_DeadLookForPlayerToAttack(AEncounter_Dead* Encounter_Dead)
+{
+	//auto PlayerCharactersInPlay = PlayerController->PlayerCharacters;
+	
+		for (int32 i = 0; i < PlayerCharacters.Num(); i++)
+		{
+
+			if (PlayerCharacters[i]->CurrentLocation == Encounter_Dead->CurrentLocation)
+			{
+				AttackDefenseEvent(Encounter_Dead, PlayerCharacters[i]);
+				//UE_LOG(LogTemp, Error, TEXT("Attack-defense happened"))
+				return;
+			}
+
+		}
+}
+
+void AWeirdThingsPlayerController::EntangleActionWithActor(UChildActorComponent* Action, UChildActorComponent* InteractiveLocationDecoration)
+{
+	auto ActionToEntangle = Cast<AAction>(Action->GetChildActor());
+	auto InteractiveLocationDecorationToEntangle = Cast<AInteractiveLocationDecoration>(InteractiveLocationDecoration->GetChildActor());
+
+	ActionToEntangle->EntangledInteractiveLocationDecoration = InteractiveLocationDecorationToEntangle;
+	InteractiveLocationDecorationToEntangle->EntangledAction = ActionToEntangle;
+}
+
+FTransform AWeirdThingsPlayerController::GetAvailableSocketDynamicPlayerActionTransform(AActor* LocationWithSocketActor)
+{
+	auto LocationWithSocket = Cast<ALocationTemplate>(LocationWithSocketActor);
+
+		return LocationWithSocket->AvailableSocketDynamicPlayerAction[0]->GetComponentTransform();
+	
 }

@@ -10,9 +10,9 @@ class UWidgetComponent;
 class UUserWidget;
 class AItemTemplate;
 class ALocationTemplate;
-class AAttackDefenseActor;
 class UQuitManagement;
 class UAttackDefenseComponent;
+class AWeirdThingsPlayerController;
 
 UCLASS()
 class NEWWEIRDTHINGS_API AEncounter : public APawn
@@ -22,6 +22,9 @@ class NEWWEIRDTHINGS_API AEncounter : public APawn
 public:
 	// Sets default values for this pawn's properties
 	AEncounter();
+
+	AWeirdThingsPlayerController* PlayerController = nullptr;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		TArray<TSubclassOf<AItemTemplate>> LootClassesToSpawn;
@@ -43,16 +46,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		int32 HealthPoints = 5;
 
-	AAttackDefenseActor* AttackDefenseActorToIgnore;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
-	ALocationTemplate* CurrentLocation = nullptr;
+	AActor* CurrentLocation = nullptr;
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void LooseHealth();
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void CreateInfoWidget(UUserWidget* WidgetToCreate, FVector2D WidgetOffset);
+
+	virtual void Deactivate();
 
 protected:
 	// Called when the game starts or when spawned

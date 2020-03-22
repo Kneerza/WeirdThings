@@ -2,7 +2,6 @@
 
 #include "AttackDefenseComponent.h"
 #include "Runtime/UMG/Public/Components/WidgetComponent.h"
-#include "Runtime/CoreUObject/Public/UObject/ConstructorHelpers.h"
 #include "PaperFlipbookComponent.h"
 
 
@@ -47,25 +46,6 @@ void UAttackDefenseComponent::BeginPlay()
 	AttackPoolRow_Default = AttackPoolRow_1;
 	DefensePoolRow_Default = DefensePoolRow_1;
 
-	/*     //TODO make it pop-up info
-	auto pAttackDefenseWidgetClass = LoadObject<UObject>(nullptr, (TEXT("WidgetBlueprint'/Game/Blueprints/AttackDefense.AttackDefense'")));
-
-	UWidgetComponent* pAttackDefenseWidget = NewObject<UWidgetComponent>(this, "AttackDefenseWidget");
-	pAttackDefenseWidget->SetupAttachment(GetOwner()->GetRootComponent());
-	pAttackDefenseWidget->RegisterComponent();
-	auto dsfsg = Cast<UBlueprint>(pAttackDefenseWidgetClass)->GeneratedClass;
-	pAttackDefenseWidget->SetWidgetClass(*Cast<UBlueprint>(pAttackDefenseWidgetClass)->GeneratedClass);
-
-	FTransform WidgetRelativeTransform;
-	WidgetRelativeTransform.SetLocation(FVector(0.f, 0.f, 200.f));
-	WidgetRelativeTransform.SetRotation(FRotator(0.0f, 180.0f, 0.0f).Quaternion());
-	WidgetRelativeTransform.SetScale3D(FVector(0.4f, 0.05f, 0.4f));
-
-	pAttackDefenseWidget->SetRelativeTransform(WidgetRelativeTransform);
-
-	pAttackDefenseWidget->SetDrawSize(FVector2D(1280.f, 720.f));
-	*/
-
 }
 
 
@@ -75,14 +55,4 @@ void UAttackDefenseComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
-}
-
-void UAttackDefenseComponent::BuildAttackDefenseRow(TArray<EDefenseType> DefensePool)
-{
-
-}
-
-void UAttackDefenseComponent::BuildAttackDefenseRow(TArray<EAttackType> AttackPool)
-{
-
 }

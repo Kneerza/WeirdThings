@@ -126,7 +126,7 @@ void UQuitManagement::CheckQuitConditions()
 
 		case EQuitType::Fire:
 
-			if ((Cast<AEncounter>(GetOwner()))->CurrentLocation->AvailableSocketCampFire.Num() < 1)
+			if (Cast<ALocationTemplate>((Cast<AEncounter>(GetOwner()))->CurrentLocation)->AvailableSocketCampFire.Num() < 1)
 			{
 				OwnerQuits();
 				return;

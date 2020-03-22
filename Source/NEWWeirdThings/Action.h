@@ -57,8 +57,8 @@ class USphereComponent;
 class UPaperFlipbook;
 class UPaperFlipbookComponent;
 class AInteractiveLocationDecoration;
-class ALocationTemplate;
-class AEncounter_Dead;
+class AWeirdThingsPlayerController;
+//class ALocationTemplate;
 
 UCLASS()
 class NEWWEIRDTHINGS_API AAction : public AActor
@@ -68,6 +68,8 @@ class NEWWEIRDTHINGS_API AAction : public AActor
 public:
 	// Sets default values for this actor's properties
 	AAction();
+
+	AWeirdThingsPlayerController* PlayerController = nullptr;
 
 	// --- Action setup parameters ---
 	UPROPERTY(EditAnywhere, Category = Setup)
@@ -106,7 +108,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		TSubclassOf<AAction> TeleportActionToCreateClass;
 
-	AEncounter_Dead* EntangledDeadEncounter = nullptr;
+	AActor* EntangledDeadEncounter = nullptr;
 
 	// --- Locks for Action ---
 	UPROPERTY(EditAnywhere, Category = Setup)
@@ -141,8 +143,9 @@ public:
 	AAction* FirstActionInChain = nullptr;
 	AAction* Child = nullptr;
 	UPaperFlipbookComponent* pActionForcedComponent;
-	AInteractiveLocationDecoration* EntangledInteractiveLocationDecoration = nullptr;
-	ALocationTemplate* LocationArrowPointsTo = nullptr;
+	AActor* EntangledInteractiveLocationDecoration = nullptr;
+	AActor* LocationArrowPointsTo = nullptr;
+	//ALocationTemplate* LocationArrowPointsTo = nullptr;
 
 	// --- Lock handling functions ---
 	void GetTypeOfLock();
@@ -162,12 +165,12 @@ public:
 		void UpdateArrowActionVisual();
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
-		void SetEntangledDeadEncounter(AEncounter_Dead* EntangledDeadEncounterToSet);
+		void SetEntangledDeadEncounter(AActor* EntangledDeadEncounterToSet);
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void SetIsHovered(bool IsHovered);
 
-	void SetTeleport();
+	void SetTeleport(TArray<AActor*> LocationsInPlay);
 
 protected:
 	// Called when the game starts or when spawned

@@ -8,16 +8,13 @@
 
 class UStaticMeshComponent;
 class UStaticMesh;
+class AWeirdThingsPlayerController;
 class UBoxComponent;
 class USceneComponent;
 class UChildActorComponent;
-class AArrowTemplate;
 class AActor;
 class AAction;
 class UPaperFlipbookComponent;
-class AInteractiveLocationDecoration;
-class AEncounter_Dead;
-class AWTPlayerCharacter;
 
 UCLASS()
 class NEWWEIRDTHINGS_API ALocationTemplate : public AActor
@@ -37,8 +34,7 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Mesh)
 		UChildActorComponent* Door;
 
-	AArrowTemplate* ArrowRight = nullptr;
-	AArrowTemplate* ArrowUp = nullptr;
+	AWeirdThingsPlayerController* PlayerController;
 
 	AAction* ForcedAction = nullptr;
 
@@ -185,15 +181,7 @@ public:
 
 	TArray<UChildActorComponent*> DynamicAction = { nullptr, nullptr, nullptr };
 
-	void CreateDynamicAction(TSubclassOf<AAction> ActionClass, AEncounter_Dead* EntangledDead);
-	//void CreateDynamicAction(TSubclassOf<AAction> ActionClass, UChildActorComponent* ActorToEntangleWith);
 	void CreateDynamicAction(TSubclassOf<AAction> ActionClass, UChildActorComponent* ActorToEntangleWith, ALocationTemplate* LocationInstigator);
-
-	UPROPERTY(EditAnywhere, Category = Setup)
-		TSubclassOf<AArrowTemplate> ArrowBlueprint;
-
-	//UPROPERTY(EditAnywhere, Category = Setup)
-	//	TSubclassOf<AAction> TeleportActionToCreateClass;
 
 	UPROPERTY(EditAnywhere, Category = "Arrow")
 		bool HasArrowUp = true;
@@ -239,8 +227,6 @@ public:
 
 	//UFUNCTION(BlueprintCallable, Category = "Custom")
 	//	void TreatAsSameAction(TArray<AAction*> SameActions);
-
-	void CreateDoor(TSubclassOf<AInteractiveLocationDecoration> DoorToCreateClass, TSubclassOf<AAction> TeleportActionToCreateClass, ALocationTemplate* LocationInstigator);
 
 protected:
 	// Called when the game starts or when spawned

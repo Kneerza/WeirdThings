@@ -30,8 +30,9 @@ public:
 
 	AAction* EntangledAction = nullptr;
 
-	void ChangeState_InteractiveLocationDecoration();
-	void Diactivate_InteractiveLocationDecoration();
+	void ChangeState();
+	
+	void Activate();
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void SetIsHovered(bool IsHovered);

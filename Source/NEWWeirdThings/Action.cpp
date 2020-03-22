@@ -1,9 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "Action.h"
-#include "Encounter_Dead.h"
-#include "InteractiveLocationDecoration.h"
 #include "WeirdThingsPlayerController.h"
-#include "LocationTemplate.h"
 #include "Runtime/CoreUObject/Public/UObject/ConstructorHelpers.h"
 #include "Runtime/Engine/Classes/Components/StaticMeshComponent.h"
 #include "Runtime/Engine/Classes/Engine/EngineTypes.h"
@@ -15,7 +12,7 @@
 #include "Runtime/Core/Public/Containers/UnrealString.h"
 #include "Runtime/Core/Public/Math/UnrealMathUtility.h"
 #include "Runtime/Core/Public/Math/UnrealMathVectorConstants.h"
-#include "Runtime/Engine/Classes/Components/SphereComponent.h"
+
 
 
 #define PI 3.14159265
@@ -65,18 +62,6 @@ AAction::AAction()
 	ActionFlipBookComponent->SetCollisionResponseToChannels(ActionFlipBookComponentResponseContainer);
 	ActionFlipBookComponent->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
 
-	//----------------------Creating Collision Sphere------------------------
-	//CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("Ground"));
-	//CollisionSphere->SetupAttachment(pRootComponent);
-
-	//Setting up relative transform
-	//FTransform CollisionSphereRelativeTransform;
-	//CollisionSphereRelativeTransform.SetLocation(FVector(0.f, 0.f, 0.f));
-	//CollisionSphereRelativeTransform.SetRotation(FRotator(0.f, 0.f, 0.f).Quaternion());
-	//CollisionSphereRelativeTransform.SetScale3D(FVector(2.f, 2.f, 2.f));
-
-	//CollisionSphere->SetRelativeTransform(CollisionSphereRelativeTransform);
-
 	//-----------------------Initializing arrays-----------------------------
 	ActionLock.Init(nullptr, 8);
 	ActionLockType.Init(EActionLockType::No_Need, 8);
@@ -88,6 +73,8 @@ void AAction::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
+
 	if (IsInfinite) {
 		StartingActionLockType = ActionLockType;
 	}
@@ -105,7 +92,7 @@ void AAction::Tick(float DeltaTime)
 
 }
 
-void AAction::SetEntangledDeadEncounter(AEncounter_Dead* EntangledDeadEncounterToSet)
+void AAction::SetEntangledDeadEncounter(AActor* EntangledDeadEncounterToSet)
 {
 	EntangledDeadEncounter = EntangledDeadEncounterToSet;
 }
@@ -279,9 +266,9 @@ void AAction::Deactivate()
 		// --- Disabling Collision on deactivated Action ---
 		ActionFlipBookComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		//CollisionSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		if (EntangledInteractiveLocationDecoration) {
-			EntangledInteractiveLocationDecoration->InteractiveLocationDecoration_SpriteComponent_0->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		}
+		//if (EntangledInteractiveLocationDecoration) {
+		//	EntangledInteractiveLocationDecoration->InteractiveLocationDecoration_SpriteComponent_0->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		//}
 	}
 	
 	// --- Changing color of connector and activating ChildAction (if there are any) 
@@ -316,7 +303,8 @@ void AAction::Activate()
 	ActionFlipBookComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	//CollisionSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	if (EntangledInteractiveLocationDecoration) {
-		EntangledInteractiveLocationDecoration->InteractiveLocationDecoration_SpriteComponent_0->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		//EntangledInteractiveLocationDecoration->InteractiveLocationDecoration_SpriteComponent_0->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		PlayerController->ActivateEntangledILD(this);
 	}
 
 	if (Child && pConnector)
@@ -339,7 +327,8 @@ void AAction::ForcedActionHandling()
 
 		pActionForcedComponent->SetRelativeTransform(ForcedActionTransform);
 
-		Cast<ALocationTemplate>(GetParentActor())->ForcedAction = this;
+		PlayerController->SetForcedActionForLocation(GetParentActor(), this);
+		//Cast<ALocationTemplate>(GetParentActor())->ForcedAction = this;
 	}
 }
 
@@ -356,76 +345,63 @@ void AAction::UpdateArrowActionVisual()
 	UpdatedArrowVisual->SetRelativeTransform(TransformUpdatedArrowVisual);
 
 	if (EntangledInteractiveLocationDecoration) {
-		EntangledInteractiveLocationDecoration->InteractiveLocationDecoration_SpriteComponent_0->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		//EntangledInteractiveLocationDecoration->InteractiveLocationDecoration_SpriteComponent_0->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		PlayerController->ActivateEntangledILD(this);
 	}
 
 	if (ActionType == EActionType::Arrow_Move) { return; }
 
-	auto ParentLocation = Cast<ALocationTemplate>(GetParentActor());
-	auto ParentLocationHorizontalIndex = ParentLocation->HorizontalIndex;
-	auto ParentLocationVerticalIndex = ParentLocation->VerticalIndex;
+	//auto ParentLocation = Cast<ALocationTemplate>(GetParentActor());
+	//auto ParentLocationHorizontalIndex = ParentLocation->HorizontalIndex;
+	//auto ParentLocationVerticalIndex = ParentLocation->VerticalIndex;
 
-	auto PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
-	auto LocationsInPlay = PlayerController->AllLocationsInPlay;
+	//auto PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
+	//auto LocationsInPlay = PlayerController->AllLocationsInPlay;
 
 	
 	if (ActionType == EActionType::ArrowUp_Plot) {
-		for (int32 i = 0; i < LocationsInPlay.Num(); i++)
-		{
-			if (((LocationsInPlay[i]->VerticalIndex - ParentLocationVerticalIndex) == 1) && (ParentLocationHorizontalIndex == LocationsInPlay[i]->HorizontalIndex))
-			{
-				LocationArrowPointsTo = LocationsInPlay[i];
 				UE_LOG(LogTemp, Warning, TEXT("Arrow points to: %s"), *LocationArrowPointsTo->GetName())
 					ActionType = EActionType::Arrow_Move;
 				ActionPointsRequired = 0;
-				break;
-			}
-		}
 	}
 	else if (ActionType == EActionType::Teleport) {
 			ActionType = EActionType::Arrow_Move;
 		ActionPointsRequired = 0;
 	} else {
-		for (int32 i = 0; i < LocationsInPlay.Num(); i++)
-		{
-			if (((LocationsInPlay[i]->HorizontalIndex - ParentLocationHorizontalIndex) == 1) && (ParentLocationVerticalIndex == LocationsInPlay[i]->VerticalIndex))
-			{
-				LocationArrowPointsTo = LocationsInPlay[i];
 				UE_LOG(LogTemp, Warning, TEXT("Arrow points to: %s"), *LocationArrowPointsTo->GetName())
 					ActionType = EActionType::Arrow_Move;
 				ActionPointsRequired = 0;
-				break;
-			}
-		}
 	}
 }
 
 //TODO Create derived class Action_Arrows and move this function there
-void AAction::SetTeleport()
+void AAction::SetTeleport(TArray<AActor*> LocationsInPlay)
 {
-	auto PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
-	auto Rand = FMath::RandRange(0, (PlayerController->AllLocationsInPlay.Num() - 1));
+	//auto PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
+	//auto Rand = FMath::RandRange(0, (PlayerController->AllLocationsInPlay.Num() - 1));
+	auto Rand = FMath::RandRange(0, (LocationsInPlay.Num() - 1));
 
 	UE_LOG(LogTemp, Warning, TEXT("Random is %i"), Rand)
 
 	while (!LocationArrowPointsTo) {
-		if (PlayerController->AllLocationsInPlay[Rand] != GetParentActor())
+		if (LocationsInPlay[Rand] != GetParentActor())
 		{
-			LocationArrowPointsTo = PlayerController->AllLocationsInPlay[Rand];
-			UE_LOG(LogTemp, Warning, TEXT("Location to teleport: %s"),*PlayerController->AllLocationsInPlay[Rand]->GetName())
+			LocationArrowPointsTo = LocationsInPlay[Rand];
+			UE_LOG(LogTemp, Warning, TEXT("Location to teleport: %s"),*LocationsInPlay[Rand]->GetName())
 		}
 		else {
-			Rand = FMath::RandRange(0, (PlayerController->AllLocationsInPlay.Num() - 1));
+			Rand = FMath::RandRange(0, (LocationsInPlay.Num() - 1));
 			UE_LOG(LogTemp, Warning, TEXT("Random is %i"), Rand)
 		}
 	}
 
-	PlayerController->AllLocationsInPlay[Rand]->CreateDoor(DoorToCreateClass, TeleportActionToCreateClass, Cast<ALocationTemplate>(GetParentActor()));
+	PlayerController->CreateDoor(LocationsInPlay[Rand], DoorToCreateClass, TeleportActionToCreateClass, GetParentActor());
+	//LocationsInPlay[Rand]->CreateDoor(DoorToCreateClass, TeleportActionToCreateClass, GetParentActor());
 }
 
 void AAction::SetIsHovered(bool IsHovered)
 {
-	auto PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
+	//auto PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
 
 	if (IsHovered)
 	{

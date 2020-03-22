@@ -2,7 +2,6 @@
 
 #include "Encounter_Bad.h"
 #include "Engine/World.h"
-#include "LocationTemplate.h"
 #include "WeirdThingsPlayerController.h"
 
 
@@ -18,7 +17,7 @@ void AEncounter_Bad::BeginPlay()
 	PlayerController->Encounter_BadInPlay.Add(this);
 	
 	if (GetParentActor()) {
-		CurrentLocation = Cast<ALocationTemplate>(GetParentActor());
+		CurrentLocation = GetParentActor();
 	}
 	
 	

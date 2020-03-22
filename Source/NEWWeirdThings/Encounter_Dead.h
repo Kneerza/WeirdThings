@@ -43,16 +43,16 @@ public:
 
 	void SetAwakened(bool IsAwakened);
 
-	void FindPlayerToAttack();
-
 	void CreateDynamicAction();
+
+	virtual void Deactivate() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void SetAction(UChildActorComponent* ActionToSet);
 
-	void Move();
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	
 };

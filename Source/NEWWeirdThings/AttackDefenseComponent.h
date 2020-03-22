@@ -89,7 +89,4 @@ public:
 
 private:
 
-	void BuildAttackDefenseRow(TArray<EDefenseType> DefensePool);
-	void BuildAttackDefenseRow(TArray<EAttackType> AttackPool);
-
 };

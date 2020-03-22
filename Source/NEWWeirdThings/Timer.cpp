@@ -3,7 +3,6 @@
 #include "Timer.h"
 #include "WeirdThingsPlayerController.h"
 #include "Runtime/Engine/Classes/Engine/World.h"
-#include "WeirdThingsPlayerController.h"
 
 
 // Sets default values

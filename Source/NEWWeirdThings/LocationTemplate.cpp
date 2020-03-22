@@ -1,9 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "LocationTemplate.h"
-#include "Action.h"
-#include "WTPlayerCharacter.h"
-#include "InteractiveLocationDecoration.h"
 #include "WeirdThingsPlayerController.h"
 #include "PaperFlipbook.h"
 #include "PaperFlipbookComponent.h"
@@ -14,9 +11,7 @@
 #include "Runtime/Core/Public/Math/Rotator.h"
 #include "Runtime/Core/Public/Math/TransformNonVectorized.h"
 #include "Runtime/Core/Public/Math/Quat.h"
-#include "Encounter_Dead.h"
 #include "Components/SceneComponent.h"
-#include "ArrowTemplate.h"
 
 // Sets default values
 ALocationTemplate::ALocationTemplate()
@@ -373,7 +368,7 @@ void ALocationTemplate::BeginPlay()
 {
 	Super::BeginPlay();
 
-	auto PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
+	PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
 	PlayerController->AllLocationsInPlay.Add(this);
 
 	HorizontalIndex = (GetActorLocation().Y) / (PlayerController->SpawnedLocationOffsetY.Y);
@@ -500,11 +495,7 @@ void ALocationTemplate::IncludeInAvailableCampFireSocket(UPrimitiveComponent* Co
 
 void ALocationTemplate::EntangleActionWithActor(UChildActorComponent* Action, UChildActorComponent* InteractiveLocationDecoration)
 {
-	auto ActionToEntangle = Cast<AAction>(Action->GetChildActor());
-	auto InteractiveLocationDecorationToEntangle = Cast<AInteractiveLocationDecoration>(InteractiveLocationDecoration->GetChildActor());
-
-	ActionToEntangle->EntangledInteractiveLocationDecoration = InteractiveLocationDecorationToEntangle;
-	InteractiveLocationDecorationToEntangle->EntangledAction = ActionToEntangle;
+	PlayerController->EntangleActionWithActor(Action, InteractiveLocationDecoration);
 }
 
 void ALocationTemplate::ExcludeFromAvailableDynamicActionSocket(UPrimitiveComponent* ComponentToExclude)
@@ -525,26 +516,6 @@ void ALocationTemplate::ExcludeFromAvailableDynamicPlayerActionSocket(UPrimitive
 void ALocationTemplate::IncludeInAvailableDynamicPlayerActionSocket(UPrimitiveComponent* ComponentToInclude)
 {
 	AvailableSocketDynamicPlayerAction.Emplace(Cast<UStaticMeshComponent>(ComponentToInclude));
-}
-
-void ALocationTemplate::CreateDynamicAction(TSubclassOf<AAction> ActionClass, AEncounter_Dead* EntangledDead)
-{
-	for (int32 i = 0; i < DynamicAction.Num(); i++)
-	{
-		if (DynamicAction[i]) {
-			continue;
-		}
-		DynamicAction[i] = NewObject<UChildActorComponent>(this, ("Action_Dead"+i));
-
-		DynamicAction[i]->RegisterComponent();
-		DynamicAction[i]->SetChildActorClass(ActionClass);
-		DynamicAction[i]->SetWorldLocation(AvailableSocketDynamicAction[0]->GetComponentLocation());
-		Cast<AAction>(DynamicAction[i]->GetChildActor())->EntangledDeadEncounter = EntangledDead;
-		
-			EntangledDead->CreatedAction = DynamicAction[i];
-		
-		return;
-	}
 }
 
 void ALocationTemplate::CreateDynamicAction(TSubclassOf<AAction> ActionClass, UChildActorComponent* ActorToEntangleWith, ALocationTemplate* LocationInstigator)
@@ -577,28 +548,3 @@ void ALocationTemplate::CreateDynamicAction(TSubclassOf<AAction> ActionClass, UC
 	}
 }
 
-void ALocationTemplate::CreateDoor(TSubclassOf<AInteractiveLocationDecoration> DoorToCreateClass, TSubclassOf<AAction> TeleportActionToCreateClass, ALocationTemplate* LocationInstigator)
-{
-	if (Door) {
-
-		UE_LOG(LogTemp, Warning, TEXT("Door already exists"))
-		return;
-	}
-	if (!DoorToCreateClass) {
-
-		UE_LOG(LogTemp, Error, TEXT("Door cannot be created: no ILD class"))
-		return;
-	}
-	if (!TeleportActionToCreateClass) {
-
-		UE_LOG(LogTemp, Error, TEXT("Door cannot be created: no action class"))
-		return;
-	}
-
-	Door = NewObject<UChildActorComponent>(this, ("Door"));
-
-	Door->RegisterComponent();
-	Door->SetChildActorClass(DoorToCreateClass);
-	Door->SetWorldLocation(SocketDoor->GetComponentLocation());
-	CreateDynamicAction(TeleportActionToCreateClass, Door, LocationInstigator);
-}

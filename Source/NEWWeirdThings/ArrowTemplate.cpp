@@ -23,6 +23,7 @@ AArrowTemplate::AArrowTemplate()
 	pRootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	SetRootComponent(pRootComponent);
 
+	/*
 	//----------------------Creating Sprite component----------
 	Arrow = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("Sprite"));
 	Arrow->SetupAttachment(pRootComponent);
@@ -42,13 +43,14 @@ AArrowTemplate::AArrowTemplate()
 
 	Arrow->SetCollisionResponseToChannels(CollisionArrowResponseContainer);
 	Arrow->SetCollisionObjectType(ECollisionChannel::ECC_Destructible);
+	*/
 }
 
 // Called when the game starts or when spawned
 void AArrowTemplate::BeginPlay()
 {
 	Super::BeginPlay();
-
+	/*
 	BuildArrow();
 	if (GetAttachParentActor())
 	{
@@ -59,6 +61,7 @@ void AArrowTemplate::BeginPlay()
 			Cast<ALocationTemplate>(GetAttachParentActor())->ArrowUp = this;
 		}
 	}
+	*/
 }
 
 // Called every frame
