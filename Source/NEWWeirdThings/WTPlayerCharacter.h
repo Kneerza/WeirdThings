@@ -89,10 +89,10 @@ public:
 		UPaperSpriteComponent* SelectingArrow;
 
 	UPROPERTY(BlueprintReadWrite, Category = Setup)
-	AItemTemplate* FirstActiveItem = nullptr;
+	AItemTemplate* LeftActiveItem = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, Category = Setup)
-	AItemTemplate* SecondActiveItem = nullptr;
+	AItemTemplate* RightActiveItem = nullptr;
 
 	AItemTemplate* ItemPickedForFight = nullptr;
 

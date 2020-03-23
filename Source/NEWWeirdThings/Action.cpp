@@ -23,44 +23,7 @@ AAction::AAction()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	//----------------------Initialize all flipbooks for Locks---------------
-	// TODO load only needed files
-	pLockFood = LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Action_Locks/Flipbooks/Food_Flipbook.Food_Flipbook'")));
-	pLockWood = LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Action_Locks/Flipbooks/Wood_Flipbook.Wood_Flipbook'")));
-	pLockTool = LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Action_Locks/Flipbooks/Tool_Flipbook.Tool_Flipbook'")));
-	pLockAxe = LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Action_Locks/Flipbooks/Axe_Flipbook.Axe_Flipbook'")));
-	pLockItem_C = LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Action_Locks/Flipbooks/Lock_Item_Copper_Flipbook.Lock_Item_Copper_Flipbook'")));
-	pLockItem_S = LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Action_Locks/Flipbooks/Lock_Item_Silver_Flipbook.Lock_Item_Silver_Flipbook'")));
-	pLockItem_G = LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Action_Locks/Flipbooks/Lock_Item_Gold_Flipbook.Lock_Item_Gold_Flipbook'")));
-	pLockExhaustion = LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Action_Locks/Flipbooks/Exhaustion_Flipbook.Exhaustion_Flipbook'")));
-	pLockInsanity = LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Action_Locks/Flipbooks/Insanity_Flipbook.Insanity_Flipbook'")));
-	pLockShovel = LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Action_Locks/Flipbooks/ActionLock_Shovel_Flipbook.ActionLock_Shovel_Flipbook'")));
-	pActionForced = LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Flipbooks/Action_Forced_Flipbook.Action_Forced_Flipbook'")));
-
-	//----------------------Creating Root Component--------------------------
-	pRootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-	SetRootComponent(pRootComponent);
-
-	//----------------------Creating Action PaperFlipbook component----------
-	ActionFlipBookComponent = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("Action"));
-	ActionFlipBookComponent->SetupAttachment(pRootComponent);
-
-	//Setting up relative transform
-	FTransform ActionFlipBookComponentRelativeTransform;
-	ActionFlipBookComponentRelativeTransform.SetLocation(FVector(-40.f, 0.f, 0.f));
-	ActionFlipBookComponentRelativeTransform.SetRotation(FRotator(0.f, 90.f, 0.f).Quaternion());
-	ActionFlipBookComponentRelativeTransform.SetScale3D(FVector(0.7f, 0.7f, 0.7f));
-
-	ActionFlipBookComponent->SetRelativeTransform(ActionFlipBookComponentRelativeTransform);
-
-	//Setting up collision
-	FCollisionResponseContainer ActionFlipBookComponentResponseContainer;
-	ActionFlipBookComponentResponseContainer.SetAllChannels(ECollisionResponse::ECR_Overlap);
-	ActionFlipBookComponentResponseContainer.SetResponse(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
-	ActionFlipBookComponentResponseContainer.SetResponse(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
-
-	ActionFlipBookComponent->SetCollisionResponseToChannels(ActionFlipBookComponentResponseContainer);
-	ActionFlipBookComponent->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
+	CreateComponents();
 
 	//-----------------------Initializing arrays-----------------------------
 	ActionLock.Init(nullptr, 8);
@@ -81,7 +44,7 @@ void AAction::BeginPlay()
 
 	ConstructActionLocks();
 	ConstructModifierVisual();
-	ForcedActionHandling();
+	SetUpActionAsForced();
 
 }
 
@@ -116,52 +79,52 @@ void AAction::ConstructActionLocks()
 		{
 		case EActionLockType::Need_Food:
 
-			ActionLock[i]->SetFlipbook(pLockFood);
+			ActionLock[i]->SetFlipbook(LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Action_Locks/Flipbooks/Food_Flipbook.Food_Flipbook'"))));
 			break;
 
 		case EActionLockType::Need_Wood:
 
-			ActionLock[i]->SetFlipbook(pLockWood);
+			ActionLock[i]->SetFlipbook(LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Action_Locks/Flipbooks/Wood_Flipbook.Wood_Flipbook'"))));
 			break;
 
 		case EActionLockType::Need_Tool:
 
-			ActionLock[i]->SetFlipbook(pLockTool);
+			ActionLock[i]->SetFlipbook(LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Action_Locks/Flipbooks/Tool_Flipbook.Tool_Flipbook'"))));
 			break;
 
 		case EActionLockType::Need_Axe:
 
-			ActionLock[i]->SetFlipbook(pLockAxe);
+			ActionLock[i]->SetFlipbook(LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Action_Locks/Flipbooks/Axe_Flipbook.Axe_Flipbook'"))));
 			break;
 
 		case EActionLockType::Need_Exhaustion:
 
-			ActionLock[i]->SetFlipbook(pLockExhaustion);
+			ActionLock[i]->SetFlipbook(LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Action_Locks/Flipbooks/Exhaustion_Flipbook.Exhaustion_Flipbook'"))));
 			break;
 
 		case EActionLockType::Need_Insanity:
 
-			ActionLock[i]->SetFlipbook(pLockInsanity);
+			ActionLock[i]->SetFlipbook(LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Action_Locks/Flipbooks/Insanity_Flipbook.Insanity_Flipbook'"))));
 			break;
 
 		case EActionLockType::Need_Item_C:
 
-			ActionLock[i]->SetFlipbook(pLockItem_C);
+			ActionLock[i]->SetFlipbook(LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Action_Locks/Flipbooks/Lock_Item_Copper_Flipbook.Lock_Item_Copper_Flipbook'"))));
 			break;
 
 		case EActionLockType::Need_Item_S:
 
-			ActionLock[i]->SetFlipbook(pLockItem_S);
+			ActionLock[i]->SetFlipbook(LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Action_Locks/Flipbooks/Lock_Item_Silver_Flipbook.Lock_Item_Silver_Flipbook'"))));
 			break;
 
 		case EActionLockType::Need_Item_G:
 
-			ActionLock[i]->SetFlipbook(pLockItem_G);
+			ActionLock[i]->SetFlipbook(LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Action_Locks/Flipbooks/Lock_Item_Gold_Flipbook.Lock_Item_Gold_Flipbook'"))));
 			break;
 
 		case EActionLockType::Need_Shovel:
 
-			ActionLock[i]->SetFlipbook(pLockShovel);
+			ActionLock[i]->SetFlipbook(LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Action_Locks/Flipbooks/ActionLock_Shovel_Flipbook.ActionLock_Shovel_Flipbook'"))));
 			break;
 
 		default:
@@ -313,25 +276,27 @@ void AAction::Activate()
 	}
 }
 
-void AAction::ForcedActionHandling()
+void AAction::SetUpActionAsForced()
 {
 	if (IsForced)
 	{
 		pActionForcedComponent = NewObject<UPaperFlipbookComponent>(this, "ForcedActionFlipbook");
 		pActionForcedComponent->RegisterComponent();
-		pActionForcedComponent->SetFlipbook(pActionForced);
+		pActionForcedComponent->SetFlipbook(LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/Actions/Flipbooks/Action_Forced_Flipbook.Action_Forced_Flipbook'"))));
 
 		FTransform ForcedActionTransform = ActionFlipBookComponent->GetComponentTransform();
+
+		// Making sure ForcedActionFlipbook does not block ActionFlipbook
 		FVector Offset = FVector(1.f, 0.f, 0.f);
 		ForcedActionTransform.SetLocation(ForcedActionTransform.GetLocation() + Offset);
 
+
 		pActionForcedComponent->SetRelativeTransform(ForcedActionTransform);
 
+		// Letting the parent actor know that this action is forced
 		PlayerController->SetForcedActionForLocation(GetParentActor(), this);
-		//Cast<ALocationTemplate>(GetParentActor())->ForcedAction = this;
 	}
 }
-
 
 //TODO Create derived class Action_Arrows and move this function there
 void AAction::UpdateArrowActionVisual()
@@ -345,20 +310,10 @@ void AAction::UpdateArrowActionVisual()
 	UpdatedArrowVisual->SetRelativeTransform(TransformUpdatedArrowVisual);
 
 	if (EntangledInteractiveLocationDecoration) {
-		//EntangledInteractiveLocationDecoration->InteractiveLocationDecoration_SpriteComponent_0->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		PlayerController->ActivateEntangledILD(this);
 	}
 
 	if (ActionType == EActionType::Arrow_Move) { return; }
-
-	//auto ParentLocation = Cast<ALocationTemplate>(GetParentActor());
-	//auto ParentLocationHorizontalIndex = ParentLocation->HorizontalIndex;
-	//auto ParentLocationVerticalIndex = ParentLocation->VerticalIndex;
-
-	//auto PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
-	//auto LocationsInPlay = PlayerController->AllLocationsInPlay;
-
-	
 	if (ActionType == EActionType::ArrowUp_Plot) {
 				UE_LOG(LogTemp, Warning, TEXT("Arrow points to: %s"), *LocationArrowPointsTo->GetName())
 					ActionType = EActionType::Arrow_Move;
@@ -377,8 +332,6 @@ void AAction::UpdateArrowActionVisual()
 //TODO Create derived class Action_Arrows and move this function there
 void AAction::SetTeleport(TArray<AActor*> LocationsInPlay)
 {
-	//auto PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
-	//auto Rand = FMath::RandRange(0, (PlayerController->AllLocationsInPlay.Num() - 1));
 	auto Rand = FMath::RandRange(0, (LocationsInPlay.Num() - 1));
 
 	UE_LOG(LogTemp, Warning, TEXT("Random is %i"), Rand)
@@ -396,13 +349,10 @@ void AAction::SetTeleport(TArray<AActor*> LocationsInPlay)
 	}
 
 	PlayerController->CreateDoor(LocationsInPlay[Rand], DoorToCreateClass, TeleportActionToCreateClass, GetParentActor());
-	//LocationsInPlay[Rand]->CreateDoor(DoorToCreateClass, TeleportActionToCreateClass, GetParentActor());
 }
 
 void AAction::SetIsHovered(bool IsHovered)
 {
-	//auto PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
-
 	if (IsHovered)
 	{
 		PlayerController->SetCurrentlyHoveredByMouseAction(true, this);
@@ -411,4 +361,32 @@ void AAction::SetIsHovered(bool IsHovered)
 	{
 		PlayerController->SetCurrentlyHoveredByMouseAction(false, nullptr);
 	}
+}
+
+void AAction::CreateComponents()
+{
+	//----------------------Creating Root Component--------------------------
+	pRootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	SetRootComponent(pRootComponent);
+
+	//----------------------Creating Action PaperFlipbook component----------
+	ActionFlipBookComponent = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("Action"));
+	ActionFlipBookComponent->SetupAttachment(pRootComponent);
+
+	//Setting up relative transform
+	FTransform ActionFlipBookComponentRelativeTransform;
+	ActionFlipBookComponentRelativeTransform.SetLocation(FVector(-40.f, 0.f, 0.f));
+	ActionFlipBookComponentRelativeTransform.SetRotation(FRotator(0.f, 90.f, 0.f).Quaternion());
+	ActionFlipBookComponentRelativeTransform.SetScale3D(FVector(1.f, 1.f, 1.f));
+
+	ActionFlipBookComponent->SetRelativeTransform(ActionFlipBookComponentRelativeTransform);
+
+	//Setting up collision
+	FCollisionResponseContainer ActionFlipBookComponentResponseContainer;
+	ActionFlipBookComponentResponseContainer.SetAllChannels(ECollisionResponse::ECR_Overlap);
+	ActionFlipBookComponentResponseContainer.SetResponse(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
+	ActionFlipBookComponentResponseContainer.SetResponse(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+
+	ActionFlipBookComponent->SetCollisionResponseToChannels(ActionFlipBookComponentResponseContainer);
+	ActionFlipBookComponent->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
 }

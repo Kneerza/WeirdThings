@@ -128,3 +128,15 @@ void AEncounter_Dead::Deactivate()
 		PlayerController->Encounter_DeadsInPlay.Remove(Cast<AEncounter_Dead>(this));
 	}
 }
+
+void AEncounter_Dead::SetIsHovered(bool IsHovered)
+{
+	if (IsHovered)
+	{
+		PlayerController->SetCurrentlyHoveredByMouseEncounter_Dead(true, this);
+	}
+	else
+	{
+		PlayerController->SetCurrentlyHoveredByMouseEncounter_Dead(false, nullptr);
+	}
+}

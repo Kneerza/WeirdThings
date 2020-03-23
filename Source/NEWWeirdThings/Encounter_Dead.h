@@ -23,6 +23,10 @@ class NEWWEIRDTHINGS_API AEncounter_Dead : public AEncounter
 public:
 	AEncounter_Dead();
 
+
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void SetIsHovered(bool IsHovered);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		TSubclassOf<AAction> ActionClassToSpawn;
 	

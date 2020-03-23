@@ -5,7 +5,6 @@
 #include "Encounter_Dead.h"
 #include "Runtime/Engine/Classes/Engine/World.h"
 #include "WeirdThingsPlayerController.h"
-#include "WTEnemy.h"
 #include "Encounter.h"
 #include "Encounter_Bad.h"
 #include "WTPlayerCharacter.h"
@@ -56,7 +55,7 @@ void UQuitManagement::CheckQuitConditions()
 		{
 		case EQuitType::TooManyCharacters:
 
-			if ((5 - (Cast<AWTEnemy>(GetOwner())->CurrentLocation->AvailableSocketPlayer.Num())) >= QuitTypeModifier[i])
+			//if ((5 - (Cast<AWTEnemy>(GetOwner())->CurrentLocation->AvailableSocketPlayer.Num())) >= QuitTypeModifier[i])
 			{
 				OwnerQuits();
 			}

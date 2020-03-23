@@ -116,19 +116,6 @@ public:
 
 		TArray<EActionLockType> StartingActionLockType;
 
-	UPaperFlipbook* pLockFood;
-	UPaperFlipbook* pLockWood;
-	UPaperFlipbook* pLockTool;
-	UPaperFlipbook* pLockAxe;
-	UPaperFlipbook* pLockShovel;
-	UPaperFlipbook* pLockItem_C;
-	UPaperFlipbook* pLockItem_S;
-	UPaperFlipbook* pLockItem_G;
-	UPaperFlipbook* pLockExhaustion;
-	UPaperFlipbook* pLockInsanity;
-	UPaperFlipbook* pActionForced;
-	
-
 	TArray<UPaperFlipbookComponent*> ActionLock;
 
 	int32 CurrentLockTypeIndex = 0;
@@ -157,7 +144,7 @@ public:
 	// --- Action handling functions ---
 	void Deactivate();
 	void Activate();
-	void ForcedActionHandling();
+	void SetUpActionAsForced();
 
 	//ALocationTemplate* LocationTeleportTo = nullptr;
 
@@ -167,8 +154,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void SetEntangledDeadEncounter(AActor* EntangledDeadEncounterToSet);
 
+
 	UFUNCTION(BlueprintCallable, Category = "Custom")
-		void SetIsHovered(bool IsHovered);
+		// Pass information about being activated to WeirdThingsPlayerController
+		void SetIsHovered(bool IsHovered); 	
 
 	void SetTeleport(TArray<AActor*> LocationsInPlay);
 
@@ -186,6 +175,7 @@ public:
 
 private:
 
+	void CreateComponents();
 	USceneComponent* pRootComponent;
 
 };
