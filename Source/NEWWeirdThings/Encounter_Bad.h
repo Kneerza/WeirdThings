@@ -18,6 +18,8 @@ class NEWWEIRDTHINGS_API AEncounter_Bad : public AEncounter
 		UFUNCTION(BlueprintCallable, Category = "Custom")
 			void SetIsHovered(bool IsHovered);
 		
+	virtual void Deactivate() override;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

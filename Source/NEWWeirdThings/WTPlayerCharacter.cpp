@@ -80,20 +80,50 @@ void AWTPlayerCharacter::Tick(float DeltaTime)
 
 void AWTPlayerCharacter::SetSelected(bool IsSelected)
 {
+	if (IsSelected) {
+		SetSelectedForCombat(false, nullptr, nullptr);
+		SetSelectedForPickingEnemy(false);
+	}
+
 	SelectingArrow->SetSprite(SelectingArrowSprite);
 	SelectingArrow->SetVisibility(IsSelected);
+
 }
 
-void AWTPlayerCharacter::SetSelectedForCombat(bool IsSelected)
+void AWTPlayerCharacter::SetSelectedForCombat(bool IsSelected, AItemTemplate* ItemPicked, AEncounter* CurrentEnemy)
 {
+
+	if (IsSelected) {
+		SetSelected(false);
+		SetSelectedForPickingEnemy(false);
+	}
+
 	SelectingArrow->SetSprite(SelectingArrowForCombatSprite);
 	SelectingArrow->SetVisibility(IsSelected);
+
+	IsSelectedForCombat = IsSelected;
+
+	if (ItemPicked)
+	{
+		ItemPickedForFight = ItemPicked;
+	}
+
+	if (CurrentEnemy)
+	{
+		CurrentEnemyToAttack = CurrentEnemy;
+	}
 }
 
 void AWTPlayerCharacter::SetSelectedForPickingEnemy(bool IsSelected)
 {
+	if (IsSelected) {
+		SetSelected(false);
+		SetSelectedForCombat(false, nullptr, nullptr);
+	}
+
 	SelectingArrow->SetSprite(SelectingArrowForPickingEnemyToFight);
 	SelectingArrow->SetVisibility(IsSelected);
+	IsPickingEnemyToFight = IsSelected;
 }
 
 // Called to bind functionality to input
@@ -156,7 +186,15 @@ void AWTPlayerCharacter::GetInjury(int32 InjuryAmountToGet)
 			//	ItemToPick->Deactivate();
 		}
 	}
-	if (this->Injuries.Last() != EDurabilityState::Empty) { this->Destroy(); return; }
+	if (this->Injuries.Last() != EDurabilityState::Empty) { 
+
+		if (PlayerController->PlayerCharacters.Contains(this)) {
+			PlayerController->PlayerCharacters.Remove(Cast<AWTPlayerCharacter>(this));
+		}
+
+		this->Destroy(); 
+		return; 
+	}
 }
 
 void AWTPlayerCharacter::GetHunger(int32 HungerAmountToGet)

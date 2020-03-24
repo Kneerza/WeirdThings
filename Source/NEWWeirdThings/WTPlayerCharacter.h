@@ -38,6 +38,12 @@ public:
 	// Sets default values for this pawn's properties
 	AWTPlayerCharacter();
 
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
+	bool IsInCombat = false;
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
+	bool IsPickingEnemyToFight = false;
+	bool IsSelectedForCombat = false;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		UTexture2D* CharacterPortrait;
 
@@ -166,7 +172,7 @@ public:
 		void RemoveExhaustion(int32 ExhaustionAmountToRemove);
 
 	void SetSelected(bool IsSelected);
-	void SetSelectedForCombat(bool IsSelected);
+	void SetSelectedForCombat(bool IsSelected, AItemTemplate* ItemPicked, AEncounter* CurrentEnemy);
 	void SetSelectedForPickingEnemy(bool IsSelected);
 
 	//	void ShowDamage();

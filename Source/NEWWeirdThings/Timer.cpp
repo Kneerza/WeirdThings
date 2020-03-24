@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Timer.h"
+#include "CombatManager.h"
 #include "WeirdThingsPlayerController.h"
 #include "Runtime/Engine/Classes/Engine/World.h"
 
@@ -30,8 +31,9 @@ void ATimer::Tick(float DeltaTime)
 	if ((FPlatformTime::Seconds() - TimeCreated) >= LifeTime)
 	{
 		if (bIsFightingBack) {
-			Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController())->FightBack(Enemy, PlayerCharacter);
+			//Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController())->FightBack(Enemy, PlayerCharacter);
 			//UE_LOG(LogTemp, Warning, TEXT("%f"), (FPlatformTime::Seconds() - TimeCreated))
+			CombatManager->EncountersAttack();
 		}
 
 		Cast< AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController())->AreClickEventsDisabled = false;

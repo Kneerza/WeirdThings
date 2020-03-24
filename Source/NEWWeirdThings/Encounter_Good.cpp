@@ -4,6 +4,22 @@
 #include "Runtime/Engine/Classes/Engine/World.h"
 #include "WeirdThingsPlayerController.h"
 
+void AEncounter_Good::BeginPlay()
+{
+	Super::BeginPlay();
+
+
+	auto PlayerController = (Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController()));
+
+	PlayerController->Encounter_GoodInPlay.Add(this);
+
+	if (GetParentActor()) {
+		CurrentLocation = GetParentActor();
+	}
+
+
+}
+
 void AEncounter_Good::SetIsHovered(bool IsHovered)
 {
 	auto PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());

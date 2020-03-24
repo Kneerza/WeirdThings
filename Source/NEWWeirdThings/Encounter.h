@@ -13,6 +13,7 @@ class ALocationTemplate;
 class UQuitManagement;
 class UAttackDefenseComponent;
 class AWeirdThingsPlayerController;
+class AWTPlayerCharacter;
 
 UCLASS()
 class NEWWEIRDTHINGS_API AEncounter : public APawn
@@ -23,8 +24,11 @@ public:
 	// Sets default values for this pawn's properties
 	AEncounter();
 
+	bool IsInCombat = false;
+
 	AWeirdThingsPlayerController* PlayerController = nullptr;
 
+	AWTPlayerCharacter* CurrentEnemyToAttack = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		TArray<TSubclassOf<AItemTemplate>> LootClassesToSpawn;

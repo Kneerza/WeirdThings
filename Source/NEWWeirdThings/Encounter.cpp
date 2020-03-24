@@ -114,5 +114,6 @@ void AEncounter::CreateInfoWidget(UUserWidget* WidgetToCreate, FVector2D WidgetO
 void AEncounter::Deactivate()
 {
 	UE_LOG(LogTemp, Error, TEXT("Encounter is deactivated"))
+	
 	Destroy();
 }

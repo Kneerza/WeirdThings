@@ -36,3 +36,12 @@ void AEncounter_Bad::SetIsHovered(bool IsHovered)
 		PlayerController->SetCurrentlyHoveredByMouseEncounter_Bad(false, nullptr);
 	}
 }
+
+void AEncounter_Bad::Deactivate()
+{
+	Super::Deactivate();
+
+	if (PlayerController->Encounter_BadInPlay.Contains(this)) {
+		PlayerController->Encounter_BadInPlay.Remove(Cast<AEncounter_Bad>(this));
+	}
+}

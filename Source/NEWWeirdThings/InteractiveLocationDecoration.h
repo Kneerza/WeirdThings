@@ -32,6 +32,7 @@ public:
 
 	void ChangeState();
 	
+	void Deactivate();
 	void Activate();
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")

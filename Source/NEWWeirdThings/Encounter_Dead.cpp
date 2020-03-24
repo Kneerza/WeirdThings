@@ -124,6 +124,11 @@ void AEncounter_Dead::Deactivate()
 {
 	Super::Deactivate();
 
+	if (CreatedAction)
+	{
+		CreatedAction->UnregisterComponent();
+	}
+
 	if (PlayerController->Encounter_DeadsInPlay.Contains(this)) {
 		PlayerController->Encounter_DeadsInPlay.Remove(Cast<AEncounter_Dead>(this));
 	}

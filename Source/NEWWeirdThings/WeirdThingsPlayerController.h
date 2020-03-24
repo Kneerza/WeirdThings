@@ -32,6 +32,7 @@ class AEncounter;
 class AEncounter_Bad;
 class AEncounter_Dead;
 class AEncounter_Good;
+class ACombatManager;
 
 
 
@@ -73,10 +74,10 @@ public:
 		void GetComponentUnderCursor(AActor* &ClickedActor, FString &ClickedActorClassName);
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
-		void SelectCharacter(AActor* CharacterToSelect);
+		void SelectCharacter(AActor* CharacterToSelectActor);
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
-		void DeselectCharacter(AActor* CharacterToDeselect);
+		void DeselectCharacter(AActor* CharacterToDeselectActor);
 
 	void Encounter_BadRightClickResponse();
 	void Encounter_BadLeftClickResponse();
@@ -102,7 +103,7 @@ public:
 	//------------ Goals --------------
 
 	int32 CharactersFoodInPlay = 0;
-	int32 FoodRequired = 4;
+	int32 FoodRequired = 3;
 
 	int32 CharactersWoodInPlay = 0;
 	int32 WoodRequired = 2;
@@ -171,6 +172,9 @@ public:
 		TSubclassOf<AAttackDefenseActor> AttackDefenceActorClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+		TSubclassOf<ACombatManager> CombatManagerClassToSpawn;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		bool bIsCombatOn = false;
 
 	bool bIsCharacterPickingToFight = false;
@@ -181,24 +185,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		TArray<AWTPlayerCharacter*> PlayersChosenToFight = { nullptr, nullptr, nullptr, nullptr, nullptr };
 
-	void AddToPlayersChoosenForFight(AWTPlayerCharacter* CharacterToAdd, AEncounter* CurrentEncounterToAttack, AItemTemplate* ItemPickedForFight);
-
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void InitiateCombat();
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void EndCombat();
 
-	UFUNCTION(BlueprintCallable, Category = "Custom")
-		void PlayerCharactersAttack(TArray<AWTPlayerCharacter*> CharactersAttackers);
-
 	void Encounter_DeadLookForPlayerToAttack(AEncounter_Dead* Encounter_Dead);
 
-	void InitiateCombat(AEncounter* Initiator);
-	void Combat(AWTPlayerCharacter* PlayerCharacter, AEncounter* Enemy);
-	void AttackDefenseEvent(AWTPlayerCharacter* Attacker, AEncounter* Defender, bool IsFightingBack);
-	void AttackDefenseEvent(AEncounter* Attacker, AWTPlayerCharacter* Defender);
-	void FightBack(AEncounter* Enemy, AWTPlayerCharacter* PlayerCharacter);
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void Combat();
 	//------------------------------------------------------------------------
 
 
@@ -233,6 +229,7 @@ public:
 	
 	ALocationTemplate* SpawnLocation(AAction* Action, bool IsSpawningOnRight, bool IsPlotLocation);
 	AItemTemplate* SpawnItem(TSubclassOf<AItemTemplate> ItemToSpawnClass);
+	ACombatManager* SpawnCombatManager(ALocationTemplate* CurrentLocationOfCombat, AActor* CombatInstigator);
 	bool SpawnEnemy(AAction* ActionInstigator);
 	bool SpawnGoodEnc(AAction* ActionInstigator);
 	//---------------------------------------------------------------------------------
@@ -256,6 +253,7 @@ public:
 	void CreateDynamicAction(AActor* CurrentLocationActor, TSubclassOf<AAction> ActionClass, AEncounter_Dead* EntangledDead);
 
 	void ActivateEntangledILD(AAction* ActionEntangledWithILD);
+	void DeactivateEntangledILD(AAction* ActionEntangledWithILD);
 	void CreateDoor(AActor* LocationWithDoorCreatedActor, TSubclassOf<AInteractiveLocationDecoration> DoorToCreateClass, TSubclassOf<AAction> TeleportActionToCreateClass, AActor* LocationInstigatorActor);
 
 	// Letting the location actor know what child action is forced if any
@@ -339,9 +337,13 @@ public:
 
 	TArray<AActor*> AllLocationsInPlay;
 
-	TArray<AEncounter_Dead*>Encounter_DeadsInPlay;
+	TArray<AEncounter_Dead*> Encounter_DeadsInPlay;
 
-	TArray<AEncounter_Bad*>Encounter_BadInPlay;
+	TArray<AEncounter_Bad*> Encounter_BadInPlay;
+
+	TArray<AEncounter_Good*> Encounter_GoodInPlay;
+
+	TArray<ACombatManager*> CombatManagersInPlay = {};
 	//---------------------------------------------------------------------------------
 
 

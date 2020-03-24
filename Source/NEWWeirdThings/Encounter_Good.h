@@ -45,4 +45,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void SetIsHovered(bool IsHovered);
 	
+protected:
+
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
 };

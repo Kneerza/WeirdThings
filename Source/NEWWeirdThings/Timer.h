@@ -8,6 +8,7 @@
 
 class AEncounter;
 class AWTPlayerCharacter;
+class ACombatManager;
 
 UCLASS()
 class NEWWEIRDTHINGS_API ATimer : public AActor
@@ -18,6 +19,7 @@ public:
 	// Sets default values for this actor's properties
 	ATimer();
 
+	ACombatManager* CombatManager = nullptr;
 	AEncounter* Enemy = nullptr;
 	AWTPlayerCharacter* PlayerCharacter = nullptr;
 

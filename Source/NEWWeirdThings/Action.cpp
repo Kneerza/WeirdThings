@@ -225,9 +225,10 @@ void AAction::Deactivate()
 		if (pActionForcedComponent) {
 			pActionForcedComponent->SetSpriteColor(FLinearColor(0.03f, 0.03f, 0.03f, 1));
 		}
-
+		
 		// --- Disabling Collision on deactivated Action ---
 		ActionFlipBookComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		PlayerController->DeactivateEntangledILD(this);
 		//CollisionSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		//if (EntangledInteractiveLocationDecoration) {
 		//	EntangledInteractiveLocationDecoration->InteractiveLocationDecoration_SpriteComponent_0->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -315,7 +316,6 @@ void AAction::UpdateArrowActionVisual()
 
 	if (ActionType == EActionType::Arrow_Move) { return; }
 	if (ActionType == EActionType::ArrowUp_Plot) {
-				UE_LOG(LogTemp, Warning, TEXT("Arrow points to: %s"), *LocationArrowPointsTo->GetName())
 					ActionType = EActionType::Arrow_Move;
 				ActionPointsRequired = 0;
 	}
@@ -323,7 +323,6 @@ void AAction::UpdateArrowActionVisual()
 			ActionType = EActionType::Arrow_Move;
 		ActionPointsRequired = 0;
 	} else {
-				UE_LOG(LogTemp, Warning, TEXT("Arrow points to: %s"), *LocationArrowPointsTo->GetName())
 					ActionType = EActionType::Arrow_Move;
 				ActionPointsRequired = 0;
 	}

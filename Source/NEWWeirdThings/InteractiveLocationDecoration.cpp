@@ -69,6 +69,7 @@ void AInteractiveLocationDecoration::Tick(float DeltaTime)
 
 void AInteractiveLocationDecoration::ChangeState()
 {
+	
 	if (!(InteractiveLocationDecoration_SpriteComponent_1->bHiddenInGame)) { return; }
 	if (InteractiveLocationDecoration_SpriteComponent_1->GetSprite())
 	{
@@ -90,7 +91,14 @@ void AInteractiveLocationDecoration::ChangeState()
 
 void AInteractiveLocationDecoration::Activate()
 {
+	if (!InteractiveLocationDecoration_SpriteComponent_0) { return; }
 	InteractiveLocationDecoration_SpriteComponent_0->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+}
+
+void AInteractiveLocationDecoration::Deactivate()
+{
+	if (!InteractiveLocationDecoration_SpriteComponent_0) { return; }
+	InteractiveLocationDecoration_SpriteComponent_0->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AInteractiveLocationDecoration::SetIsHovered(bool IsHovered)
