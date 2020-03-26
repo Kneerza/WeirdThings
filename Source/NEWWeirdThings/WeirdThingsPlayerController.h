@@ -49,6 +49,12 @@ public:
 
 	virtual void BeginPlay() override;
 
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
+		bool IsGameFinished = false;
+
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
+		bool IsGameLost = false;
+
 
 
 
@@ -344,6 +350,12 @@ public:
 	TArray<AEncounter_Good*> Encounter_GoodInPlay;
 
 	TArray<ACombatManager*> CombatManagersInPlay = {};
+
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
+		TArray<AWTPlayerCharacter*> SurvivedCharacters;
+
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
+		TArray<AWTPlayerCharacter*> DiedCharacters;
 	//---------------------------------------------------------------------------------
 
 

@@ -33,6 +33,7 @@ enum class EActionType : uint8
 	Hide,
 	Hire,
 	Burn,
+	Survive,
 	No_Action
 };
 

@@ -39,6 +39,12 @@ public:
 	AWTPlayerCharacter();
 
 	UPROPERTY(BlueprintReadWrite, Category = Setup)
+		bool IsSurvived = false;
+
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
+		bool IsDied = false;
+
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
 	bool IsInCombat = false;
 	UPROPERTY(BlueprintReadWrite, Category = Setup)
 	bool IsPickingEnemyToFight = false;
@@ -46,6 +52,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		UTexture2D* CharacterPortrait;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+		UPaperSpriteComponent* DiedCharacterSprite;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		int32 ActionPoints = 0;
@@ -174,6 +183,9 @@ public:
 	void SetSelected(bool IsSelected);
 	void SetSelectedForCombat(bool IsSelected, AItemTemplate* ItemPicked, AEncounter* CurrentEnemy);
 	void SetSelectedForPickingEnemy(bool IsSelected);
+
+	void Survive();
+	void Die();
 
 	//	void ShowDamage();
 

@@ -1196,6 +1196,15 @@ bool AWeirdThingsPlayerController::PerformAction(AAction* Action, int32 Modifier
 		return true;
 		break;
 
+	case EActionType::Survive:
+
+		//MoveCharacter(pSelectedCharacter, Action->LocationArrowPointsTo);
+		pSelectedCharacter->Survive();
+		DeselectCharacter(pSelectedCharacter);
+
+		return true;
+		break;
+
 	default:
 
 		return false;

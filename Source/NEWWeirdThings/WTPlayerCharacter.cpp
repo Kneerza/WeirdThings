@@ -10,6 +10,7 @@
 #include "Runtime/Engine/Classes/Components/StaticMeshComponent.h"
 #include "AttackDefenseComponent.h"
 #include "Runtime/CoreUObject/Public/UObject/UObjectGlobals.h"
+#include "Kismet/GameplayStatics.h"
 #include "Runtime/UMG/Public/Components/WidgetComponent.h"
 
 // Sets default values
@@ -27,6 +28,12 @@ AWTPlayerCharacter::AWTPlayerCharacter()
 	//----------------------Creating Root Component--------------------------
 	pRootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	SetRootComponent(pRootComponent);
+
+	//----------------------Creating Died Character Sprite Component--------------------------
+	DiedCharacterSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("Died character sprite"));
+	DiedCharacterSprite->SetupAttachment(pRootComponent);
+	DiedCharacterSprite->SetHiddenInGame(true);
+	DiedCharacterSprite->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	//----------------------Creating Selecting Arrow-------------------------
 	SelectingArrow = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("SelectingArrow"));
@@ -188,11 +195,11 @@ void AWTPlayerCharacter::GetInjury(int32 InjuryAmountToGet)
 	}
 	if (this->Injuries.Last() != EDurabilityState::Empty) { 
 
-		if (PlayerController->PlayerCharacters.Contains(this)) {
-			PlayerController->PlayerCharacters.Remove(Cast<AWTPlayerCharacter>(this));
-		}
+		//if (PlayerController->PlayerCharacters.Contains(this)) {
+		//	PlayerController->PlayerCharacters.Remove(Cast<AWTPlayerCharacter>(this));
+		//}
 
-		this->Destroy(); 
+		Die(); 
 		return; 
 	}
 }
@@ -392,4 +399,71 @@ bool AWTPlayerCharacter::SetHiredCompanion(AActor* CompanionToHire)
 	HiredCompanion->SetActorLocation(GetActorLocation() + FVector(1.f, 30.f, 0.f));
 	HiredCompanion->SetActorEnableCollision(ECollisionEnabled::NoCollision);
 	return true;
+}
+
+void AWTPlayerCharacter::Survive()
+{
+	if (PlayerController->PlayerCharacters.Contains(this))
+	{
+		PlayerController->PlayerCharacters.RemoveSingle(this);
+		PlayerController->SurvivedCharacters.Add(this);
+	}
+	SetActorEnableCollision(false);
+	SetActorHiddenInGame(true);
+	IsSurvived = true;
+
+	if (PlayerController->PlayerCharacters.Num() < 1)
+	{
+		if (PlayerController->SurvivedCharacters.IsValidIndex(0))
+		{
+			PlayerController->IsGameFinished = true;
+		}
+		else
+		{
+			PlayerController->IsGameLost = true;
+		}
+	}
+}
+
+void AWTPlayerCharacter::Die()
+{
+
+	// -------------------------- Change sprite for died character -------------------
+	if (DiedCharacterSprite->GetSprite())
+	{
+		TArray<UPaperSpriteComponent*> SpriteComponents;
+		GetComponents<UPaperSpriteComponent>(SpriteComponents);
+		for (int32 i = 0; i < SpriteComponents.Num(); i++)
+		{
+			if (SpriteComponents[i] == DiedCharacterSprite)
+			{
+				SpriteComponents[i]->SetHiddenInGame(false);
+			}
+			else
+			{
+				SpriteComponents[i]->SetHiddenInGame(true);
+			}
+		}
+	}
+
+	if (PlayerController->PlayerCharacters.Contains(this))
+	{
+		PlayerController->PlayerCharacters.RemoveSingle(this);
+		PlayerController->DiedCharacters.Add(this);
+	}
+	SetActorEnableCollision(false);
+	IsDied = true;
+	SelectingArrow->DestroyComponent();
+
+	if (PlayerController->PlayerCharacters.Num() < 1)
+	{
+		if (PlayerController->SurvivedCharacters.IsValidIndex(0))
+		{
+			PlayerController->IsGameFinished = true;
+		}
+		else
+		{
+			PlayerController->IsGameLost = true;
+		}
+	}
 }
