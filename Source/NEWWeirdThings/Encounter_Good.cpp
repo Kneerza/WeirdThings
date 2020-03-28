@@ -34,4 +34,7 @@ void AEncounter_Good::SetIsHovered(bool IsHovered)
 	}
 }
 
-
+void AEncounter_Good::SetAsHired()
+{
+	DestroyHealthWidget();
+}

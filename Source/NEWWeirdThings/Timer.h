@@ -29,6 +29,8 @@ public:
 	float TimeCreated;
 	float LifeTime = 2.7f;
 
+	void SetCombatManager(ACombatManager* CombatManagerToSet);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

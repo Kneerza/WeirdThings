@@ -45,6 +45,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void SetIsHovered(bool IsHovered);
 	
+	void SetAsHired();
+
 protected:
 
 	// Called when the game starts or when spawned

@@ -193,6 +193,7 @@ void AAction::GetTypeOfLock()
 			CurrentLockIndex = i;
 			CurrentLockTypeIndex = i;
 			IsLocked = true;
+			UE_LOG(LogTemp, Error, TEXT("Current lock index: %i"),i)
 			return; 
 		}
 
@@ -203,16 +204,29 @@ void AAction::GetTypeOfLock()
 
 void AAction::Unlock()
 {
+	UE_LOG(LogTemp, Error, TEXT("Inside Unlock in action"))
 	if (!ActionLock[CurrentLockIndex]) { return; }
 	ActionLockType[CurrentLockTypeIndex] = EActionLockType::No_Need;
 	ActionLock[CurrentLockIndex]->UnregisterComponent();
 	ActionLock[CurrentLockIndex] = nullptr;
 	GetTypeOfLock();
+
+	if (IsLocked) {
+		UE_LOG(LogTemp, Error, TEXT("Action is still locked"))
+	}
+	else {
+		UE_LOG(LogTemp, Error, TEXT("Action is unlocked"))
+	}
 }
 
 void AAction::Deactivate()
 {
 	// --- Deactivating arrow actions ---
+
+	if (ActionType == EActionType::PickUpItem) {
+		Destroy();
+		return;
+	}
 
 	if ((IsWorkedOut)&&((ActionType == EActionType::ArrowRight_Bad) || (ActionType == EActionType::ArrowRight_Good) || (ActionType == EActionType::ArrowRight_Ugly) || (ActionType == EActionType::ArrowUp_Plot) || (ActionType == EActionType::Teleport)))
 	{

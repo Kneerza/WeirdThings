@@ -28,6 +28,7 @@ class UPaperSpriteComponent;
 class UPaperFlipbookComponent;
 class UPaperFlipbook;
 class UTexture2D;
+class ACombatManager;
 
 UCLASS()
 class NEWWEIRDTHINGS_API AWTPlayerCharacter : public APawn
@@ -40,6 +41,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = Setup)
 		bool IsSurvived = false;
+
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
+		ACombatManager* CurrentCombatManager = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, Category = Setup)
 		bool IsDied = false;
@@ -149,13 +153,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		UPaperFlipbookComponent* AvatarComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
-		UPaperFlipbook* AvatarFlipbook;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+	//	UPaperFlipbook* AvatarFlipbook;
 
-	UFUNCTION(BlueprintCallable, Category = "Custom")
-		void CreateAvatar();
+	//UFUNCTION(BlueprintCallable, Category = "Custom")
+	//	void CreateAvatar();
 
-	void UpdateAvatar();
+	//void UpdateAvatar();
 
 	void GetItem(AItemTemplate* ItemToPick);
 

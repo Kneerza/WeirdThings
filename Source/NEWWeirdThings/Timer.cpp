@@ -19,6 +19,7 @@ void ATimer::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//CombatManager->IsFightInProgress = true;
 	TimeCreated = FPlatformTime::Seconds();
 	Cast< AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController())->AreClickEventsDisabled = true;
 }
@@ -33,11 +34,21 @@ void ATimer::Tick(float DeltaTime)
 		if (bIsFightingBack) {
 			//Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController())->FightBack(Enemy, PlayerCharacter);
 			//UE_LOG(LogTemp, Warning, TEXT("%f"), (FPlatformTime::Seconds() - TimeCreated))
+			//CombatManager->IsFightInProgress = false;
 			CombatManager->EncountersAttack();
 		}
+		else {
+			CombatManager->IsFightInProgress = false;
+		}
 
+	
 		Cast< AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController())->AreClickEventsDisabled = false;
 		Destroy();
 	}
 }
 
+void ATimer::SetCombatManager(ACombatManager* CombatManagerToSet)
+{
+	CombatManager = CombatManagerToSet;
+	CombatManager->IsFightInProgress = true;
+}

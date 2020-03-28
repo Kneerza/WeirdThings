@@ -155,6 +155,9 @@ public:
 		UStaticMeshComponent* SocketDynamicPlayerAction_4;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+		UStaticMeshComponent* SocketDynamicPlayerAction_5;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		UStaticMeshComponent* SocketDoor;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Mesh)

@@ -40,6 +40,7 @@ public:
 
 	AWeirdThingsPlayerController* PlayerController = nullptr;
 
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
 	bool IsAwake = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)

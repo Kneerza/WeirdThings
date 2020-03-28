@@ -124,6 +124,15 @@ void AEncounter_Dead::Deactivate()
 {
 	Super::Deactivate();
 
+	UE_LOG(LogTemp, Error, TEXT("Deactivating encounter"))
+
+	AwakenedDeadFlipbookComponent->OnEndCursorOver.Broadcast(AwakenedDeadFlipbookComponent);
+	//AwakenedDeadFlipbookComponent->DestroyComponent();
+	//PlayerController->CurrentMouseCursor = EMouseCursor::Default;
+	//SetIsHovered(false);
+	SleepingDeadFlipbookComponent->OnEndCursorOver.Broadcast(SleepingDeadFlipbookComponent);
+	//SleepingDeadFlipbookComponent->DestroyComponent();
+
 	if (CreatedAction)
 	{
 		CreatedAction->UnregisterComponent();
@@ -132,6 +141,8 @@ void AEncounter_Dead::Deactivate()
 	if (PlayerController->Encounter_DeadsInPlay.Contains(this)) {
 		PlayerController->Encounter_DeadsInPlay.Remove(Cast<AEncounter_Dead>(this));
 	}
+
+	Destroy();
 }
 
 void AEncounter_Dead::SetIsHovered(bool IsHovered)

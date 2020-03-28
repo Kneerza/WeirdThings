@@ -74,6 +74,7 @@ void ACombatManager::Refresh()
 		{
 			if (Encounter_DeadsInPlay[i])
 			{
+				if (!Encounter_DeadsInPlay[i]->IsAwake) { continue; }
 				if (Encounter_DeadsInPlay[i]->CurrentLocation == CurrentLocation)
 				{
 					EncountersInCombat.Add(Encounter_DeadsInPlay[i]);
@@ -98,6 +99,30 @@ void ACombatManager::Refresh()
 		}
 	}
 
+	if (!EncountersInCombat.IsValidIndex(0))
+	{
+
+		UE_LOG(LogTemp, Warning, TEXT("Encounters are not on location"))
+
+			PlayerController->CombatManagersInPlay.Remove(this);
+
+		for (int32 i = 0; i < PlayerCharacters.Num(); i++)
+		{
+			if (PlayerCharacters[i])
+			{
+				if (PlayerCharacters[i]->CurrentLocation == CurrentLocation)
+				{
+					PlayerCharacters[i]->SetSelectedForCombat(false, nullptr, nullptr);
+					PlayerCharacters[i]->CurrentCombatManager = nullptr;
+					PlayerCharacters[i]->IsInCombat = false;
+				}
+			}
+		}
+
+		Destroy();
+		return;
+	}
+
 	for (int32 i = 0; i < PlayerCharacters.Num(); i++)
 	{
 		if (PlayerCharacters[i])
@@ -109,15 +134,27 @@ void ACombatManager::Refresh()
 				{
 					PlayerCharacters[i]->SetSelectedForCombat(false, nullptr, nullptr);
 				}
+
+				PlayerCharacters[i]->CurrentCombatManager = this;
 				PlayerCharacters[i]->IsInCombat = true;
 			}
 		}
 	}
+
+	if (!CharactersInCombat.IsValidIndex(0))
+	{
+
+		UE_LOG(LogTemp, Warning, TEXT("Characters are not on location"))
+		
+		PlayerController->CombatManagersInPlay.Remove(this);
+		Destroy();
+	}
+
 }
 
 void ACombatManager::ShowCharactersInCombat()
 {
-
+	/*
 	for (int32 i = 0; i < EncountersInCombat.Num(); i++)
 	{
 		if (EncountersInCombat[i])
@@ -128,6 +165,7 @@ void ACombatManager::ShowCharactersInCombat()
 			UE_LOG(LogTemp, Warning, TEXT("Encounter in combat: NONE"))
 		}
 	}
+	*/
 }
 
 void ACombatManager::GetCharactersSelectedForCombat(TArray<AWTPlayerCharacter*> &OUTCharactersSelectedForCombat)
@@ -217,8 +255,18 @@ AAttackDefenseActor* ACombatManager::SpawnAttackDefenseActor(
 )
 {
 	ActorToSpawn = GetWorld()->SpawnActor<AAttackDefenseActor>(AttackDefenceActorClass, LocationToSpawn, FRotator(0.0f, 180.0f, 0.0f));
+	if (!EncounterAttacker) {
 
+		UE_LOG(LogTemp, Warning, TEXT("No SpawnedActor"))
+			return nullptr;
 
+	}
+	if (!EncounterAttacker) {
+
+		UE_LOG(LogTemp, Warning, TEXT("No EncounterAttacker"))
+			return nullptr;
+
+	}
 	ActorToSpawn->StartLocation = EncounterAttacker->GetActorLocation();
 	ActorToSpawn->EndLocation = EncounterAttacker->CurrentEnemyToAttack->GetActorLocation();
 
@@ -241,14 +289,18 @@ AAttackDefenseActor* ACombatManager::SpawnAttackDefenseActor(FVector LocationToS
 
 void ACombatManager::PlayerCharactersAttack()
 {
+	if (IsFightInProgress) { return; }
 	Refresh();
 
 	TArray<AWTPlayerCharacter*> CharactersAttackers;
 	GetCharactersSelectedForCombat(CharactersAttackers);
+	if (!CharactersAttackers.IsValidIndex(0)) { return; }
+	
 
 	TArray<AEncounter*> Defenders = { nullptr };
 
 	GetDefenders(CharactersAttackers, Defenders);
+	if (!Defenders.IsValidIndex(0)) { return; }
 
 	for (int32 j = 0; j < CharactersAttackers.Num(); j++)
 	{
@@ -301,6 +353,7 @@ void ACombatManager::PlayerCharactersAttack()
 		}
 	auto Timer = GetWorld()->SpawnActor<ATimer>(FVector(), FRotator(0.0f, 180.0f, 0.0f));
 	UE_LOG(LogTemp, Warning, TEXT("Timer is spawned"))
+		Timer->SetCombatManager(this);
 		Timer->bIsFightingBack = true;
 	Timer->LifeTime += (CharactersAttackers.Num() - 1)*0.2f;
 	//Timer->Enemy = Defenders[j];
@@ -318,19 +371,25 @@ void ACombatManager::PlayerCharactersAttack()
 		}
 	}
 
-	Timer->CombatManager = this;
+	//Timer->CombatManager = this;
 	Timer->PlayerCharacter = CharacterUnderAttack;
+
+	//IsFightInProgress = true;
 }
 
 void ACombatManager::EncountersAttack()
 {
+	//if (IsFightInProgress) { return; }
+
 	Refresh();
 	UE_LOG(LogTemp, Error, TEXT("Encounters attack"))
 
 	TArray<AEncounter*> EncounterAttackers;
 	GetEncountersReadyForCombat(EncounterAttackers);
+	if (!EncounterAttackers.IsValidIndex(0)) { return; }
 
 	TArray<AWTPlayerCharacter*> Defenders = { nullptr };
+	if (!Defenders.IsValidIndex(0)) { return; }
 
 	GetDefenders(EncounterAttackers, Defenders);
 	
@@ -350,6 +409,8 @@ void ACombatManager::EncountersAttack()
 
 			AttackRowActors[i] = SpawnAttackDefenseActor(AttackRowActors[i], EncounterAttackers[j], LocationToSpawn, AttackRowToGenerate[i]);
 			if (!ensure(AttackRowActors[i])) { return; }
+
+			IsFightInProgress = true;
 
 			DelayBeforeSpawnNext++;
 
@@ -373,5 +434,29 @@ void ACombatManager::EncountersAttack()
 				DefenseRowActors[i] = SpawnAttackDefenseActor(LocationToSpawnDefense, DefenseRowToGenerate[i]);
 			}
 		}
-	
+	auto Timer = GetWorld()->SpawnActor<ATimer>(FVector(), FRotator(0.0f, 180.0f, 0.0f));
+	Timer->SetCombatManager(this);
+	UE_LOG(LogTemp, Warning, TEXT("Timer is spawned"))
+		Timer->bIsFightingBack = false;
+	Timer->LifeTime += (EncounterAttackers.Num() - 1)*0.2f;
+	//Timer->Enemy = Defenders[j];
+
+	int32 Min = 0;
+
+	/*
+	AWTPlayerCharacter* CharacterUnderAttack = nullptr;
+	while (CharacterUnderAttack == nullptr)
+	{
+		auto RandomlyPickedCharacter = FMath::RandRange(Min, (CharactersAttackers.Num() - 1));
+		if (CharactersAttackers[RandomlyPickedCharacter])
+		{
+			CharacterUnderAttack = CharactersAttackers[RandomlyPickedCharacter];
+		}
+	}
+	*/
+
+	//Timer->CombatManager = this;
+	//Timer->PlayerCharacter = CharacterUnderAttack;
+
+	//IsFightInProgress = true;
 }

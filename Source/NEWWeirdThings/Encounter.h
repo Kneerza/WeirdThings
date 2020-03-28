@@ -9,6 +9,7 @@
 class UWidgetComponent;
 class UUserWidget;
 class AItemTemplate;
+class AAction;
 class ALocationTemplate;
 class UQuitManagement;
 class UAttackDefenseComponent;
@@ -33,8 +34,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		TArray<TSubclassOf<AItemTemplate>> LootClassesToSpawn;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Custom")
-		TArray<AItemTemplate*> Loot;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom")
+		TArray<TSubclassOf<AAction>> Loot;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Custom")
 		UAttackDefenseComponent* pAttackDefenseComponent;
@@ -59,6 +60,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void CreateInfoWidget(UUserWidget* WidgetToCreate, FVector2D WidgetOffset);
 
+	void DestroyHealthWidget();
+
 	virtual void Deactivate();
 
 protected:
@@ -74,6 +77,6 @@ public:
 
 private:
 
-	void InitializeLoot();
+	//void InitializeLoot();
 	
 };

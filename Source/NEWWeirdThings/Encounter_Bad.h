@@ -14,10 +14,10 @@ class NEWWEIRDTHINGS_API AEncounter_Bad : public AEncounter
 {
 	GENERATED_BODY()
 
-
+public:
 		UFUNCTION(BlueprintCallable, Category = "Custom")
 			void SetIsHovered(bool IsHovered);
-		
+
 	virtual void Deactivate() override;
 
 protected:

@@ -75,11 +75,13 @@ void AAttackDefenseActor::Tick(float DeltaTime)
 		Destroy();
 	}
 
+	auto Speed = DeltaTime *30;
+
 	if (IsAttacking) {
 		if ((FPlatformTime::Seconds() - CreationTime) > HoldTime) {
 			if (GetActorLocation().Z < (StartLocation.Z + 1000) && (GetActorLocation().Y == StartLocation.Y))
 			{
-				SetActorLocation(GetActorLocation() + FVector(0.f, 0.f, 40.f));
+				SetActorLocation((GetActorLocation() + FVector(0.f, 0.f, 40* Speed)));
 			}
 			else if (GetActorLocation().Y == StartLocation.Y)
 			{
@@ -87,7 +89,7 @@ void AAttackDefenseActor::Tick(float DeltaTime)
 			}
 			else
 			{
-				SetActorLocation(GetActorLocation() + FVector(0.f, 0.f, -40.f));
+				SetActorLocation((GetActorLocation() + FVector(0.f, 0.f, -40 * Speed)));
 			}
 		}
 	}

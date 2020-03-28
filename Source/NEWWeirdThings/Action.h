@@ -20,6 +20,7 @@ enum class EActionType : uint8
 	Get_EncounterRandom,
 	Get_Injury,
 	Get_Exhaustion,
+	PickUpItem,
 	Portrait,
 	ArrowRight_Good,
 	ArrowRight_Bad,
@@ -51,6 +52,7 @@ enum class EActionLockType : uint8
 	Need_Axe,
 	Need_Exhaustion,
 	Need_Shovel,
+	Need_Weapon,
 	No_Need
 };
 
@@ -59,6 +61,7 @@ class UPaperFlipbook;
 class UPaperFlipbookComponent;
 class AInteractiveLocationDecoration;
 class AWeirdThingsPlayerController;
+class AItemTemplate;
 //class ALocationTemplate;
 
 UCLASS()
@@ -108,6 +111,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		TSubclassOf<AAction> TeleportActionToCreateClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+		TSubclassOf<AItemTemplate> ItemToGetClass;
 
 	AActor* EntangledDeadEncounter = nullptr;
 

@@ -50,7 +50,7 @@ void AEncounter::BeginPlay()
 	
 	PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
 
-	InitializeLoot();
+	//InitializeLoot();
 }
 
 // Called every frame
@@ -76,23 +76,24 @@ void AEncounter::LooseHealth()
 		
 		for (int32 i = 0; i < Loot.Num(); i++)
 		{
-			PlayerController->PassItemToPlayer(Loot[i]);
+			UE_LOG(LogTemp, Warning, TEXT("Dropping items"))
+			PlayerController->DropItemOnLocation(CurrentLocation, Loot[i]);
 		}
 		Deactivate();
 	}
 }
-
+/*
 void AEncounter::InitializeLoot()
 {
-	for (int32 i = 0; i < LootClassesToSpawn.Num(); i++)
-	{
+	//for (int32 i = 0; i < LootClassesToSpawn.Num(); i++)
+	//{
 		//Loot[i] = GetWorld()->SpawnActor<AItemTemplate>(LootClassesToSpawn[i]);
-		if (LootClassesToSpawn[i]) {
-			Loot[i] = PlayerController->SpawnItem(LootClassesToSpawn[i]);
-		}
-	}
+		//if (LootClassesToSpawn[i]) {
+		//	Loot[i] = PlayerController->SpawnItem(LootClassesToSpawn[i]);
+		//}
+	//}
 }
-
+*/
 void AEncounter::CreateInfoWidget(UUserWidget* WidgetToCreate, FVector2D WidgetOffset)
 {
 
@@ -113,7 +114,14 @@ void AEncounter::CreateInfoWidget(UUserWidget* WidgetToCreate, FVector2D WidgetO
 
 void AEncounter::Deactivate()
 {
-	UE_LOG(LogTemp, Error, TEXT("Encounter is deactivated"))
 	
-	Destroy();
+
+	//Destroy();
+}
+
+void AEncounter::DestroyHealthWidget()
+{
+	UE_LOG(LogTemp, Error, TEXT("Destroying HealthWidgetComponent"))
+	pHealthWidget->DestroyComponent();
+
 }

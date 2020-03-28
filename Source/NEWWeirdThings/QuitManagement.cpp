@@ -43,6 +43,7 @@ void UQuitManagement::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 void UQuitManagement::CheckQuitConditions()
 {
+	/*
 	auto PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
 	auto CurrentlySelectedCharacter = PlayerController->pSelectedCharacter;
 	TArray<AItemTemplate*> Backpack = { nullptr };
@@ -62,29 +63,29 @@ void UQuitManagement::CheckQuitConditions()
 			break;
 
 		case EQuitType::Food:
-			/*
-			if (PlayerController->pSelectedCharacter->Food >= QuitTypeModifier[i])
-			{
-				PlayerController->pSelectedCharacter->Food -= QuitTypeModifier[i];
-				OwnerQuits();
-			}
-			*/
+			
+			//if (PlayerController->pSelectedCharacter->Food >= QuitTypeModifier[i])
+			//{
+			//	PlayerController->pSelectedCharacter->Food -= QuitTypeModifier[i];
+			//	OwnerQuits();
+			//}
+			
 			break;
 
 		case EQuitType::Items:
-			/*
-			if (!Backpack[0]) { return; }
-			for (int32 i = (Backpack.Num() - 1); i >= 0; i--)
-			{
-				if (Backpack[i])
-				{
-					(Cast<AWTEnemy>(GetOwner()))->Loot.Insert(Backpack[i], 2);
-					Backpack.RemoveAt(i, 1, false);
-					PlayerController->pSelectedCharacter->Backpack = Backpack;
-					return;
-				}
-			}
-			*/
+			
+			//if (!Backpack[0]) { return; }
+			//for (int32 i = (Backpack.Num() - 1); i >= 0; i--)
+			//{
+			//	if (Backpack[i])
+			//	{
+			//		(Cast<AWTEnemy>(GetOwner()))->Loot.Insert(Backpack[i], 2);
+			//		Backpack.RemoveAt(i, 1, false);
+			//		PlayerController->pSelectedCharacter->Backpack = Backpack;
+			//		return;
+			//	}
+			//}
+			
 			break;
 
 		case EQuitType::TimeOfDay_Morning:
@@ -176,6 +177,7 @@ void UQuitManagement::CheckQuitConditions()
 			break;
 		}
 	}
+	*/
 }
 
 void UQuitManagement::OwnerQuits()

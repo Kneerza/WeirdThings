@@ -101,6 +101,7 @@ public:
 	void LocationRightClickResponse();
 
 	void InteractiveLocationDecorationRightClickResponse();
+	void InteractiveLocationDecorationLeftClickResponse();
 	//------------------------------------------------------
 
 
@@ -192,7 +193,7 @@ public:
 		TArray<AWTPlayerCharacter*> PlayersChosenToFight = { nullptr, nullptr, nullptr, nullptr, nullptr };
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
-		void InitiateCombat();
+		void InitiateCombat(AWTPlayerCharacter* Initiator);
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void EndCombat();
@@ -200,7 +201,10 @@ public:
 	void Encounter_DeadLookForPlayerToAttack(AEncounter_Dead* Encounter_Dead);
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
-		void Combat();
+		void Combat(ACombatManager* CombatManager);
+
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void FleeFromCombat(AWTPlayerCharacter* FleeingCharacter);
 	//------------------------------------------------------------------------
 
 
@@ -211,9 +215,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void UseItem(AItemTemplate* ItemToUse, AWTPlayerCharacter* ItemOwner);
 
+	void DropItemOnLocation(AActor* LocationToDropItemOn, TSubclassOf<AAction> ActionItemToDropClass);
+
 	void PassItemToPlayer(EItemValue ItemValue);
 
 	void PassItemToPlayer(AItemTemplate* ItemsToPick);
+
+	void PassItemToPlayer(TSubclassOf<AItemTemplate> ItemToPickClass);
 
 	void ItemDurabilityCheck(AWTPlayerCharacter* ItemOwner, AItemTemplate* ItemToCheck, EItemType ItemTypeToCheck);
 	//---------------------------------------------------------------------------------
@@ -230,12 +238,12 @@ public:
 		FVector SpawnedLocationOffsetZ = FVector(0.f, 0.f, 2000.f);
 
 	UPROPERTY(EditAnywhere, Category = Setup)
-		float LocationsRowLimit = 65000.f;
+		float LocationsRowLimit = 10000.f;
 
 	
 	ALocationTemplate* SpawnLocation(AAction* Action, bool IsSpawningOnRight, bool IsPlotLocation);
 	AItemTemplate* SpawnItem(TSubclassOf<AItemTemplate> ItemToSpawnClass);
-	ACombatManager* SpawnCombatManager(ALocationTemplate* CurrentLocationOfCombat, AActor* CombatInstigator);
+	ACombatManager* SpawnCombatManager(ALocationTemplate* CurrentLocationOfCombat);// , AActor* CombatInstigator);
 	bool SpawnEnemy(AAction* ActionInstigator);
 	bool SpawnGoodEnc(AAction* ActionInstigator);
 	//---------------------------------------------------------------------------------
@@ -348,6 +356,8 @@ public:
 	TArray<AEncounter_Bad*> Encounter_BadInPlay;
 
 	TArray<AEncounter_Good*> Encounter_GoodInPlay;
+
+	TArray<AActor*> CampfiresInPlay;
 
 	TArray<ACombatManager*> CombatManagersInPlay = {};
 

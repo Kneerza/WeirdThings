@@ -354,7 +354,7 @@ UTexture2D* AWTPlayerCharacter::GetCharacterPortrait()
 	if (!ensure(CharacterPortrait)) { return nullptr; }
 	return CharacterPortrait;
 }
-
+/*
 void AWTPlayerCharacter::CreateAvatar()
 {
 	if (!AvatarFlipbook) {
@@ -388,7 +388,7 @@ void AWTPlayerCharacter::UpdateAvatar()
 {
 	AvatarComponent->SetWorldTransform(PlayerController->GetAvailableSocketDynamicPlayerActionTransform(CurrentLocation));
 }
-
+*/
 bool AWTPlayerCharacter::SetHiredCompanion(AActor* CompanionToHire)
 {
 	if (HiredCompanion) {
