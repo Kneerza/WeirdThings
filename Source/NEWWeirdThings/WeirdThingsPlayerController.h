@@ -312,6 +312,8 @@ public:
 	void SetTimeNoon();
 	void SetTimeEvening();
 	void SetTimeNight();
+
+
 	//---------------------------------------------------------------------------------
 
 

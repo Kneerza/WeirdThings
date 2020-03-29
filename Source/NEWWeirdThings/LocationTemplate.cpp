@@ -35,6 +35,7 @@ ALocationTemplate::ALocationTemplate()
 	GroundRelativeTransform.SetScale3D(FVector(12.f, 20.f, 0.5f));
 
 	pGround->SetRelativeTransform(GroundRelativeTransform);
+	pGround->SetCastShadow(false);
 
 	//----------------------Attaching BackGround Mesh---------------------------
 	pBackGround = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BackGround"));
@@ -492,6 +493,26 @@ void ALocationTemplate::Connect(bool IsInfinite, UChildActorComponent* Parent, U
 		return;
 	}
 
+}
+
+void ALocationTemplate::MakeActionNexus(UChildActorComponent* Parent, UPaperFlipbookComponent* Connector_0, UChildActorComponent* Child_0, UPaperFlipbookComponent* Connector_1, UChildActorComponent* Child_1, UPaperFlipbookComponent* Connector_2, UChildActorComponent* Child_2)
+{
+	auto NexusAction = Cast<AAction>(Parent->GetChildActor());
+
+	AAction* Action_Child_0 = nullptr;
+	if (Child_0) { Action_Child_0 = Cast<AAction>(Child_0->GetChildActor()); }
+
+	AAction* Action_Child_1 = nullptr;
+	if (Child_1) { Action_Child_1 = Cast<AAction>(Child_1->GetChildActor()); }
+
+	AAction* Action_Child_2 = nullptr;
+	if (Child_2) { Action_Child_2 = Cast<AAction>(Child_2->GetChildActor()); }
+
+	if (Action_Child_0) { Action_Child_0->pConnector = Connector_0; NexusAction->ChildrenOfNexus.Add(Action_Child_0); Action_Child_0->Nexus = NexusAction;}
+	if (Action_Child_1) { Action_Child_1->pConnector = Connector_1; NexusAction->ChildrenOfNexus.Add(Action_Child_1); Action_Child_1->Nexus = NexusAction;}
+	if (Action_Child_2) { Action_Child_2->pConnector = Connector_2; NexusAction->ChildrenOfNexus.Add(Action_Child_2); Action_Child_2->Nexus = NexusAction;}
+
+	NexusAction->Deactivate();
 }
 
 void ALocationTemplate::ExcludeFromAvailableCampFireSocket(UPrimitiveComponent* ComponentToExclude)

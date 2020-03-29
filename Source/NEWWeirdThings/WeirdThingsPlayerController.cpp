@@ -98,6 +98,7 @@ void AWeirdThingsPlayerController::LeftClickEvents()
 void AWeirdThingsPlayerController::RightClickEvents()
 {
 
+
 	if (AreClickEventsDisabled) { return; }
 	GetComponentUnderCursor(pClickedActor, ClickedActorClassName);
 
@@ -308,6 +309,7 @@ void AWeirdThingsPlayerController::ActionLeftClickResponse()
 	//}
 	//else {
 	if (pSelectedCharacter) {
+		if (pSelectedCharacter->IsInCombat) { return; }
 		auto CurrentAction = Cast<AAction>(pClickedActor);
 		//CurrentAction->GetTypeOfLock();
 		if (CurrentAction->ActionLock[CurrentAction->CurrentLockIndex]) {
@@ -336,6 +338,7 @@ void AWeirdThingsPlayerController::ActionRightClickResponse()
 	//}
 	//else 
 	if (pSelectedCharacter) {
+		if (pSelectedCharacter->IsInCombat) { return; }
 		auto CurrentAction = Cast<AAction>(pClickedActor);
 		//CurrentAction->GetTypeOfLock();
 		if (CurrentAction->ActionLock[CurrentAction->CurrentLockIndex]) {
@@ -397,6 +400,7 @@ void AWeirdThingsPlayerController::InteractiveLocationDecorationRightClickRespon
 	*/
 
 	if (pSelectedCharacter) {
+		if (pSelectedCharacter->IsInCombat) { return; }
 		auto CurrentAction = Cast<AInteractiveLocationDecoration>(pClickedActor)->EntangledAction;
 		//CurrentAction->GetTypeOfLock();
 		if (CurrentAction->ActionLock[CurrentAction->CurrentLockIndex]) {
@@ -428,6 +432,7 @@ void AWeirdThingsPlayerController::InteractiveLocationDecorationLeftClickRespons
 	*/
 
 	if (pSelectedCharacter) {
+		if (pSelectedCharacter->IsInCombat) { return; }
 		auto CurrentAction = Cast<AInteractiveLocationDecoration>(pClickedActor)->EntangledAction;
 		//CurrentAction->GetTypeOfLock();
 		if (CurrentAction->ActionLock[CurrentAction->CurrentLockIndex]) {
@@ -500,6 +505,7 @@ void AWeirdThingsPlayerController::SelectCharacter(AActor* CharacterToSelectActo
 	if (!ensure(CharacterToSelectActor)) { return; }
 
 	auto CharacterToSelect = Cast<AWTPlayerCharacter>(CharacterToSelectActor);
+	if (CharacterToSelect->IsSleeping) { return; }
 	if (CharacterToSelect->IsSelectedForCombat) { return; }
 
 	if (pSelectedCharacter && (pSelectedCharacter!= CharacterToSelect)){
@@ -701,6 +707,10 @@ void AWeirdThingsPlayerController::Combat(ACombatManager* CombatManager)
 
 void AWeirdThingsPlayerController::InitiateCombat(AWTPlayerCharacter* Initiator)
 {
+	//if (Initiator->IsSleeping) { return; }
+	//if (Initiator->IsInCombat) { return; }
+	//if (PlayerCharacter->IsPickingEnemyToFight) { return; }
+	//if (PlayerCharacter->IsSelectedForCombat) { return; }
 	if (Initiator) {
 		auto SpawnedCombatManager = SpawnCombatManager(Cast<ALocationTemplate>(Initiator->CurrentLocation));
 	}
@@ -749,11 +759,16 @@ void AWeirdThingsPlayerController::Encounter_DeadLookForPlayerToAttack(AEncounte
 
 void AWeirdThingsPlayerController::FleeFromCombat(AWTPlayerCharacter* FleeingCharacter)
 {
+	if (FleeingCharacter->IsSleeping) { return; }
 	if (!FleeingCharacter->IsInCombat) { return; }
 
 	if (FleeingCharacter->CurrentCombatManager->IsFightInProgress) { return; }
 
-	//if (FleeingCharacter->MovementPoints < 1) { return; }
+	if (FleeingCharacter->MovementPoints < 1)
+	{ 
+		FleeingCharacter->GetExhaustion(1);
+		FleeingCharacter->MovementPoints++;
+	}
 
 	UE_LOG(LogTemp, Warning, TEXT("Fleeing from combat"))
 
@@ -1316,9 +1331,9 @@ bool AWeirdThingsPlayerController::PerformAction(AAction* Action, int32 Modifier
 				EffectTransform.SetLocation(EntangledDeadEncounter->GetActorLocation());
 				Encounter_DeadsInPlay.RemoveSingle(EntangledDeadEncounter);
 				Cast<AEncounter_Dead>(Action->EntangledDeadEncounter)->Deactivate();
-				if (!(EntangledDeadEncounter->IsOnPlot)) {
-					EntangledDeadEncounter->CreatedAction->UnregisterComponent();
-				}
+				//if (!(EntangledDeadEncounter->IsOnPlot)) {
+				//	EntangledDeadEncounter->CreatedAction->UnregisterComponent();
+				//}
 				if (BurningEffectClass) {
 
 					GetWorld()->SpawnActor<AActor>(BurningEffectClass, EffectTransform);
@@ -1949,16 +1964,22 @@ void AWeirdThingsPlayerController::SetTimeMorning()
 
 	for (int32 i = 0; i < PlayerCharacters.Num(); i++)
 	{
+		if (!PlayerCharacters[i]) { continue; }
 		if (PlayerCharacters[i]->DoesNeedToConsumeFood) {
+			
 			PlayerCharacters[i]->GetHunger(1);
 		}
-
+		if (!PlayerCharacters[i]) { continue; }
 		if (PlayerCharacters[i]->DoesNeedToSleep) {
 			PlayerCharacters[i]->GetExhaustion(1);
 		}
-
+		if (!PlayerCharacters[i]) { continue; }
 		if (PlayerCharacters[i]->DoesNeedFire) {
 			PlayerCharacters[i]->DoesNeedFire = false;
+		}
+		if (!PlayerCharacters[i]) { continue; }
+		if (PlayerCharacters[i]->IsSleeping) {
+			PlayerCharacters[i]->SetIsSleeping(false);
 		}
 	}
 
@@ -2006,16 +2027,22 @@ void AWeirdThingsPlayerController::SetTimeNoon()
 
 	for (int32 i = 0; i < PlayerCharacters.Num(); i++)
 	{
+		if (!PlayerCharacters[i]) { continue; }
 		if (PlayerCharacters[i]->DoesNeedToConsumeFood) {
+			
 			PlayerCharacters[i]->GetHunger(1);
 		}
-
+		if (!PlayerCharacters[i]) { continue; }
 		if (PlayerCharacters[i]->DoesNeedToSleep) {
 			PlayerCharacters[i]->GetExhaustion(1);
 		}
-
+		if (!PlayerCharacters[i]) { continue; }
 		if (PlayerCharacters[i]->DoesNeedFire) {
 			PlayerCharacters[i]->DoesNeedFire = false;
+		}
+		if (!PlayerCharacters[i]) { continue; }
+		if (PlayerCharacters[i]->IsSleeping) {
+			PlayerCharacters[i]->SetIsSleeping(false);
 		}
 	}
 
@@ -2039,25 +2066,37 @@ void AWeirdThingsPlayerController::SetTimeEvening()
 	//TODO collapse to function
 	for (int32 i = 0; i < Encounter_DeadsInPlay.Num(); i++)
 	{
-		Encounter_DeadsInPlay[i]->SetAwakened(true);
+		if (Encounter_DeadsInPlay[i]) {
+			Encounter_DeadsInPlay[i]->SetAwakened(true);
+		}
 	}
 
 	for (int32 i = 0; i < PlayerCharacters.Num(); i++)
 	{
+		if (!PlayerCharacters[i]) { continue; }
 		if (PlayerCharacters[i]->DoesNeedToConsumeFood) {
+			
 			PlayerCharacters[i]->GetHunger(1);
 		}
-		PlayerCharacters[i]->DoesNeedToConsumeFood = true;
-
+		if (!PlayerCharacters[i]) { continue; }
+		if (PlayerCharacters[i]) {
+			PlayerCharacters[i]->DoesNeedToConsumeFood = true;
+		}
+		if (!PlayerCharacters[i]) { continue; }
 		if (PlayerCharacters[i]->DoesNeedToSleep) {
 			PlayerCharacters[i]->GetExhaustion(1);
 		}
-
+		if (!PlayerCharacters[i]) { continue; }
 		if (!(Cast<ALocationTemplate>(PlayerCharacters[i]->CurrentLocation)->AvailableSocketCampFire.Num() < 1))
 		{
-			PlayerCharacters[i]->DoesNeedFire = true;
+			if (PlayerCharacters[i]) {
+				PlayerCharacters[i]->DoesNeedFire = true;
+			}
 		}
-
+		if (!PlayerCharacters[i]) { continue; }
+		if (PlayerCharacters[i]->IsSleeping) {
+			PlayerCharacters[i]->SetIsSleeping(false);
+		}
 	}
 
 	CurrentTimeOfDay = ETimeOfDay::Evening;
@@ -2079,20 +2118,30 @@ void AWeirdThingsPlayerController::SetTimeNight()
 
 	for (int32 i = 0; i < PlayerCharacters.Num(); i++)
 	{
+		if (!PlayerCharacters[i]) { continue; }
 		if (PlayerCharacters[i]->DoesNeedToConsumeFood) {
+			
 			PlayerCharacters[i]->GetHunger(1);
 		}
-
+		if (!PlayerCharacters[i]) { continue; }
 		if (PlayerCharacters[i]->DoesNeedToSleep) {
 			PlayerCharacters[i]->GetExhaustion(1);
 		}
-
-		PlayerCharacters[i]->DoesNeedToSleep = true;
-
+		if (!PlayerCharacters[i]) { continue; }
+		if (PlayerCharacters[i]) {
+			PlayerCharacters[i]->DoesNeedToSleep = true;
+		}
+		if (!PlayerCharacters[i]) { continue; }
 		if (!(Cast<ALocationTemplate>(PlayerCharacters[i]->CurrentLocation)->AvailableSocketCampFire.Num() < 1)) {
 			PlayerCharacters[i]->GetInsanity(1);
 
-			PlayerCharacters[i]->DoesNeedFire = false;
+			if (PlayerCharacters[i]) {
+				PlayerCharacters[i]->DoesNeedFire = false;
+			}
+		}
+		if (!PlayerCharacters[i]) { continue; }
+		if (PlayerCharacters[i]->IsSleeping) {
+			PlayerCharacters[i]->SetIsSleeping(false);
 		}
 	}
 
@@ -2159,6 +2208,11 @@ void AWeirdThingsPlayerController::RefreshCharacterMP()
 bool AWeirdThingsPlayerController::ConsumeFood(int32 FoodAmountToConsume, AWTPlayerCharacter* AffectedCharacter, int32 ActionPointsRequired) //TODO make applicable regardless selected character or not
 {
 	if (!AffectedCharacter) { return false; }
+
+	if (AffectedCharacter->IsSleeping) { return false; }
+	if (AffectedCharacter->IsInCombat) { return false; }
+	//if (PlayerCharacter->IsPickingEnemyToFight) { return; }
+	//if (PlayerCharacter->IsSelectedForCombat) { return; }
 
 	if (CurrentTimeOfDay == ETimeOfDay::Evening) {
 
@@ -2261,6 +2315,11 @@ bool AWeirdThingsPlayerController::GetWood(int32 WoodAmountToGet)
 	//GetWorld()->SpawnActor<AActor>(CampFireClassToSpawn, PlayerCharacter->CurrentLocation->SocketCampFire->GetComponentLocation());
 	//PlayerCharacter->CurrentLocation->SocketCampFire;
 
+	 if (PlayerCharacter->IsSleeping) { return; }
+	 if (PlayerCharacter->IsInCombat) { return; }
+	 //if (PlayerCharacter->IsPickingEnemyToFight) { return; }
+	 //if (PlayerCharacter->IsSelectedForCombat) { return; }
+
 	 int32 ActionPointsRequired = 1;
 
 	 if ((CurrentTimeOfDay == ETimeOfDay::Evening)) {
@@ -2321,6 +2380,10 @@ bool AWeirdThingsPlayerController::GetWood(int32 WoodAmountToGet)
 
 void AWeirdThingsPlayerController::Sleep(AWTPlayerCharacter* PlayerCharacter)
 {
+	if (PlayerCharacter->IsSleeping) { return; }
+	if (PlayerCharacter->IsInCombat) { return; }
+	//if (PlayerCharacter->IsPickingEnemyToFight) { return; }
+	//if (PlayerCharacter->IsSelectedForCombat) { return; }
 	if (PlayerCharacter->CurrentActionPoints < 1)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Not enough AP"))
@@ -2329,15 +2392,19 @@ void AWeirdThingsPlayerController::Sleep(AWTPlayerCharacter* PlayerCharacter)
 
 	PlayerCharacter->RemoveExhaustion(1);
 
+	PlayerCharacter->SetIsSleeping(true);
 		PlayerCharacter->CurrentActionPoints = 0;
 		PlayerCharacter->MovementPoints = 0;
+		if (PlayerCharacter == pSelectedCharacter) { DeselectCharacter(pSelectedCharacter); }
 }
 
 void AWeirdThingsPlayerController::AddActionPointToEveryCharacter()
 {
 	for (int32 i = 0; i < PlayerCharacters.Num(); i++)
 	{
-		PlayerCharacters[i]->CurrentActionPoints = PlayerCharacters[i]->ActionPoints;
+		if (PlayerCharacters[i]) {
+			PlayerCharacters[i]->CurrentActionPoints = PlayerCharacters[i]->ActionPoints;
+		}
 	}
 }
 

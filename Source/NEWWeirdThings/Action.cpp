@@ -221,6 +221,7 @@ void AAction::Unlock()
 
 void AAction::Deactivate()
 {
+	UE_LOG(LogTemp, Error, TEXT("Here"))
 	// --- Deactivating arrow actions ---
 
 	if (ActionType == EActionType::PickUpItem) {
@@ -230,11 +231,13 @@ void AAction::Deactivate()
 
 	if ((IsWorkedOut)&&((ActionType == EActionType::ArrowRight_Bad) || (ActionType == EActionType::ArrowRight_Good) || (ActionType == EActionType::ArrowRight_Ugly) || (ActionType == EActionType::ArrowUp_Plot) || (ActionType == EActionType::Teleport)))
 	{
+		
 		UpdateArrowActionVisual();
 	}
 	if (IsInfinite){}
 	else if (!((ActionType == EActionType::Arrow_Move) && (!FirstActionInChain))){
 		// --- Changing color on deactivated Action ---
+		
 		ActionFlipBookComponent->SetSpriteColor(FLinearColor(0.03f, 0.03f, 0.03f, 1));
 		if (pActionForcedComponent) {
 			pActionForcedComponent->SetSpriteColor(FLinearColor(0.03f, 0.03f, 0.03f, 1));
@@ -256,6 +259,8 @@ void AAction::Deactivate()
 		Child->Activate();
 	}
 
+	
+
 	if (FirstActionInChain)
 	{
 		FirstActionInChain->Activate();
@@ -270,10 +275,32 @@ void AAction::Deactivate()
 	{
 		ModifierVisual->SetSpriteColor(FLinearColor(0.03f, 0.03f, 0.03f, 1));
 	}
+
+	IsDeactivated = true;
+
+	if (Nexus) {
+		Nexus->Activate();
+		if (pConnector)
+		{
+			pConnector->SetSpriteColor(FLinearColor(0.03f, 0.03f, 0.03f, 1));
+		}
+	}
 }
 
 void AAction::Activate()
 {
+	if (ChildrenOfNexus.Num() > 0) {
+		for (int32 i = 0; i < ChildrenOfNexus.Num(); i++)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Checking if nexus should be activated"))
+			if (ChildrenOfNexus[i]) {
+				if(!(ChildrenOfNexus[i]->IsDeactivated)){ 
+					UE_LOG(LogTemp, Warning, TEXT("Active child of Nexus: %s"),*ChildrenOfNexus[i]->GetName())
+					return; 
+				}
+			}
+		}
+	}
 	// --- Setting color of activated Action ---
 	ActionFlipBookComponent->SetSpriteColor(FLinearColor(1.f, 1.f, 1.f, 1.f));
 
@@ -289,6 +316,7 @@ void AAction::Activate()
 	{
 		pConnector->SetSpriteColor(FLinearColor(1.f, 1.f, 1.f, 1));
 	}
+	IsDeactivated = false;
 }
 
 void AAction::SetUpActionAsForced()

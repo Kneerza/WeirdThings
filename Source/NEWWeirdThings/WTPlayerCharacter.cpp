@@ -85,6 +85,11 @@ void AWTPlayerCharacter::Tick(float DeltaTime)
 
 }
 
+void AWTPlayerCharacter::SetIsSleeping(bool IsCharacterSleeping)
+{
+	IsSleeping = IsCharacterSleeping;
+}
+
 void AWTPlayerCharacter::SetSelected(bool IsSelected)
 {
 	if (IsSelected) {
@@ -193,6 +198,8 @@ void AWTPlayerCharacter::GetInjury(int32 InjuryAmountToGet)
 			//	ItemToPick->Deactivate();
 		}
 	}
+	CheckIfDied();
+	/*
 	if (this->Injuries.Last() != EDurabilityState::Empty) { 
 
 		//if (PlayerController->PlayerCharacters.Contains(this)) {
@@ -201,7 +208,7 @@ void AWTPlayerCharacter::GetInjury(int32 InjuryAmountToGet)
 
 		Die(); 
 		return; 
-	}
+	}*/
 }
 
 void AWTPlayerCharacter::GetHunger(int32 HungerAmountToGet)
@@ -216,7 +223,9 @@ void AWTPlayerCharacter::GetHunger(int32 HungerAmountToGet)
 			//	ItemToPick->Deactivate();
 		}
 	}
-	if (this->Injuries.Last() != EDurabilityState::Empty) { this->Destroy(); return; }
+
+	CheckIfDied();
+	//if (this->Injuries.Last() != EDurabilityState::Empty) { this->Destroy(); return; }
 }
 
 void AWTPlayerCharacter::GetInsanity(int32 InsanityAmountToGet)
@@ -231,7 +240,8 @@ void AWTPlayerCharacter::GetInsanity(int32 InsanityAmountToGet)
 			//	ItemToPick->Deactivate();
 		}
 	}
-	if (this->Injuries.Last() != EDurabilityState::Empty) { this->Destroy(); return; }
+	CheckIfDied();
+	//if (this->Injuries.Last() != EDurabilityState::Empty) { this->Destroy(); return; }
 }
 
 void AWTPlayerCharacter::GetExhaustion(int32 ExhaustionAmountToGet)
@@ -246,7 +256,8 @@ void AWTPlayerCharacter::GetExhaustion(int32 ExhaustionAmountToGet)
 			//	ItemToPick->Deactivate();
 		}
 	}
-	if (this->Injuries.Last() != EDurabilityState::Empty) { this->Destroy(); return; }
+	CheckIfDied();
+	//if (this->Injuries.Last() != EDurabilityState::Empty) { this->Destroy(); return; }
 }
 
 void AWTPlayerCharacter::GetActionPoints(int32 ActionPointsAmountToGet)
@@ -347,6 +358,12 @@ void AWTPlayerCharacter::SortInjuries()
 			Injuries.Swap(i, (i + 1));
 		}
 	}
+
+}
+
+void AWTPlayerCharacter::CheckIfDied()
+{
+	if (this->Injuries.Last() != EDurabilityState::Empty) { this->Die(); return; }
 }
 
 UTexture2D* AWTPlayerCharacter::GetCharacterPortrait()
@@ -354,41 +371,7 @@ UTexture2D* AWTPlayerCharacter::GetCharacterPortrait()
 	if (!ensure(CharacterPortrait)) { return nullptr; }
 	return CharacterPortrait;
 }
-/*
-void AWTPlayerCharacter::CreateAvatar()
-{
-	if (!AvatarFlipbook) {
 
-		UE_LOG(LogTemp, Error, TEXT("Avatar flipbook is not set"))
-			return;
-	}
-
-	if (!CurrentLocation) {
-
-		UE_LOG(LogTemp, Error, TEXT("Current Location does not exist"))
-			return;
-	}
-	AvatarComponent = NewObject<UPaperFlipbookComponent>(this, ("Avatar"));
-
-	AvatarComponent->RegisterComponent();
-
-	FCollisionResponseContainer AvatarComponentResponseContainer;
-	AvatarComponentResponseContainer.SetAllChannels(ECollisionResponse::ECR_Overlap);
-	AvatarComponentResponseContainer.SetResponse(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
-	AvatarComponentResponseContainer.SetResponse(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
-
-	AvatarComponent->SetCollisionResponseToChannels(AvatarComponentResponseContainer);
-	AvatarComponent->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
-
-	AvatarComponent->SetFlipbook(AvatarFlipbook);
-	AvatarComponent->SetWorldTransform(PlayerController->GetAvailableSocketDynamicPlayerActionTransform(CurrentLocation));
-}
-
-void AWTPlayerCharacter::UpdateAvatar()
-{
-	AvatarComponent->SetWorldTransform(PlayerController->GetAvailableSocketDynamicPlayerActionTransform(CurrentLocation));
-}
-*/
 bool AWTPlayerCharacter::SetHiredCompanion(AActor* CompanionToHire)
 {
 	if (HiredCompanion) {
@@ -448,14 +431,26 @@ void AWTPlayerCharacter::Die()
 
 	if (PlayerController->PlayerCharacters.Contains(this))
 	{
-		PlayerController->PlayerCharacters.RemoveSingle(this);
+		auto CharacterIndex = PlayerController->PlayerCharacters.Find(this);
+		PlayerController->PlayerCharacters[CharacterIndex] = nullptr;
 		PlayerController->DiedCharacters.Add(this);
 	}
 	SetActorEnableCollision(false);
 	IsDied = true;
 	SelectingArrow->DestroyComponent();
 
-	if (PlayerController->PlayerCharacters.Num() < 1)
+	auto CharactersInPlay = PlayerController->PlayerCharacters;
+	int32 NumberOfCharactersInPlay = 0;
+	for (int32 i = 0; i< CharactersInPlay.Num(); i++)
+	{
+		if (CharactersInPlay[i])
+		{
+			NumberOfCharactersInPlay++;
+		//	PlayerController->PlayerCharacters.RemoveSingle(CharactersInPlay[i]);
+		}
+	}
+
+	if (NumberOfCharactersInPlay < 1)
 	{
 		if (PlayerController->SurvivedCharacters.IsValidIndex(0))
 		{
@@ -465,5 +460,6 @@ void AWTPlayerCharacter::Die()
 		{
 			PlayerController->IsGameLost = true;
 		}
+		PlayerController->DisableInput(PlayerController);
 	}
 }

@@ -228,6 +228,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void IncludeInAvailableDynamicPlayerActionSocket(UPrimitiveComponent* ComponentToInclude);
 
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void MakeActionNexus(UChildActorComponent* Parent, UPaperFlipbookComponent* Connector_0, UChildActorComponent* Child_0, UPaperFlipbookComponent* Connector_1, UChildActorComponent* Child_1, UPaperFlipbookComponent* Connector_2, UChildActorComponent* Child_2);
 	//UFUNCTION(BlueprintCallable, Category = "Custom")
 	//	void TreatAsSameAction(TArray<AAction*> SameActions);
 

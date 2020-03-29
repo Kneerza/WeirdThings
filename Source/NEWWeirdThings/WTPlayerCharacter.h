@@ -49,10 +49,15 @@ public:
 		bool IsDied = false;
 
 	UPROPERTY(BlueprintReadWrite, Category = Setup)
-	bool IsInCombat = false;
+		bool IsSleeping = false;
 	UPROPERTY(BlueprintReadWrite, Category = Setup)
-	bool IsPickingEnemyToFight = false;
+		bool IsInCombat = false;
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
+		bool IsPickingEnemyToFight = false;
 	bool IsSelectedForCombat = false;
+
+	void SetIsSleeping(bool IsCharacterSleeping);
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		UTexture2D* CharacterPortrait;
@@ -160,6 +165,8 @@ public:
 	//	void CreateAvatar();
 
 	//void UpdateAvatar();
+
+	void CheckIfDied();
 
 	void GetItem(AItemTemplate* ItemToPick);
 

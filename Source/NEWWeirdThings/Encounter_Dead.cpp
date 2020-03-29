@@ -124,18 +124,24 @@ void AEncounter_Dead::Deactivate()
 {
 	Super::Deactivate();
 
-	UE_LOG(LogTemp, Error, TEXT("Deactivating encounter"))
-
 	AwakenedDeadFlipbookComponent->OnEndCursorOver.Broadcast(AwakenedDeadFlipbookComponent);
 	//AwakenedDeadFlipbookComponent->DestroyComponent();
 	//PlayerController->CurrentMouseCursor = EMouseCursor::Default;
 	//SetIsHovered(false);
 	SleepingDeadFlipbookComponent->OnEndCursorOver.Broadcast(SleepingDeadFlipbookComponent);
 	//SleepingDeadFlipbookComponent->DestroyComponent();
-
+	
 	if (CreatedAction)
 	{
-		CreatedAction->UnregisterComponent();
+		if (IsOnPlot) {
+			UE_LOG(LogTemp, Error, TEXT("Deactivating action from encounter"))
+				if (!CreatedAction){ UE_LOG(LogTemp, Error, TEXT("No Action to deactivate")) }
+			
+			Cast<AAction>(CreatedAction->GetChildActor())->Deactivate();
+		}
+		else {
+			CreatedAction->UnregisterComponent();
+		}
 	}
 
 	if (PlayerController->Encounter_DeadsInPlay.Contains(this)) {

@@ -73,7 +73,13 @@ public:
 	// Sets default values for this actor's properties
 	AAction();
 
+	bool IsDeactivated = false;
+
 	AWeirdThingsPlayerController* PlayerController = nullptr;
+
+	TArray<AAction*> ChildrenOfNexus = {};
+
+	AAction* Nexus;
 
 	// --- Action setup parameters ---
 	UPROPERTY(EditAnywhere, Category = Setup)
