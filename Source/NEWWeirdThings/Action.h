@@ -91,6 +91,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		bool IsInfinite = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+		bool IsOneTimeUse;
+
 	UPROPERTY(EditAnywhere, Category = Setup)
 		int32 Modifier = 1;
 
@@ -144,6 +147,7 @@ public:
 	AAction* Child = nullptr;
 	UPaperFlipbookComponent* pActionForcedComponent;
 	AActor* EntangledInteractiveLocationDecoration = nullptr;
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
 	AActor* LocationArrowPointsTo = nullptr;
 	//ALocationTemplate* LocationArrowPointsTo = nullptr;
 

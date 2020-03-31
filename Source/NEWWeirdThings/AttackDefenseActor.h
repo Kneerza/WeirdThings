@@ -14,6 +14,7 @@ class UBoxComponent;
 class AWTEnemy;
 class AWTPlayerCharacter;
 class UPaperFlipbook;
+class ATimer;
 
 UCLASS()
 class NEWWEIRDTHINGS_API AAttackDefenseActor : public AActor
@@ -43,12 +44,17 @@ public:
 	TArray<AActor*> OverlappingActors = { nullptr };
 
 	FVector StartLocation;
+	int32 StartLocationOffset = 0;
+
 	FVector EndLocation;
 
 	AWTEnemy* Enemy = nullptr;
 	AWTPlayerCharacter* PlayerCharacter = nullptr;
 
+	int32 NumberOfActorsInSameRow = 1;
 	bool IsAttacking = false;
+	double TimeWhenAttackStarted = 0;
+	bool DidAttackStart = false;
 
 	bool IsLast = false;
 

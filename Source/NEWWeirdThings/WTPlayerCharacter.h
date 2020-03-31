@@ -74,6 +74,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		int32 MovementPoints = 3;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int32 InitialMovementPoints = 3;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		AActor* CurrentLocation = nullptr;
 

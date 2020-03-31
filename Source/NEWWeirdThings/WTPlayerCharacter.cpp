@@ -97,9 +97,10 @@ void AWTPlayerCharacter::SetSelected(bool IsSelected)
 		SetSelectedForPickingEnemy(false);
 	}
 
-	SelectingArrow->SetSprite(SelectingArrowSprite);
-	SelectingArrow->SetVisibility(IsSelected);
-
+	if (SelectingArrow) {
+		SelectingArrow->SetSprite(SelectingArrowSprite);
+		SelectingArrow->SetVisibility(IsSelected);
+	}
 }
 
 void AWTPlayerCharacter::SetSelectedForCombat(bool IsSelected, AItemTemplate* ItemPicked, AEncounter* CurrentEnemy)
@@ -115,9 +116,17 @@ void AWTPlayerCharacter::SetSelectedForCombat(bool IsSelected, AItemTemplate* It
 
 	IsSelectedForCombat = IsSelected;
 
-	if (ItemPicked)
-	{
-		ItemPickedForFight = ItemPicked;
+	if (IsSelected) {
+		if (ItemPicked)
+		{
+			ItemPickedForFight = ItemPicked;
+		}
+		else {
+			ItemPickedForFight = nullptr;
+		}
+	}
+	else {
+		ItemPickedForFight = nullptr;
 	}
 
 	if (CurrentEnemy)
@@ -158,7 +167,7 @@ void AWTPlayerCharacter::RefreshItems()
 		}
 		else if (i < 3) {
 			Backpack[i]->IsActive = false;
-			//pAttackDefenseComponent->DefensePoolRow_1.Append(Backpack[i]->DefensePoolRow_1);
+			pAttackDefenseComponent->DefensePoolRow_1.Append(Backpack[i]->DefensePoolRow_1);
 		}
 		else {
 			Backpack[i]->IsActive = false;
@@ -386,6 +395,7 @@ bool AWTPlayerCharacter::SetHiredCompanion(AActor* CompanionToHire)
 
 void AWTPlayerCharacter::Survive()
 {
+	/*
 	if (PlayerController->PlayerCharacters.Contains(this))
 	{
 		PlayerController->PlayerCharacters.RemoveSingle(this);
@@ -405,6 +415,40 @@ void AWTPlayerCharacter::Survive()
 		{
 			PlayerController->IsGameLost = true;
 		}
+	}
+	*/
+	if (PlayerController->PlayerCharacters.Contains(this))
+	{
+		auto CharacterIndex = PlayerController->PlayerCharacters.Find(this);
+		PlayerController->PlayerCharacters[CharacterIndex] = nullptr;
+		PlayerController->SurvivedCharacters.Add(this);
+	}
+	SetActorEnableCollision(false);
+	SetActorHiddenInGame(true);
+	IsSurvived = true;
+
+	auto CharactersInPlay = PlayerController->PlayerCharacters;
+	int32 NumberOfCharactersInPlay = 0;
+	for (int32 i = 0; i < CharactersInPlay.Num(); i++)
+	{
+		if (CharactersInPlay[i])
+		{
+			NumberOfCharactersInPlay++;
+			//	PlayerController->PlayerCharacters.RemoveSingle(CharactersInPlay[i]);
+		}
+	}
+
+	if (NumberOfCharactersInPlay < 1)
+	{
+		if (PlayerController->SurvivedCharacters.IsValidIndex(0))
+		{
+			PlayerController->IsGameFinished = true;
+		}
+		else
+		{
+			PlayerController->IsGameLost = true;
+		}
+		PlayerController->DisableInput(PlayerController);
 	}
 }
 

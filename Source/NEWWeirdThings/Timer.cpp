@@ -22,6 +22,7 @@ void ATimer::BeginPlay()
 	//CombatManager->IsFightInProgress = true;
 	TimeCreated = FPlatformTime::Seconds();
 	Cast< AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController())->AreClickEventsDisabled = true;
+	UE_LOG(LogTemp, Error, TEXT("Timer is spawned"))
 }
 
 // Called every frame
@@ -41,7 +42,7 @@ void ATimer::Tick(float DeltaTime)
 			CombatManager->IsFightInProgress = false;
 		}
 
-	
+		UE_LOG(LogTemp, Error, TEXT("Timer is dead"))
 		Cast< AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController())->AreClickEventsDisabled = false;
 		Destroy();
 	}

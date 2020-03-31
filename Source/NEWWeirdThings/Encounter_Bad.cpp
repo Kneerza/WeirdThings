@@ -42,7 +42,7 @@ void AEncounter_Bad::Deactivate()
 	Super::Deactivate();
 
 	if (PlayerController->Encounter_BadInPlay.Contains(this)) {
-		PlayerController->Encounter_BadInPlay.Remove(Cast<AEncounter_Bad>(this));
+		PlayerController->Encounter_BadInPlay.Remove(this);
 	}
 
 	Destroy();

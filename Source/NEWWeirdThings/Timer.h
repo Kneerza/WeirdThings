@@ -27,7 +27,7 @@ public:
 
 	// TODO make time frames dependable
 	float TimeCreated;
-	float LifeTime = 2.7f;
+	float LifeTime = 0;
 
 	void SetCombatManager(ACombatManager* CombatManagerToSet);
 

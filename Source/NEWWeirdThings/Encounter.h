@@ -25,6 +25,8 @@ public:
 	// Sets default values for this pawn's properties
 	AEncounter();
 
+	//bool IsAggressive = true;
+
 	bool IsInCombat = false;
 
 	AWeirdThingsPlayerController* PlayerController = nullptr;

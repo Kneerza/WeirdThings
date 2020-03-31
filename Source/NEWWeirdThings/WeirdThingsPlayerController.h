@@ -56,6 +56,16 @@ public:
 		bool IsGameLost = false;
 
 
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
+	FString RollVsDurabilityString = "Roll 0 vs 0 Durability";
+
+
+
+
+
+
+
+
 
 
 	//---------------- Click response ----------------
@@ -195,6 +205,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void InitiateCombat(AWTPlayerCharacter* Initiator);
 
+	void InitiateCombat(AEncounter* Initiator);
+
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void EndCombat();
 
@@ -224,6 +236,8 @@ public:
 	void PassItemToPlayer(TSubclassOf<AItemTemplate> ItemToPickClass);
 
 	void ItemDurabilityCheck(AWTPlayerCharacter* ItemOwner, AItemTemplate* ItemToCheck, EItemType ItemTypeToCheck);
+
+	AItemTemplate* ItemDurabilityCheck(AWTPlayerCharacter* ItemOwner, AItemTemplate* ItemToCheck);
 	//---------------------------------------------------------------------------------
 
 
@@ -243,7 +257,7 @@ public:
 	
 	ALocationTemplate* SpawnLocation(AAction* Action, bool IsSpawningOnRight, bool IsPlotLocation);
 	AItemTemplate* SpawnItem(TSubclassOf<AItemTemplate> ItemToSpawnClass);
-	ACombatManager* SpawnCombatManager(ALocationTemplate* CurrentLocationOfCombat);// , AActor* CombatInstigator);
+	ACombatManager* SpawnCombatManager(ALocationTemplate* CurrentLocationOfCombat, bool IsInitiatedByEncounter);// , AActor* CombatInstigator);
 	bool SpawnEnemy(AAction* ActionInstigator);
 	bool SpawnGoodEnc(AAction* ActionInstigator);
 	//---------------------------------------------------------------------------------
@@ -253,12 +267,18 @@ public:
 
 	//------------------------------- Actions -----------------------------------------
 
-	bool Trade(EActionType ResultOfTrading, EActionLockType ItemRequiredToTrade);
+	bool Trade(EActionType ResultOfTrading, EActionLockType ItemRequiredToTrade, bool IsRight);
 	bool PerformAction(AAction* Action, int32 Modifier);
 	void TryToUnlock(AAction* CurrentAction);
 
+	void DeactivateAction(AActor* ActionToDeactivate);
+	void ActivateAction(AActor* ActionToActivate);
+
 	bool CanLeftActiveItemUnlock(EItemType BackpackItemType);
 	bool CanRightActiveItemUnlock(EItemType BackpackItemType);
+
+	bool CanLeftActiveItemUnlock(EItemValue BackpackItemValue);
+	bool CanRightActiveItemUnlock(EItemValue BackpackItemValue);
 
 	bool FindAndUseItemToUnlock(EItemType BackpackItemType);
 	bool FindAndUseItemToUnlock(EItemValue BackpackItemValue);

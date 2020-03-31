@@ -99,6 +99,17 @@ void AEncounter_Dead::SetAwakened(bool IsAwakened)
 		AwakenedDeadFlipbookComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		SleepingDeadFlipbookComponent->SetHiddenInGame(false);
 	}
+	if (CreatedAction) {
+		UE_LOG(LogTemp, Error, TEXT("Dead created action exist: %s"),*CreatedAction->GetName())
+		if (IsAwakened) {
+			//UE_LOG(LogTemp, Error, TEXT("Dead created action deactivated"))
+			PlayerController->DeactivateAction(CreatedAction->GetChildActor());
+			auto i = CreatedAction->GetChildActor();
+		}else{
+			PlayerController->ActivateAction(CreatedAction->GetChildActor());
+			//UE_LOG(LogTemp, Error, TEXT("Dead created action Activated"))
+	}
+	}
 	return;
 }
 
@@ -113,6 +124,7 @@ void AEncounter_Dead::CreateDynamicAction()
 	else {
 		UE_LOG(LogTemp, Warning, TEXT("Encounter Dead has no ActionClassToSpawn"))
 	}
+	if (CreatedAction && IsAwake) { CreatedAction->Deactivate(); }
 }
 
 void AEncounter_Dead::SetAction(UChildActorComponent* ActionToSet)

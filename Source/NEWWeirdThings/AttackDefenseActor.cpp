@@ -78,19 +78,27 @@ void AAttackDefenseActor::Tick(float DeltaTime)
 	auto Speed = DeltaTime *30;
 
 	if (IsAttacking) {
-		if ((FPlatformTime::Seconds() - CreationTime) > HoldTime) {
-			if (GetActorLocation().Z < (StartLocation.Z + 1000) && (GetActorLocation().Y == StartLocation.Y))
+	
+		if (!DidAttackStart) {
+			TimeWhenAttackStarted = FPlatformTime::Seconds();
+			DidAttackStart = true;
+		}
+		if ((FPlatformTime::Seconds() - TimeWhenAttackStarted /*CreationTime*/) > HoldTime) {
+			if (GetActorLocation().Z < (StartLocation.Z + 280 + StartLocationOffset + (140*NumberOfActorsInSameRow)) && (GetActorLocation().Y == StartLocation.Y))
 			{
 				SetActorLocation((GetActorLocation() + FVector(0.f, 0.f, 40* Speed)));
 			}
 			else if (GetActorLocation().Y == StartLocation.Y)
 			{
-				SetActorLocation(EndLocation + FVector(0.f, 0.f, 1400.f));
+				SetActorLocation(EndLocation + FVector(0.f, 0.f, 1200.f));// +(100 * NumberOfActorsInSameRow)));
 			}
 			else
 			{
 				SetActorLocation((GetActorLocation() + FVector(0.f, 0.f, -40 * Speed)));
 			}
+		}
+		if ((GetActorLocation().Z + 100) < EndLocation.Z) {
+			Destroy();
 		}
 	}
 
@@ -109,16 +117,19 @@ void AAttackDefenseActor::Initialize()
 		{
 		case EDefenseType::No_Defense:
 
+			UE_LOG(LogTemp, Warning, TEXT("NO DEFENSE!!!"))
 			break;
 
 		case EDefenseType::Absorb:
 
+			UE_LOG(LogTemp, Warning, TEXT("ABSORB!!!"))
 			AttackDefenseFlipBookComponent->SetFlipbook(LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/DefenseType_Absorb_Flipbook.DefenseType_Absorb_Flipbook'"))));
 
 			break;
 
 		case EDefenseType::Evade:
 
+			UE_LOG(LogTemp, Warning, TEXT("EVADE!!!"))
 			AttackDefenseFlipBookComponent->SetFlipbook(LoadObject<UPaperFlipbook>(nullptr, (TEXT("PaperFlipbook'/Game/Blueprints/DefenseType_Evade_Flipbook.DefenseType_Evade_Flipbook'"))));
 
 			break;
@@ -196,7 +207,8 @@ void AAttackDefenseActor::CollisionResolve()
 
 
 	if (!ensure(Cast<AAttackDefenseActor>(OverlappingActors[0]))) { return; }
-	EAttackType OverlappingActorAttackState = Cast<AAttackDefenseActor>(OverlappingActors[0])->AttackState;
+	auto  OverlappingActor = Cast<AAttackDefenseActor>(OverlappingActors[0]);
+	EAttackType OverlappingActorAttackState = OverlappingActor->AttackState;
 
 	if (AttackState != EAttackType::No_Attack) { return; }
 	if (DefenseState == EDefenseType::Absorb)
@@ -211,6 +223,9 @@ void AAttackDefenseActor::CollisionResolve()
 			break;
 
 		case EAttackType::Blunt:
+
+			OverlappingActor->AttackState = EAttackType::Sharp;
+			OverlappingActor->Initialize();
 
 			Destroy();
 

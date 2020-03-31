@@ -53,6 +53,9 @@ public:
 	AItemTemplate();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
+	int32 Durability = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		TArray<EAttackType> AttackPoolRow_1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)

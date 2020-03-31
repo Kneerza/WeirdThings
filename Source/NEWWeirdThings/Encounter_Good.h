@@ -18,6 +18,8 @@ class NEWWEIRDTHINGS_API AEncounter_Good : public AEncounter
 	
 public:
 
+	bool IsHired = false;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		UTexture2D* LBItemToSell = nullptr;
 
@@ -46,6 +48,8 @@ public:
 		void SetIsHovered(bool IsHovered);
 	
 	void SetAsHired();
+
+	virtual void Deactivate() override;
 
 protected:
 

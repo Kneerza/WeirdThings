@@ -221,10 +221,17 @@ void AAction::Unlock()
 
 void AAction::Deactivate()
 {
-	UE_LOG(LogTemp, Error, TEXT("Here"))
+	
 	// --- Deactivating arrow actions ---
 
+	UE_LOG(LogTemp, Error, TEXT("Action points required: %i"), this->ActionPointsRequired)
+
 	if (ActionType == EActionType::PickUpItem) {
+		Destroy();
+		return;
+	}
+
+	if (IsOneTimeUse) {
 		Destroy();
 		return;
 	}
@@ -253,12 +260,27 @@ void AAction::Deactivate()
 	}
 	
 	// --- Changing color of connector and activating ChildAction (if there are any) 
-	if (Child && pConnector)
-	{
-		pConnector->SetSpriteColor(FLinearColor(0.03f, 0.03f, 0.03f, 1));
+
+	if (Child)
+	{ 
 		Child->Activate();
 	}
 
+	if (pConnector)
+	{
+		pConnector->SetSpriteColor(FLinearColor(0.03f, 0.03f, 0.03f, 1));
+	}
+	else {
+		UE_LOG(LogTemp, Error, TEXT("No connector to deactivate"))
+	}
+	/*
+	if (Child && pConnector)
+	{
+		
+		pConnector->SetSpriteColor(FLinearColor(0.03f, 0.03f, 0.03f, 1));
+		Child->Activate();
+	}
+	*/
 	
 
 	if (FirstActionInChain)
@@ -277,7 +299,7 @@ void AAction::Deactivate()
 	}
 
 	IsDeactivated = true;
-
+	
 	if (Nexus) {
 		Nexus->Activate();
 		if (pConnector)
@@ -285,6 +307,7 @@ void AAction::Deactivate()
 			pConnector->SetSpriteColor(FLinearColor(0.03f, 0.03f, 0.03f, 1));
 		}
 	}
+	
 }
 
 void AAction::Activate()

@@ -184,7 +184,9 @@ public:
 
 	TArray<UChildActorComponent*> DynamicAction = { nullptr, nullptr, nullptr };
 
-	void CreateDynamicAction(TSubclassOf<AAction> ActionClass, UChildActorComponent* ActorToEntangleWith, ALocationTemplate* LocationInstigator);
+	void CreateDynamicAction(TSubclassOf<AAction> ActionClass, ALocationTemplate* LocationInstigator);// UChildActorComponent* ActorToEntangleWith, ALocationTemplate* LocationInstigator);
+
+	void CreateDoorComponent(FVector Location);
 
 	UPROPERTY(EditAnywhere, Category = "Arrow")
 		bool HasArrowUp = true;

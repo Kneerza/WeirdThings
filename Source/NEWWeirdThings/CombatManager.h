@@ -22,6 +22,7 @@ public:
 	// Sets default values for this actor's properties
 	ACombatManager();
 
+	bool IsInitiatedByCharacter = false;
 	bool IsFightInProgress = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)

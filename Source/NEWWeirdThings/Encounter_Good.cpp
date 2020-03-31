@@ -8,7 +8,7 @@ void AEncounter_Good::BeginPlay()
 {
 	Super::BeginPlay();
 
-
+	//IsAggressive = false;
 	auto PlayerController = (Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController()));
 
 	PlayerController->Encounter_GoodInPlay.Add(this);
@@ -17,7 +17,7 @@ void AEncounter_Good::BeginPlay()
 		CurrentLocation = GetParentActor();
 	}
 
-
+	UE_LOG(LogTemp, Error, TEXT("WakeUp!"))
 }
 
 void AEncounter_Good::SetIsHovered(bool IsHovered)
@@ -36,5 +36,17 @@ void AEncounter_Good::SetIsHovered(bool IsHovered)
 
 void AEncounter_Good::SetAsHired()
 {
+	IsHired = true;
 	DestroyHealthWidget();
+}
+
+void AEncounter_Good::Deactivate()
+{
+	Super::Deactivate();
+
+	if (PlayerController->Encounter_GoodInPlay.Contains(this)) {
+		PlayerController->Encounter_GoodInPlay.Remove(this);
+	}
+
+	Destroy();
 }

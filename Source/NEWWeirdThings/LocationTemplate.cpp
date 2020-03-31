@@ -268,7 +268,7 @@ ALocationTemplate::ALocationTemplate()
 	SocketEncounter_Good_2->CastShadow = false;
 	AvailableSocketEncounter_Good.Emplace(SocketEncounter_Good_2);
 
-	OriginalPosition = FVector(-526.f, 1008.f, -907.f);
+	OriginalPosition = FVector(-526.f, 1008.f, -807.f);
 	Scale = FVector(1.f, 1.f, 1.f);
 	
 	SocketDynamicAction_0 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SocketDynamicAction_0"));
@@ -301,7 +301,7 @@ ALocationTemplate::ALocationTemplate()
 	SocketDynamicAction_2->CastShadow = false;
 	AvailableSocketDynamicAction.Emplace(SocketDynamicAction_2);
 
-	OriginalPosition = FVector(-526.f, -852.f, -907.f);
+	OriginalPosition = FVector(-526.f, -852.f, -807.f);
 
 	SocketDynamicPlayerAction_0 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SocketPlayerDynamicAction_0"));
 	SocketDynamicPlayerAction_0->SetupAttachment(pRootComponent);
@@ -396,6 +396,13 @@ void ALocationTemplate::Tick(float DeltaTime)
 
 }
 
+void ALocationTemplate::CreateDoorComponent(FVector Location)
+{
+	Door = NewObject<UChildActorComponent>(this, ("Door"));
+	Door->RegisterComponent();
+	Door->SetWorldLocation(Location);
+}
+
 void ALocationTemplate::ExcludeFromAvailablePlayerSockets(UPrimitiveComponent* ComponentToExclude)
 {
 	AvailableSocketPlayer.RemoveSingle(Cast<UStaticMeshComponent>(ComponentToExclude));
@@ -447,42 +454,62 @@ void ALocationTemplate::Connect(bool IsInfinite, UChildActorComponent* Parent, U
 	if (Action_Child_0) {
 		ParentAction->Child = Action_Child_0;
 		ParentAction->pConnector = Connector_0;
-		Action_Child_0->Deactivate();
+		//Action_Child_0->Deactivate();
 	}
 
 	if (Action_Child_1) {
 		Action_Child_0->Child = Action_Child_1;
 		Action_Child_0->pConnector = Connector_1;
-		Action_Child_1->Deactivate();
+		Action_Child_0->Deactivate();
+		//Action_Child_1->Deactivate();
 	}
 	else if(IsInfinite){
 		Action_Child_0->FirstActionInChain = ParentAction;
+		Action_Child_0->Deactivate();
+		return;
+	}
+	else {
+		Action_Child_0->Deactivate();
 		return;
 	}
 
 	if (Action_Child_2) {
 		Action_Child_1->Child = Action_Child_2;
 		Action_Child_1->pConnector = Connector_2;
-		Action_Child_2->Deactivate(); 
+		Action_Child_1->Deactivate();
+		//Action_Child_2->Deactivate(); 
 	}
 	else if (IsInfinite) {
 		Action_Child_1->FirstActionInChain = ParentAction;
+		Action_Child_1->Deactivate();
+		return;
+	}
+	else {
+		Action_Child_1->Deactivate();
 		return;
 	}
 
 	if (Action_Child_3) {
 		Action_Child_2->Child = Action_Child_3;
 		Action_Child_2->pConnector = Connector_3;
-		Action_Child_3->Deactivate();
+		Action_Child_2->Deactivate();
+		//Action_Child_3->Deactivate();
 	}
 	else if (IsInfinite) {
 		Action_Child_2->FirstActionInChain = ParentAction;
+		Action_Child_2->Deactivate();
 		return;
 	}
+	else {
+		Action_Child_2->Deactivate();
+		return;
+	}
+	
 
 	if (Action_Child_4) {
 		Action_Child_3->Child = Action_Child_4;
 		Action_Child_3->pConnector = Connector_4;
+		Action_Child_3->Deactivate();
 		if (IsInfinite) {
 			Action_Child_4->FirstActionInChain = ParentAction;
 		}
@@ -490,6 +517,11 @@ void ALocationTemplate::Connect(bool IsInfinite, UChildActorComponent* Parent, U
 	}
 	else if (IsInfinite) {
 		Action_Child_3->FirstActionInChain = ParentAction;
+		Action_Child_3->Deactivate();
+		return;
+	}
+	else {
+		Action_Child_3->Deactivate();
 		return;
 	}
 
@@ -550,7 +582,7 @@ void ALocationTemplate::IncludeInAvailableDynamicPlayerActionSocket(UPrimitiveCo
 	AvailableSocketDynamicPlayerAction.Emplace(Cast<UStaticMeshComponent>(ComponentToInclude));
 }
 
-void ALocationTemplate::CreateDynamicAction(TSubclassOf<AAction> ActionClass, UChildActorComponent* ActorToEntangleWith, ALocationTemplate* LocationInstigator)
+void ALocationTemplate::CreateDynamicAction(TSubclassOf<AAction> ActionClass, ALocationTemplate* LocationInstigator)// UChildActorComponent* ActorToEntangleWith, ALocationTemplate* LocationInstigator)
 {
 	
 	for (int32 i = 0; i < DynamicAction.Num(); i++)
@@ -566,7 +598,7 @@ void ALocationTemplate::CreateDynamicAction(TSubclassOf<AAction> ActionClass, UC
 			//EntangledDead->CreatedAction = DynamicAction[i];
 			AAction* CreatedAction = nullptr;
 
-			EntangleActionWithActor(DynamicAction[i], ActorToEntangleWith);
+			EntangleActionWithActor(DynamicAction[i], Door);
 			CreatedAction = Cast<AAction>(DynamicAction[i]->GetChildActor());
 
 			CreatedAction->ActionPointsRequired = 0;
