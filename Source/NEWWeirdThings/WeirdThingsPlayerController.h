@@ -227,7 +227,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void UseItem(AItemTemplate* ItemToUse, AWTPlayerCharacter* ItemOwner);
 
-	void DropItemOnLocation(AActor* LocationToDropItemOn, TSubclassOf<AAction> ActionItemToDropClass);
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+	bool DropItemOnLocation(AActor* LocationToDropItemOn, TSubclassOf<AAction> ActionItemToDropClass);
 
 	void PassItemToPlayer(EItemValue ItemValue);
 
@@ -236,6 +237,7 @@ public:
 	void PassItemToPlayer(TSubclassOf<AItemTemplate> ItemToPickClass);
 
 	void ItemDurabilityCheck(AWTPlayerCharacter* ItemOwner, AItemTemplate* ItemToCheck, EItemType ItemTypeToCheck);
+
 
 	AItemTemplate* ItemDurabilityCheck(AWTPlayerCharacter* ItemOwner, AItemTemplate* ItemToCheck);
 	//---------------------------------------------------------------------------------

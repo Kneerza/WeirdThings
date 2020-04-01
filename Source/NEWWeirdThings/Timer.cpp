@@ -44,6 +44,7 @@ void ATimer::Tick(float DeltaTime)
 
 		UE_LOG(LogTemp, Error, TEXT("Timer is dead"))
 		Cast< AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController())->AreClickEventsDisabled = false;
+		if (!bIsFightingBack) { CombatManager->Refresh(); }
 		Destroy();
 	}
 }

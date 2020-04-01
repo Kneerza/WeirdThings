@@ -151,6 +151,7 @@ void ACombatManager::Refresh()
 	{
 		if (PlayerCharacters[i])
 		{
+			if ((PlayerCharacters[i]->IsDied) || (PlayerCharacters[i]->IsSurvived)) { continue; }
 			if (PlayerCharacters[i]->CurrentLocation == CurrentLocation)
 			{
 				CharactersInCombat.Add(PlayerCharacters[i]);
@@ -177,6 +178,7 @@ void ACombatManager::Refresh()
 		PlayerController->CombatManagersInPlay.Remove(this);
 		Destroy();
 	}
+
 }
 
 void ACombatManager::ShowCharactersInCombat()
@@ -284,6 +286,9 @@ AAttackDefenseActor* ACombatManager::SpawnAttackDefenseActor(
 )
 {
 	ActorToSpawn = GetWorld()->SpawnActor<AAttackDefenseActor>(AttackDefenceActorClass, LocationToSpawn, FRotator(0.0f, 180.0f, 0.0f));
+	if (!ActorToSpawn) {
+		UE_LOG(LogTemp, Warning, TEXT("AttackDefense not spawned in: %s"),*EncounterAttacker->GetName())
+		return nullptr; }
 	if (!EncounterAttacker) {
 
 		UE_LOG(LogTemp, Warning, TEXT("No SpawnedActor"))
@@ -458,7 +463,7 @@ void ACombatManager::EncountersAttack()
 		for (int32 i = 0; i < AttackRowToGenerate.Num(); i++)
 		{
 			//int32 DelayBeforeSpawnNext = 0;
-			FVector LocationToSpawn = (EncounterAttackers[j]->GetActorLocation() + FVector(0.f, 0.f, 500.f) + FVector(0.f, 0.f, 140.f*i));
+			FVector LocationToSpawn = (EncounterAttackers[j]->GetActorLocation() + FVector(0.f, 0.f, 600.f) + FVector(0.f, 0.f, 140.f*i));
 
 			if (!ensure(AttackDefenceActorClass)) { UE_LOG(LogTemp, Warning, TEXT("AttackDefence actor class is not set in CombatManager")) return; }
 

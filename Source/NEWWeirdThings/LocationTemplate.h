@@ -25,6 +25,8 @@ public:
 	// Sets default values for this actor's properties
 	ALocationTemplate();
 
+
+
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Mesh)
 		USceneComponent* pRootComponent;
 
@@ -130,38 +132,82 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Mesh)
 		TArray <UStaticMeshComponent*> AvailableSocketCampFire;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-		UStaticMeshComponent* SocketDynamicAction_0;
+	//UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+	//	UStaticMeshComponent* SocketDynamicAction_0;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-		UStaticMeshComponent* SocketDynamicAction_1;
+	//UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+	//	UStaticMeshComponent* SocketDynamicAction_1;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-		UStaticMeshComponent* SocketDynamicAction_2;
+	//UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+	//	UStaticMeshComponent* SocketDynamicAction_2;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-		UStaticMeshComponent* SocketDynamicPlayerAction_0;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh)
+		//TArray<UStaticMeshComponent*> SocketDynamicPlayerAction;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-		UStaticMeshComponent* SocketDynamicPlayerAction_1;
+		
+		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+			UStaticMeshComponent* SocketDynamicPlayerAction_0;
+		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+			UStaticMeshComponent* SocketDynamicPlayerAction_1;
+		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+			UStaticMeshComponent* SocketDynamicPlayerAction_2;
+		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+			UStaticMeshComponent* SocketDynamicPlayerAction_3;
+		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+			UStaticMeshComponent* SocketDynamicPlayerAction_4;
+		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+			UStaticMeshComponent* SocketDynamicPlayerAction_5;
+		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+			UStaticMeshComponent* SocketDynamicPlayerAction_6;
+		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+			UStaticMeshComponent* SocketDynamicPlayerAction_7;
+		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+			UStaticMeshComponent* SocketDynamicPlayerAction_8;
+		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+			UStaticMeshComponent* SocketDynamicPlayerAction_9;
+		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+			UStaticMeshComponent* SocketDynamicPlayerAction_10;
+		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+			UStaticMeshComponent* SocketDynamicPlayerAction_11;
+		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+			UStaticMeshComponent* SocketDynamicPlayerAction_12;
+		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+			UStaticMeshComponent* SocketDynamicPlayerAction_13;
+		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+			UStaticMeshComponent* SocketDynamicPlayerAction_14;
+		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+			UStaticMeshComponent* SocketDynamicPlayerAction_15;
+		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+			UStaticMeshComponent* SocketDynamicPlayerAction_16;
+		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+			UStaticMeshComponent* SocketDynamicPlayerAction_17;
+		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+			UStaticMeshComponent* SocketDynamicPlayerAction_18;
+		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+			UStaticMeshComponent* SocketDynamicPlayerAction_19;
+		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+			UStaticMeshComponent* SocketDynamicPlayerAction_20;
+		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+			UStaticMeshComponent* SocketDynamicPlayerAction_21;
+		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+			UStaticMeshComponent* SocketDynamicPlayerAction_22;
+		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+			UStaticMeshComponent* SocketDynamicPlayerAction_23;
+		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+			UStaticMeshComponent* SocketDynamicPlayerAction_24;
+		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+			UStaticMeshComponent* SocketDynamicPlayerAction_25;
+		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+			UStaticMeshComponent* SocketDynamicPlayerAction_26;
+			
 
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-		UStaticMeshComponent* SocketDynamicPlayerAction_2;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-		UStaticMeshComponent* SocketDynamicPlayerAction_3;
-
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-		UStaticMeshComponent* SocketDynamicPlayerAction_4;
-
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-		UStaticMeshComponent* SocketDynamicPlayerAction_5;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		UStaticMeshComponent* SocketDoor;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Mesh)
-		TArray <UStaticMeshComponent*> AvailableSocketDynamicAction;
+	//UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Mesh)
+	//	TArray <UStaticMeshComponent*> AvailableSocketDynamicAction;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Mesh)
 		TArray <UStaticMeshComponent*> AvailableSocketDynamicPlayerAction;
@@ -218,11 +264,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void IncludeInAvailableCampFireSocket(UPrimitiveComponent* ComponentToInclude);
 
-	UFUNCTION(BlueprintCallable, Category = "Custom")
-		void ExcludeFromAvailableDynamicActionSocket(UPrimitiveComponent* ComponentToExclude);
+	//UFUNCTION(BlueprintCallable, Category = "Custom")
+	//	void ExcludeFromAvailableDynamicActionSocket(UPrimitiveComponent* ComponentToExclude);
 
-	UFUNCTION(BlueprintCallable, Category = "Custom")
-		void IncludeInAvailableDynamicActionSocket(UPrimitiveComponent* ComponentToInclude);
+	//UFUNCTION(BlueprintCallable, Category = "Custom")
+		//void IncludeInAvailableDynamicActionSocket(UPrimitiveComponent* ComponentToInclude);
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void ExcludeFromAvailableDynamicPlayerActionSocket(UPrimitiveComponent* ComponentToExclude);
@@ -234,6 +280,9 @@ public:
 		void MakeActionNexus(UChildActorComponent* Parent, UPaperFlipbookComponent* Connector_0, UChildActorComponent* Child_0, UPaperFlipbookComponent* Connector_1, UChildActorComponent* Child_1, UPaperFlipbookComponent* Connector_2, UChildActorComponent* Child_2);
 	//UFUNCTION(BlueprintCallable, Category = "Custom")
 	//	void TreatAsSameAction(TArray<AAction*> SameActions);
+
+	void SetDynamicPlayerAction(UStaticMeshComponent* ComponentToSet, int32 Index);
+	void DynamicPlayerActionsSetCollisionOn();
 
 protected:
 	// Called when the game starts or when spawned

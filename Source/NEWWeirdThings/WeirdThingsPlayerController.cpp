@@ -42,6 +42,8 @@ void AWeirdThingsPlayerController::BeginPlay()
 
 	// ...
 
+	
+
 	UpdateGameGoals();
 
 }
@@ -897,9 +899,10 @@ void AWeirdThingsPlayerController::EndCombat()
 
 void AWeirdThingsPlayerController::Encounter_DeadLookForPlayerToAttack(AEncounter_Dead* Encounter_Dead)
 {
+	if (!PlayerCharacters.IsValidIndex(0)) { return; }
 	for (int32 i = 0; i < PlayerCharacters.Num(); i++)
 	{
-
+		if (!PlayerCharacters[i]) { return; }
 		if (PlayerCharacters[i]->CurrentLocation == Encounter_Dead->CurrentLocation)
 		{
 			//AttackDefenseEvent(Encounter_Dead, PlayerCharacters[i]);
@@ -921,6 +924,7 @@ void AWeirdThingsPlayerController::FleeFromCombat(AWTPlayerCharacter* FleeingCha
 	if (FleeingCharacter->MovementPoints < 1)
 	{ 
 		FleeingCharacter->GetExhaustion(1);
+		if (!FleeingCharacter) { return; }
 		FleeingCharacter->MovementPoints++;
 	}
 
@@ -1062,14 +1066,14 @@ void AWeirdThingsPlayerController::UseItem(AItemTemplate* ItemToUse, AWTPlayerCh
 			
 			if (ItemOwner->RemoveInjury(1))
 			{
-				ItemDurabilityCheck(ItemOwner, ItemToUse, EItemType::Medicine);
+				ItemDurabilityCheck(ItemOwner, ItemToUse);
 			}
 			break;
 
 		case EItemType::Tonic:
 
 			ItemOwner->GetActionPoints(1);
-			ItemDurabilityCheck(ItemOwner, ItemToUse, EItemType::Tonic);
+			ItemDurabilityCheck(ItemOwner, ItemToUse);
 
 			break;
 
@@ -1107,21 +1111,26 @@ void AWeirdThingsPlayerController::PassItemToPlayer(AItemTemplate* ItemsToPick)
 	pSelectedCharacter->GetItem(ItemsToPick);
 }
 
-void AWeirdThingsPlayerController::DropItemOnLocation(AActor* LocationToDropItemOn, TSubclassOf<AAction> ActionItemToDropClass)
+bool AWeirdThingsPlayerController::DropItemOnLocation(AActor* LocationToDropItemOn, TSubclassOf<AAction> ActionItemToDropClass)
 {
-	if (!ActionItemToDropClass) { return; }
-	if (!LocationToDropItemOn) { return; }
+	if (!ActionItemToDropClass) { return false; }
+	if (!LocationToDropItemOn) { return false; }
 	UE_LOG(LogTemp, Warning, TEXT("Inside function of dropping items"))
 	auto Location = Cast<ALocationTemplate>(LocationToDropItemOn);
 	if (!Location->AvailableSocketDynamicPlayerAction[0]) { 
 		UE_LOG(LogTemp, Warning, TEXT("No available sockets"))
-		return;
+		return false;
 	}
 
-	auto ItemToPick = GetWorld()->SpawnActor<AAction>(ActionItemToDropClass, Location->AvailableSocketDynamicPlayerAction[0]->GetComponentTransform());
+	auto Transform = Location->AvailableSocketDynamicPlayerAction[0]->GetComponentTransform();
+	Transform.SetScale3D(FVector(1.f, 1.f, 1.f));
+
+	auto ItemToPick = GetWorld()->SpawnActor<AAction>(ActionItemToDropClass, Transform);
+	if (!ItemToPick) { return false; }
 	ItemToPick->IsOneTimeUse = true;
 	ItemToPick->ActionPointsRequired = 0;
 	ItemToPick->AttachToActor(LocationToDropItemOn, FAttachmentTransformRules::KeepWorldTransform);
+	return true;
 }
 
 
@@ -2111,7 +2120,7 @@ void AWeirdThingsPlayerController::SetForcedActionForLocation(AActor* LocationTo
 
 void AWeirdThingsPlayerController::CreateDynamicAction(AActor* CurrentLocationActor, TSubclassOf<AAction> ActionClass, AEncounter_Dead* EntangledDead)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Inside CreateDynemicAction function "))
+	
 
 		auto CurrentLocation = Cast<ALocationTemplate>(CurrentLocationActor);
 	auto DynamicAction = CurrentLocation->DynamicAction;
@@ -2121,13 +2130,14 @@ void AWeirdThingsPlayerController::CreateDynamicAction(AActor* CurrentLocationAc
 		if (DynamicAction[i]) {
 			continue;
 		}
+		if (!CurrentLocation->AvailableSocketDynamicPlayerAction.Last()) { return; }
 		DynamicAction[i] = NewObject<UChildActorComponent>(CurrentLocation, ("Action_Dead" + i));
 
 		DynamicAction[i]->RegisterComponent();
 		DynamicAction[i]->SetChildActorClass(ActionClass);
-		DynamicAction[i]->SetWorldLocation(CurrentLocation->AvailableSocketDynamicAction[0]->GetComponentLocation());
+		DynamicAction[i]->SetWorldLocation(CurrentLocation->AvailableSocketDynamicPlayerAction.Last()->GetComponentLocation());
 		Cast<AAction>(DynamicAction[i]->GetChildActor())->EntangledDeadEncounter = EntangledDead;
-
+		UE_LOG(LogTemp, Error, TEXT("Socket: %s"),*CurrentLocation->AvailableSocketDynamicPlayerAction.Last()->GetName())
 		EntangledDead->CreatedAction = DynamicAction[i];
 
 		return;
@@ -2297,7 +2307,7 @@ FTransform AWeirdThingsPlayerController::GetAvailableSocketDynamicPlayerActionTr
 {
 	auto LocationWithSocket = Cast<ALocationTemplate>(LocationWithSocketActor);
 
-	return LocationWithSocket->AvailableSocketDynamicPlayerAction[0]->GetComponentTransform();
+	return LocationWithSocket->AvailableSocketDynamicPlayerAction.Last()->GetComponentTransform();
 
 }
 

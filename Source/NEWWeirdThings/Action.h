@@ -183,7 +183,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	// --- Parameters for Locks placing ---
-	float ActionLocksOrbit = 150.f;
+	float ActionLocksOrbit = 80.f;
 	float ActionLockOffset_X = -20;
 
 public:

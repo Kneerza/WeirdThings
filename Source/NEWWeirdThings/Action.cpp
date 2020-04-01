@@ -136,7 +136,7 @@ void AAction::ConstructActionLocks()
 		FTransform TransformLock = ActionFlipBookComponent->GetComponentTransform();
 		TransformLock.SetLocation(TransformLock.GetLocation() += (FVector(ActionLockOffset_X, ActionLocksOrbit*FMath::Sin(i*45.f*PI / 180.f), ActionLocksOrbit*FMath::Cos(i*45.f*PI / 180.f))));
 
-		TransformLock.SetScale3D(FVector(2.5f, 2.5f, 2.5f));
+		TransformLock.SetScale3D(FVector(1.f, 1.f, 1.f));
 
 		ActionLock[i]->SetRelativeTransform(TransformLock);
 	}
@@ -178,7 +178,7 @@ void AAction::ConstructModifierVisual()
 		}
 
 		FTransform TransformModifierVisual = ActionFlipBookComponent->GetComponentTransform();
-		TransformModifierVisual.SetLocation(TransformModifierVisual.GetLocation()+ (FVector(-5.f, 80.f, -80.f))); // TODO get rid of magic number
+		TransformModifierVisual.SetLocation(TransformModifierVisual.GetLocation()+ (FVector(-5.f, 60.f, -60.f))); // TODO get rid of magic number
 
 		ModifierVisual->SetRelativeTransform(TransformModifierVisual);
 	
@@ -439,7 +439,7 @@ void AAction::CreateComponents()
 
 	//Setting up relative transform
 	FTransform ActionFlipBookComponentRelativeTransform;
-	ActionFlipBookComponentRelativeTransform.SetLocation(FVector(-40.f, 0.f, 0.f));
+	ActionFlipBookComponentRelativeTransform.SetLocation(FVector(0.f, 0.f, 0.f));
 	ActionFlipBookComponentRelativeTransform.SetRotation(FRotator(0.f, 90.f, 0.f).Quaternion());
 	ActionFlipBookComponentRelativeTransform.SetScale3D(FVector(1.f, 1.f, 1.f));
 
