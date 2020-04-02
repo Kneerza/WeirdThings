@@ -73,6 +73,7 @@ public:
 	// Sets default values for this actor's properties
 	AAction();
 
+	UPROPERTY(BlueprintReadWrite, Category = Custom)
 	bool IsDeactivated = false;
 
 	AWeirdThingsPlayerController* PlayerController = nullptr;

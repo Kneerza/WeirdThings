@@ -458,6 +458,8 @@ void ALocationTemplate::BeginPlay()
 {
 	Super::BeginPlay();
 
+	UE_LOG(LogTemp, Error, TEXT("WakeUP!"));
+
 	PlayerController = Cast<AWeirdThingsPlayerController>(GetWorld()->GetFirstPlayerController());
 	PlayerController->AllLocationsInPlay.Add(this);
 
@@ -471,6 +473,7 @@ void ALocationTemplate::BeginPlay()
 
 	HorizontalIndex = (GetActorLocation().Y) / (PlayerController->SpawnedLocationOffsetY.Y);
 	VerticalIndex = (GetActorLocation().Z) / (PlayerController->SpawnedLocationOffsetZ.Z);
+
 	UE_LOG(LogTemp, Warning, TEXT("%s : Vertical Index = %i , Horizontal Index = %i"), *GetName(), VerticalIndex, HorizontalIndex)
 }
 

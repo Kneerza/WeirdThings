@@ -211,12 +211,6 @@ void AAction::Unlock()
 	ActionLock[CurrentLockIndex] = nullptr;
 	GetTypeOfLock();
 
-	if (IsLocked) {
-		UE_LOG(LogTemp, Error, TEXT("Action is still locked"))
-	}
-	else {
-		UE_LOG(LogTemp, Error, TEXT("Action is unlocked"))
-	}
 }
 
 void AAction::Deactivate()
@@ -251,7 +245,7 @@ void AAction::Deactivate()
 		}
 		
 		// --- Disabling Collision on deactivated Action ---
-		ActionFlipBookComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		//ActionFlipBookComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		PlayerController->DeactivateEntangledILD(this);
 		//CollisionSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		//if (EntangledInteractiveLocationDecoration) {
@@ -293,13 +287,15 @@ void AAction::Deactivate()
 		ConstructActionLocks();
 	}
 
-	if (ModifierVisual)
+	if (ModifierVisual && !IsInfinite)
 	{
 		ModifierVisual->SetSpriteColor(FLinearColor(0.03f, 0.03f, 0.03f, 1));
 	}
 
-	IsDeactivated = true;
-	
+	if (!IsInfinite && (ActionType != EActionType::Arrow_Move)) {
+		IsDeactivated = true;
+	}
+
 	if (Nexus) {
 		Nexus->Activate();
 		if (pConnector)

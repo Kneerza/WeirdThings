@@ -138,6 +138,7 @@ void AWTPlayerCharacter::SetSelectedForCombat(bool IsSelected, AItemTemplate* It
 void AWTPlayerCharacter::SetSelectedForPickingEnemy(bool IsSelected)
 {
 	if (IsSelected) {
+		PlayerController->Message[0] = "Choose enemy to attack";
 		SetSelected(false);
 		SetSelectedForCombat(false, nullptr, nullptr);
 	}
@@ -183,6 +184,8 @@ void AWTPlayerCharacter::RefreshItems()
 void AWTPlayerCharacter::GetItem(AItemTemplate* ItemToPick)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Getting Item: %s"),*ItemToPick->GetName())
+
+	
 	if (!ItemToPick) { return; }
 	for (int32 i = 3; i < Backpack.Num(); i++)
 	{
@@ -384,7 +387,8 @@ UTexture2D* AWTPlayerCharacter::GetCharacterPortrait()
 bool AWTPlayerCharacter::SetHiredCompanion(AActor* CompanionToHire)
 {
 	if (HiredCompanion) {
-		UE_LOG(LogTemp, Error, TEXT("Already have a companion"))
+
+		PlayerController->Message[0] = "Alredy have companion";
 			return false;
 	}
 	HiredCompanion = CompanionToHire;
@@ -425,6 +429,7 @@ void AWTPlayerCharacter::Survive()
 	}
 	SetActorEnableCollision(false);
 	SetActorHiddenInGame(true);
+	PlayerController->Message[0] = "Character survived";
 	IsSurvived = true;
 
 	auto CharactersInPlay = PlayerController->PlayerCharacters;
@@ -480,8 +485,26 @@ void AWTPlayerCharacter::Die()
 		PlayerController->DiedCharacters.Add(this);
 	}
 	SetActorEnableCollision(false);
+	PlayerController->Message[0] = "Character died";
 	IsDied = true;
 	SelectingArrow->DestroyComponent();
+
+
+	if (CurrentCombatManager) {
+		PlayerController->RefreshCombatManager(CurrentCombatManager);
+	}
+	/*
+	auto CombatManagers = PlayerController->CombatManagersInPlay;
+	if (CombatManagers.IsValidIndex(0)) {
+		for (int32 i = 0; i < CombatManagers.Num(); i++)
+		{
+			if (CombatManagers[i])
+			{
+				CombatManagers[i]->Refresh();
+				//	PlayerController->PlayerCharacters.RemoveSingle(CharactersInPlay[i]);
+			}
+		}
+	}*/
 
 	auto CharactersInPlay = PlayerController->PlayerCharacters;
 	int32 NumberOfCharactersInPlay = 0;

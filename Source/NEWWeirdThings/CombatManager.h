@@ -24,6 +24,7 @@ public:
 
 	bool IsInitiatedByCharacter = false;
 	bool IsFightInProgress = false;
+	bool IsCombatManagerDestroyed = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		TSubclassOf<AAttackDefenseActor> AttackDefenceActorClass;

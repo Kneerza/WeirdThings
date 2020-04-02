@@ -44,12 +44,8 @@ void ACombatManager::Tick(float DeltaTime)
 
 void ACombatManager::Refresh()
 {
-	if (CurrentLocation) {
-		UE_LOG(LogTemp, Warning, TEXT("CurrentLocation for CombatManager: %s"),*CurrentLocation->GetName())
-	}
-	else {
-		UE_LOG(LogTemp, Warning, TEXT("NO CurrentLocation for CombatManager"))
-	}
+
+	UE_LOG(LogTemp, Error, TEXT("Refreshinggggg"))
 
 	CharactersInCombat.Empty();
 	EncountersInCombat.Empty();
@@ -125,7 +121,7 @@ void ACombatManager::Refresh()
 	if (!EncountersInCombat.IsValidIndex(0))
 	{
 
-		UE_LOG(LogTemp, Warning, TEXT("Encounters are not on location"))
+		PlayerController->Message[0] = "No enemies to attack";
 
 			PlayerController->CombatManagersInPlay.Remove(this);
 
@@ -143,6 +139,7 @@ void ACombatManager::Refresh()
 		}
 
 		PlayerController->CombatManagersInPlay.Remove(this);
+		IsCombatManagerDestroyed = true;
 		Destroy();
 		return;
 	}
@@ -176,9 +173,9 @@ void ACombatManager::Refresh()
 		UE_LOG(LogTemp, Warning, TEXT("Characters are not on location"))
 		
 		PlayerController->CombatManagersInPlay.Remove(this);
+		IsCombatManagerDestroyed = true;
 		Destroy();
 	}
-
 }
 
 void ACombatManager::ShowCharactersInCombat()
@@ -224,7 +221,8 @@ void ACombatManager::GetDefenders(TArray<AWTPlayerCharacter*> CharactersSelected
 		if (!OUTDefenders.Last()) {
 			OUTDefenders.Last() = CharactersSelectedForCombat[j]->CurrentEnemyToAttack;
 		}
-		else if (OUTDefenders.Last() == CharactersSelectedForCombat[j]->CurrentEnemyToAttack)
+		else 
+			if (OUTDefenders.Last() == CharactersSelectedForCombat[j]->CurrentEnemyToAttack)
 		{
 
 		}
@@ -238,6 +236,14 @@ void ACombatManager::GetDefenders(TArray<AEncounter*> EncountersReadyForCombat, 
 {
 	if (!EncountersReadyForCombat.IsValidIndex(0)) { return; }
 	if (!CharactersInCombat.IsValidIndex(0)) { return; }
+
+	for (int32 i = 0; i < CharactersInCombat.Num(); i++)
+	{
+		if (CharactersInCombat[i]) {
+			UE_LOG(LogTemp, Error, TEXT("Defenders: %s"), *CharactersInCombat[i]->GetName())
+		}
+	}
+
 	for (int32 j = 0; j < EncountersReadyForCombat.Num(); j++)
 	{
 		if (!EncountersReadyForCombat.IsValidIndex(j)) { UE_LOG(LogTemp, Error, TEXT("No Encounters ready for combat")) return; }
@@ -247,7 +253,8 @@ void ACombatManager::GetDefenders(TArray<AEncounter*> EncountersReadyForCombat, 
 		if (!OUTDefenders.Last()) {
 			OUTDefenders.Last() = EncountersReadyForCombat[j]->CurrentEnemyToAttack;
 		}
-		else if (OUTDefenders.Last() == EncountersReadyForCombat[j]->CurrentEnemyToAttack)
+		else 
+			if (OUTDefenders.Last() == EncountersReadyForCombat[j]->CurrentEnemyToAttack)
 		{
 
 		}
@@ -327,15 +334,16 @@ void ACombatManager::PlayerCharactersAttack()
 {
 	UE_LOG(LogTemp, Error, TEXT("Characters attacking"))
 
-	if (IsFightInProgress) { return; }
+		if (IsFightInProgress) { PlayerController->Message[0] = "Fight in progress"; return; }
 	Refresh();
+	if (IsCombatManagerDestroyed) { return; }
 
 	UE_LOG(LogTemp, Error, TEXT("Characters attacking after refreshing"))
 
 	TArray<AWTPlayerCharacter*> CharactersAttackers;
 	GetCharactersSelectedForCombat(CharactersAttackers);
 	if (!CharactersAttackers.IsValidIndex(0)) { 
-		UE_LOG(LogTemp, Error, TEXT("NoCharacters to attack"))
+		PlayerController->Message[0] = "Pick characters for fight";
 		return; }
 	
 	TArray<AEncounter*> Defenders = { nullptr };
@@ -437,8 +445,42 @@ void ACombatManager::PlayerCharactersAttack()
 void ACombatManager::EncountersAttack()
 {
 	//if (IsFightInProgress) { return; }
+	/*
+	if (!IsInitiatedByCharacter) {
+		auto PlayerCharacters = PlayerController->PlayerCharacters;
+		for (int32 i = 0; i < PlayerCharacters.Num(); i++)
+		{
+			if (PlayerCharacters[i])
+			{
+				if ((PlayerCharacters[i]->IsDied) || (PlayerCharacters[i]->IsSurvived)) { continue; }
+				if (PlayerCharacters[i]->CurrentLocation == CurrentLocation)
+				{
+					CharactersInCombat.Add(PlayerCharacters[i]);
+					if (!(EncountersInCombat.Contains(PlayerCharacters[i]->CurrentEnemyToAttack)))
+					{
+						PlayerCharacters[i]->SetSelectedForCombat(false, nullptr, nullptr);
+					}
 
+					PlayerCharacters[i]->CurrentCombatManager = this;
+					PlayerCharacters[i]->IsInCombat = true;
+					//PlayerController->DeselectCharacter(PlayerCharacters[i]);
+				}
+			}
+		}
+
+		if (!CharactersInCombat.IsValidIndex(0))
+		{
+
+			UE_LOG(LogTemp, Warning, TEXT("Characters are not on location"))
+
+				PlayerController->CombatManagersInPlay.Remove(this);
+			Destroy();
+		}
+		IsInitiatedByCharacter = true;
+	}
+	*/
 	Refresh();
+	if (IsCombatManagerDestroyed) { return; }
 	UE_LOG(LogTemp, Error, TEXT("Encounters attack"))
 
 	TArray<AEncounter*> EncounterAttackers;
@@ -449,6 +491,20 @@ void ACombatManager::EncountersAttack()
 	//if (!Defenders.IsValidIndex(0)) { return; }
 
 	GetDefenders(EncounterAttackers, Defenders);
+
+	if (Defenders.IsValidIndex(0)) {
+		UE_LOG(LogTemp, Error, TEXT("Yes Defenders"))
+		for (int32 i = 0; i < Defenders.Num(); i++)
+		{
+			if (Defenders[i]) {
+				UE_LOG(LogTemp, Error, TEXT("Defenders: %s"), *Defenders[i]->GetName())
+			}
+		}
+	}
+	else {
+		UE_LOG(LogTemp, Error, TEXT("No defenders"))
+	}
+
 
 	int32 CountsOfCreatedActors = 1;
 

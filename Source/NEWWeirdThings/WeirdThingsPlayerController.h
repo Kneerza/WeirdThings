@@ -50,6 +50,9 @@ public:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(BlueprintReadWrite, Category = Setup)
+		TArray<FString> Message;
+
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
 		bool IsGameFinished = false;
 
 	UPROPERTY(BlueprintReadWrite, Category = Setup)
@@ -217,6 +220,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void FleeFromCombat(AWTPlayerCharacter* FleeingCharacter);
+
+	void RefreshCombatManager(ACombatManager* CombatManagerToRefresh);
 	//------------------------------------------------------------------------
 
 
@@ -230,11 +235,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 	bool DropItemOnLocation(AActor* LocationToDropItemOn, TSubclassOf<AAction> ActionItemToDropClass);
 
-	void PassItemToPlayer(EItemValue ItemValue);
+	bool PassItemToPlayer(EItemValue ItemValue, int32 Modifier);
 
-	void PassItemToPlayer(AItemTemplate* ItemsToPick);
+	bool PassItemToPlayer(AItemTemplate* ItemsToPick);
 
-	void PassItemToPlayer(TSubclassOf<AItemTemplate> ItemToPickClass);
+	bool PassItemToPlayer(TSubclassOf<AItemTemplate> ItemToPickClass);
 
 	void ItemDurabilityCheck(AWTPlayerCharacter* ItemOwner, AItemTemplate* ItemToCheck, EItemType ItemTypeToCheck);
 
@@ -375,14 +380,19 @@ public:
 
 	TArray<AActor*> AllLocationsInPlay;
 
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
 	TArray<AEncounter_Dead*> Encounter_DeadsInPlay;
 
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
 	TArray<AEncounter_Bad*> Encounter_BadInPlay;
 
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
 	TArray<AEncounter_Good*> Encounter_GoodInPlay;
 
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
 	TArray<AActor*> CampfiresInPlay;
 
+	UPROPERTY(BlueprintReadWrite, Category = Setup)
 	TArray<ACombatManager*> CombatManagersInPlay = {};
 
 	UPROPERTY(BlueprintReadWrite, Category = Setup)
