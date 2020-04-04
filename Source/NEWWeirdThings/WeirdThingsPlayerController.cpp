@@ -11,7 +11,6 @@
 #include "Runtime/Engine/Classes/Engine/EngineTypes.h"
 #include "Runtime/Engine/Classes/Components/StaticMeshComponent.h"
 #include "GameFramework/Actor.h"
-//#include "Timer.h"
 #include "Encounter.h"
 #include "LocationTemplate.h"
 #include "ItemTemplate.h"
@@ -19,13 +18,10 @@
 #include "Encounter_Bad.h"
 #include "Encounter_Dead.h"
 #include "Action.h"
-//#include "AttackDefenseComponent.h"
-//#include "AttackDefenseActor.h"
 #include "Runtime/CoreUObject/Public/UObject/Class.h"
 #include "WTPlayerCharacter.h"
 #include "PaperFlipbook.h"
 #include "PaperFlipbookComponent.h"
-//#include "Runtime/Engine/Classes/Materials/Material.h"
 #include "Runtime/Engine/Classes/Engine/World.h"
 #include "Runtime/Engine/Classes/Engine/DirectionalLight.h"
 #include "Runtime/Engine/Classes/Components/DirectionalLightComponent.h"
@@ -44,191 +40,84 @@ void AWeirdThingsPlayerController::BeginPlay()
 
 	// ...
 
-	UE_LOG(LogTemp, Error, TEXT("WakeUP!"))
-
 	UpdateGameGoals();
 
 }
 
 //------------------- Click events responses --------------------------------------
 
-void AWeirdThingsPlayerController::LeftClickEvents()
+void AWeirdThingsPlayerController::Encounter_BadRightClickResponse(AEncounter_Bad* ClickedEncounter_Bad)
 {
 	if (AreClickEventsDisabled) { return; }
-	GetComponentUnderCursor(pClickedActor, ClickedActorClassName);
 
-	if (!pClickedActor) { return; }
-
-	if (ClickedActorClassName == "WTPlayerCharacter") 
-	{
-
-		SelectCharacter(pClickedActor);
-	}
-	else if (ClickedActorClassName == "Encounter_Bad")
-	{
-
-		Encounter_BadLeftClickResponse();
-	}
-	else if (ClickedActorClassName == "Encounter_Good")
-	{
-
-		Encounter_GoodLeftClickResponse();
-	}
-	else if (ClickedActorClassName == "Encounter_Dead") {
-
-		Encounter_DeadLeftClickResponse();
-	}
-	else if (ClickedActorClassName == "Action") {
-
-		ActionLeftClickResponse();
-	}
-	else if (ClickedActorClassName == "InteractiveLocationDecoration")
-	{
-
-		InteractiveLocationDecorationLeftClickResponse();
-	}
-	
-	else if (bIsCharacterPickingToFight)
-	{
-			CharacterPickingToFight->SetSelectedForPickingEnemy(false);
-			CharacterPickingToFight = nullptr;
-			bIsCharacterPickingToFight = false;
-
-	}else if (bIsCombatOn) {
-
-	}
-}
-
-void AWeirdThingsPlayerController::RightClickEvents()
-{
-
-
-	if (AreClickEventsDisabled) { return; }
-	GetComponentUnderCursor(pClickedActor, ClickedActorClassName);
-
-	if (!pClickedActor) { return; }
-
-	if (ClickedActorClassName == "WTPlayerCharacter") {
-
-		DeselectCharacter(pClickedActor);
-	}
-	else if (ClickedActorClassName == "Encounter_Bad") {
-
-		Encounter_BadRightClickResponse();
-	}
-	else if (ClickedActorClassName == "Encounter_Good")
-	{
-		Encounter_GoodRightClickResponse();
-	}
-	else if (ClickedActorClassName == "Encounter_Dead") {
-
-		Encounter_DeadRightClickResponse();
-	}
-	else if (ClickedActorClassName == "Action") {
-
-		ActionRightClickResponse();
-	}
-	else if (ClickedActorClassName == "LocationTemplate")
-	{
-
-		LocationRightClickResponse();
-	}
-	else if (ClickedActorClassName == "InteractiveLocationDecoration")
-	{
-
-		InteractiveLocationDecorationRightClickResponse();
-	}
-	/*
-	else if (bIsCharacterPickingToFight)
-	{
-			CharacterPickingToFight->SetSelectedForPickingEnemy(false);
-			CharacterPickingToFight = nullptr;
-			bIsCharacterPickingToFight = false;
-
-	}if (bIsCombatOn) {
-
-	}else if (CharacterIsSelected) {
-	
-	}
-	*/
-}
-
-void AWeirdThingsPlayerController::Encounter_BadRightClickResponse()
-{
-	
+	// Player interaction with Bad Encounter
 	if (pSelectedCharacter)
 	{
-		if (Cast<AEncounter>(pClickedActor)->CurrentLocation != pSelectedCharacter->CurrentLocation) { Message[0] = "Not on the same location"; return; }
+		if (ClickedEncounter_Bad->CurrentLocation != pSelectedCharacter->CurrentLocation) { Message[0] = "Not on the same location"; return; }
+
 		if (pSelectedCharacter->IsPickingEnemyToFight)
 		{
-			pSelectedCharacter->SetSelectedForCombat(true, pSelectedCharacter->RightActiveItem, Cast<AEncounter>(pClickedActor));
+			pSelectedCharacter->SetSelectedForCombat(true, pSelectedCharacter->RightActiveItem, ClickedEncounter_Bad);
 			
-			//pSelectedCharacter->CurrentEnemyToAttack = Cast<AEncounter>(pClickedActor);
 			pSelectedCharacter = nullptr;
-			//AddToPlayersChoosenForFight(pSelectedCharacter, Cast<AEncounter>(pClickedActor), pSelectedCharacter->RightActiveItem);
 		}
-		else if (!(pSelectedCharacter->IsInCombat))
+		else if (!pSelectedCharacter->IsInCombat)
 		{
 			InitiateCombat(pSelectedCharacter);
 		}
 	}
 }
 
-void AWeirdThingsPlayerController::Encounter_BadLeftClickResponse()
+void AWeirdThingsPlayerController::Encounter_BadLeftClickResponse(AEncounter_Bad* ClickedEncounter_Bad)
 {
+	if (AreClickEventsDisabled) { return; }
+
+	// Player interaction with Bad Encounter
 	if (pSelectedCharacter)
 	{
-		if (Cast<AEncounter>(pClickedActor)->CurrentLocation != pSelectedCharacter->CurrentLocation) { return; }
+		if (ClickedEncounter_Bad->CurrentLocation != pSelectedCharacter->CurrentLocation) { Message[0] = "Not on the same location"; return; }
+
 		if (pSelectedCharacter->IsPickingEnemyToFight)
 		{
-			//AddToPlayersChoosenForFight(pSelectedCharacter, Cast<AEncounter>(pClickedActor), pSelectedCharacter->LeftActiveItem);
-			pSelectedCharacter->SetSelectedForCombat(true, pSelectedCharacter->LeftActiveItem, Cast<AEncounter>(pClickedActor));
-			//pSelectedCharacter->CurrentEnemyToAttack = Cast<AEncounter>(pClickedActor);
-			
-			//DeselectCharacter(pSelectedCharacter);
-				pSelectedCharacter = nullptr;
+			pSelectedCharacter->SetSelectedForCombat(true, pSelectedCharacter->LeftActiveItem, (ClickedEncounter_Bad));
+
+			pSelectedCharacter = nullptr;
 		}
 	}
 }
 
-void AWeirdThingsPlayerController::Encounter_GoodRightClickResponse()
+void AWeirdThingsPlayerController::Encounter_GoodRightClickResponse(AEncounter_Good* ClickedEncounter_Good)
 {
-	/*
-	if (bIsCharacterPickingToFight)
-	{
-		if (!CharacterPickingToFight) { return; }
+	if (AreClickEventsDisabled) { return; }
 
-		//AddToPlayersChoosenForFight(CharacterPickingToFight, Cast<AEncounter>(pClickedActor), CharacterPickingToFight->RightActiveItem);
-		bIsCharacterPickingToFight = false;
-	}
-	else if (bIsCombatOn) {
-
-	}*/
-	//else
+		// Player interaction with Good Encounter
 		if (pSelectedCharacter) {
-			if (Cast<AEncounter>(pClickedActor)->CurrentLocation != pSelectedCharacter->CurrentLocation) { return; }
-		if (CurrentlyHoveredByMouseEncounter_Good)
-		{
-			if (pSelectedCharacter->IsPickingEnemyToFight) {
-				pSelectedCharacter->SetSelectedForCombat(true, pSelectedCharacter->RightActiveItem, Cast<AEncounter>(pClickedActor));
+			if (ClickedEncounter_Good->CurrentLocation != pSelectedCharacter->CurrentLocation) { Message[0] = "Not on the same location"; return; }
 
-				pSelectedCharacter = nullptr;
-			}
-			else if (pSelectedCharacter->IsInCombat) {
-
-			}
-			else if (Trade(CurrentlyHoveredByMouseEncounter_Good->RBTradingAction, CurrentlyHoveredByMouseEncounter_Good->RBTradingRequiredItem, true))
+			if (CurrentlyHoveredByMouseEncounter_Good)
 			{
-				CurrentlyHoveredByMouseEncounter_Good->RBTradingAction = EActionType::No_Action;
-				CurrentlyHoveredByMouseEncounter_Good->RBTradingRequiredItem = EActionLockType::No_Need;
+				if (pSelectedCharacter->IsPickingEnemyToFight)
+				{
+					pSelectedCharacter->SetSelectedForCombat(true, pSelectedCharacter->RightActiveItem, ClickedEncounter_Good);
+
+					pSelectedCharacter = nullptr;
+				}
+				else if (pSelectedCharacter->IsInCombat) {
+
+				}
+				else if (Trade(CurrentlyHoveredByMouseEncounter_Good->RBTradingAction, CurrentlyHoveredByMouseEncounter_Good->RBTradingRequiredItem, true))
+				{
+					CurrentlyHoveredByMouseEncounter_Good->RBTradingAction = EActionType::No_Action;
+					CurrentlyHoveredByMouseEncounter_Good->RBTradingRequiredItem = EActionLockType::No_Need;
+				}
 			}
 		}
-	}
 
 }
 
-void AWeirdThingsPlayerController::Encounter_GoodLeftClickResponse()
+void AWeirdThingsPlayerController::Encounter_GoodLeftClickResponse(AEncounter_Good* ClickedEncounter_Good)
 {
+	if (AreClickEventsDisabled) { return; }
 	/*
 	if (!pSelectedCharacter) { return; }
 	if (Cast<AEncounter>(pClickedActor)->CurrentLocation != pSelectedCharacter->CurrentLocation) { return; }
@@ -254,11 +143,11 @@ void AWeirdThingsPlayerController::Encounter_GoodLeftClickResponse()
 	}
 	*/
 	if (pSelectedCharacter) {
-		if (Cast<AEncounter>(pClickedActor)->CurrentLocation != pSelectedCharacter->CurrentLocation) { return; }
+		if (ClickedEncounter_Good->CurrentLocation != pSelectedCharacter->CurrentLocation) { return; }
 		if (CurrentlyHoveredByMouseEncounter_Good)
 		{
 			if (pSelectedCharacter->IsPickingEnemyToFight) {
-				pSelectedCharacter->SetSelectedForCombat(true, pSelectedCharacter->LeftActiveItem, Cast<AEncounter>(pClickedActor));
+				pSelectedCharacter->SetSelectedForCombat(true, pSelectedCharacter->LeftActiveItem, ClickedEncounter_Good);
 
 				pSelectedCharacter = nullptr;
 			}
@@ -274,17 +163,18 @@ void AWeirdThingsPlayerController::Encounter_GoodLeftClickResponse()
 	}
 }
 
-void AWeirdThingsPlayerController::Encounter_DeadRightClickResponse()
+void AWeirdThingsPlayerController::Encounter_DeadRightClickResponse(AEncounter_Dead* ClickedEncounter_Dead)
 {
-	UE_LOG(LogTemp, Error, TEXT("Character is clicking on Dead"))
+	if (AreClickEventsDisabled) { return; }
+	
 	if (!pSelectedCharacter) { return; }
-	if (Cast<AEncounter>(pClickedActor)->CurrentLocation != pSelectedCharacter->CurrentLocation) { return; }
-	if (!(Cast<AEncounter_Dead>(pClickedActor)->IsAwake))
+	if (ClickedEncounter_Dead->CurrentLocation != pSelectedCharacter->CurrentLocation) { return; }
+	if (!ClickedEncounter_Dead->IsAwake)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Dead is sleeping"))
+		
 		if (pSelectedCharacter->IsInCombat) { return; }
 		if (pSelectedCharacter->CurrentActionPoints < 1) { Message[0] = "No Action Points"; return; };
-		auto DynamicAction = Cast<AAction>((Cast<AEncounter_Dead>(pClickedActor)->CreatedAction->GetChildActor()));
+		auto DynamicAction = Cast<AAction>((ClickedEncounter_Dead->CreatedAction->GetChildActor()));
 		
 		PerformAction(DynamicAction, 1);
 	}else
@@ -294,7 +184,7 @@ void AWeirdThingsPlayerController::Encounter_DeadRightClickResponse()
 		if (pSelectedCharacter->IsPickingEnemyToFight)
 		{
 			UE_LOG(LogTemp, Error, TEXT("Character is picking enemy"))
-			pSelectedCharacter->SetSelectedForCombat(true, pSelectedCharacter->RightActiveItem, Cast<AEncounter>(pClickedActor));
+			pSelectedCharacter->SetSelectedForCombat(true, pSelectedCharacter->RightActiveItem, ClickedEncounter_Dead);
 			//pSelectedCharacter->CurrentEnemyToAttack = Cast<AEncounter>(pClickedActor);
 			pSelectedCharacter = nullptr;
 			//AddToPlayersChoosenForFight(pSelectedCharacter, Cast<AEncounter>(pClickedActor), pSelectedCharacter->RightActiveItem);
@@ -306,15 +196,16 @@ void AWeirdThingsPlayerController::Encounter_DeadRightClickResponse()
 	}
 }
 
-void AWeirdThingsPlayerController::Encounter_DeadLeftClickResponse()
+void AWeirdThingsPlayerController::Encounter_DeadLeftClickResponse(AEncounter_Dead* ClickedEncounter_Dead)
 {
+	if (AreClickEventsDisabled) { return; }
 	if (!pSelectedCharacter) { return; }
-	if (Cast<AEncounter>(pClickedActor)->CurrentLocation != pSelectedCharacter->CurrentLocation) { return; }
-	if (pSelectedCharacter && Cast<AEncounter_Dead>(pClickedActor)->IsAwake)
+	if (ClickedEncounter_Dead->CurrentLocation != pSelectedCharacter->CurrentLocation) { return; }
+	if (pSelectedCharacter && ClickedEncounter_Dead->IsAwake)
 	{
 		if (pSelectedCharacter->IsPickingEnemyToFight)
 		{
-			pSelectedCharacter->SetSelectedForCombat(true, pSelectedCharacter->LeftActiveItem, Cast<AEncounter>(pClickedActor));
+			pSelectedCharacter->SetSelectedForCombat(true, pSelectedCharacter->LeftActiveItem, ClickedEncounter_Dead);
 			//pSelectedCharacter->CurrentEnemyToAttack = Cast<AEncounter>(pClickedActor);
 			pSelectedCharacter = nullptr;
 			//AddToPlayersChoosenForFight(pSelectedCharacter, Cast<AEncounter>(pClickedActor), pSelectedCharacter->RightActiveItem);
@@ -340,8 +231,9 @@ void AWeirdThingsPlayerController::Encounter_DeadLeftClickResponse()
 	*/
 }
 
-void AWeirdThingsPlayerController::ActionLeftClickResponse()
+void AWeirdThingsPlayerController::ActionLeftClickResponse(AAction* ClickedAction)
 {
+	if (AreClickEventsDisabled) { return; }
 	//if (bIsCharacterPickingToFight)
 	//{
 
@@ -352,18 +244,17 @@ void AWeirdThingsPlayerController::ActionLeftClickResponse()
 	//else {
 	if (pSelectedCharacter) {
 		if (pSelectedCharacter->IsInCombat) { return; }
-		auto CurrentAction = Cast<AAction>(pClickedActor);
-		if (CurrentAction->IsDeactivated) { return; }
+		if (ClickedAction->IsDeactivated) { return; }
 		//CurrentAction->GetTypeOfLock();
-		if (CurrentAction->ActionLock[CurrentAction->CurrentLockIndex]) {
+		if (ClickedAction->ActionLock[ClickedAction->CurrentLockIndex]) {
 			if (pSelectedCharacter->LeftActiveItem)
 			{
-				CurrentAction->Unlock();
+				ClickedAction->Unlock();
 				ItemDurabilityCheck(pSelectedCharacter, pSelectedCharacter->LeftActiveItem);
 				//pSelectedCharacter->LeftActiveItem->Destroy();
 				//pSelectedCharacter->LeftActiveItem = nullptr;
 				//pSelectedCharacter->Backpack[pSelectedCharacter->Backpack.Num() - 1] = nullptr;
-				SetCurrentlyHoveredByMouseAction(true, CurrentAction);
+				SetCurrentlyHoveredByMouseAction(true, ClickedAction);
 			}
 			//else {
 			//	TryToUnlock(CurrentAction);
@@ -372,7 +263,7 @@ void AWeirdThingsPlayerController::ActionLeftClickResponse()
 	}
 }
 
-void AWeirdThingsPlayerController::ActionRightClickResponse()
+void AWeirdThingsPlayerController::ActionRightClickResponse(AAction* ClickedAction)
 {
 
 	//if (bIsCharacterPickingToFight)
@@ -382,7 +273,41 @@ void AWeirdThingsPlayerController::ActionRightClickResponse()
 	//else if (bIsCombatOn) {
 
 	//}
-	//else 
+	//else
+
+
+	if (AreClickEventsDisabled) { return; }
+
+
+
+	if (pSelectedCharacter) {
+		if (pSelectedCharacter->IsInCombat) { Message[0] = "Can't while in combat"; return; }
+		ClickedAction;
+		if (ClickedAction->IsDeactivated) { return; }
+		//CurrentAction->GetTypeOfLock();
+		if (ClickedAction->ActionLock[ClickedAction->CurrentLockIndex]) {
+			if (pSelectedCharacter->RightActiveItem)
+			{
+				ClickedAction->Unlock();
+				ItemDurabilityCheck(pSelectedCharacter, pSelectedCharacter->RightActiveItem);
+				//pSelectedCharacter->RightActiveItem->Destroy();
+				//pSelectedCharacter->RightActiveItem = nullptr;
+				//pSelectedCharacter->Backpack[pSelectedCharacter->Backpack.Num() - 2] = nullptr;
+				SetCurrentlyHoveredByMouseAction(true, ClickedAction);
+			}
+			else {
+
+				TryToUnlock(ClickedAction);
+			}
+		}
+		else {
+			ClickedActionHandle(ClickedAction);
+		}
+	}
+
+
+
+	/*
 	if (pSelectedCharacter) {
 		if (pSelectedCharacter->IsInCombat) { Message[0] = "Can't while in combat"; return; }
 		auto CurrentAction = Cast<AAction>(pClickedActor);
@@ -407,10 +332,12 @@ void AWeirdThingsPlayerController::ActionRightClickResponse()
 			ClickedActionHandle(CurrentAction);
 		}
 	}
+	*/
 }
 
-void AWeirdThingsPlayerController::LocationRightClickResponse()
+void AWeirdThingsPlayerController::LocationRightClickResponse(ALocationTemplate* ClickedLocation)
 {
+	if (AreClickEventsDisabled) { return; }
 //	if (bIsCharacterPickingToFight)
 //	{
 
@@ -423,7 +350,6 @@ void AWeirdThingsPlayerController::LocationRightClickResponse()
 
 		if (pSelectedCharacter->IsInCombat) { return; }
 
-		auto ClickedLocation = Cast<ALocationTemplate>(pClickedActor);
 		if (pSelectedCharacter->CurrentLocation == ClickedLocation) { return; }
 
 		auto CurrentLocation = Cast<ALocationTemplate>(pSelectedCharacter->CurrentLocation);
@@ -439,8 +365,10 @@ void AWeirdThingsPlayerController::LocationRightClickResponse()
 	
 }
 
-void AWeirdThingsPlayerController::InteractiveLocationDecorationRightClickResponse()
+void AWeirdThingsPlayerController::InteractiveLocationDecorationRightClickResponse(AInteractiveLocationDecoration* ClickedILD)
 {
+
+	if (AreClickEventsDisabled) { return; }
 	/*
 	if (pSelectedCharacter) {
 		if (!(pSelectedCharacter->IsInCombat)) {
@@ -451,7 +379,7 @@ void AWeirdThingsPlayerController::InteractiveLocationDecorationRightClickRespon
 
 	if (pSelectedCharacter) {
 		if (pSelectedCharacter->IsInCombat) { return; }
-		auto CurrentAction = Cast<AInteractiveLocationDecoration>(pClickedActor)->EntangledAction;
+		auto CurrentAction = ClickedILD->EntangledAction;
 		if (!CurrentAction) { return; }
 		//CurrentAction->GetTypeOfLock();
 		if (CurrentAction->ActionLock[CurrentAction->CurrentLockIndex]) {
@@ -473,8 +401,9 @@ void AWeirdThingsPlayerController::InteractiveLocationDecorationRightClickRespon
 	}
 }
 
-void AWeirdThingsPlayerController::InteractiveLocationDecorationLeftClickResponse()
+void AWeirdThingsPlayerController::InteractiveLocationDecorationLeftClickResponse(AInteractiveLocationDecoration* ClickedILD)
 {
+	if (AreClickEventsDisabled) { return; }
 	/*
 	if (pSelectedCharacter) {
 		if (!(pSelectedCharacter->IsInCombat)) {
@@ -485,7 +414,7 @@ void AWeirdThingsPlayerController::InteractiveLocationDecorationLeftClickRespons
 
 	if (pSelectedCharacter) {
 		if (pSelectedCharacter->IsInCombat) { return; }
-		auto CurrentAction = Cast<AInteractiveLocationDecoration>(pClickedActor)->EntangledAction;
+		auto CurrentAction = ClickedILD->EntangledAction;
 		if (!CurrentAction) { return; }
 		//CurrentAction->GetTypeOfLock();
 		if (CurrentAction->ActionLock[CurrentAction->CurrentLockIndex]) {
@@ -534,7 +463,8 @@ void AWeirdThingsPlayerController::ClickedActionHandle(AAction* CurrentAction)
 		auto CharacterPerformingAction = pSelectedCharacter;
 		if (PerformAction(CurrentAction, CurrentAction->Modifier)) {
 			if (CharacterPerformingAction) {
-				CharacterPerformingAction->CurrentActionPoints -= ActionPointsRequired;
+				RemoveActionPointsFromCharacter(CharacterPerformingAction, ActionPointsRequired);
+				//CharacterPerformingAction->CurrentActionPoints -= ActionPointsRequired;
 			}
 			CurrentAction->IsWorkedOut = true;
 			CurrentAction->Deactivate();
@@ -560,6 +490,8 @@ void AWeirdThingsPlayerController::ClickedActionHandle(AAction* CurrentAction)
 
 void AWeirdThingsPlayerController::SelectCharacter(AActor* CharacterToSelectActor)
 {
+	if (AreClickEventsDisabled) { return; }
+
 	if (!ensure(CharacterToSelectActor)) { return; }
 
 	auto CharacterToSelect = Cast<AWTPlayerCharacter>(CharacterToSelectActor);
@@ -582,6 +514,8 @@ void AWeirdThingsPlayerController::SelectCharacter(AActor* CharacterToSelectActo
 
 void AWeirdThingsPlayerController::DeselectCharacter(AActor* CharacterToDeselectActor)
 {
+	if (AreClickEventsDisabled) { return; }
+
 	if (!ensure(CharacterToDeselectActor)) { return; }
 	auto CharacterToDeselect = Cast<AWTPlayerCharacter>(CharacterToDeselectActor);
 
@@ -637,22 +571,6 @@ void AWeirdThingsPlayerController::DeselectCharacter(AActor* CharacterToDeselect
 	CharacterToDeselect->SetSelectedForPickingEnemy(false);
 
 }
-
-void AWeirdThingsPlayerController::GetComponentUnderCursor(AActor* &ClickedActor, FString &ClickedActorClassName)
-{
-
-	FHitResult HitResult;
-	if (this->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, HitResult))
-	{
-		ClickedActor = HitResult.GetActor();
-
-		ClickedActorClassName = ClickedActor->GetClass()->GetSuperClass()->GetName();
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *ClickedActorClassName)
-			UE_LOG(LogTemp, Warning, TEXT("Hit component: %s"), *HitResult.GetComponent()->GetName())
-	}
-	else { ClickedActor = nullptr; }
-}
-
 
 
 
@@ -1166,7 +1084,8 @@ void AWeirdThingsPlayerController::UseItem(AItemTemplate* ItemToUse, AWTPlayerCh
 			
 		}
 	}
-	ItemOwner->CurrentActionPoints -= ItemToUse->ActionPointsRequiredToUse;
+	RemoveActionPointsFromCharacter(ItemOwner, ItemToUse->ActionPointsRequiredToUse);
+	//ItemOwner->CurrentActionPoints -= ItemToUse->ActionPointsRequiredToUse;
 }
 
 bool AWeirdThingsPlayerController::PassItemToPlayer(TSubclassOf<AItemTemplate> ItemToPickClass)
@@ -2315,6 +2234,11 @@ void AWeirdThingsPlayerController::EntangleActionWithActor(UChildActorComponent*
 	InteractiveLocationDecorationToEntangle->EntangledAction = ActionToEntangle;
 }
 
+// Get Service/Item from Encounter, pay for it
+// *ResultOfTrading - type of Action Character gets as a Service/Item
+// *ItemRequiredToTrade - Item used by Character as payment
+// IsRight - was right Mouse Button clicked or not?
+// Return true if trade happened
 bool AWeirdThingsPlayerController::Trade(EActionType ResultOfTrading, EActionLockType ItemRequiredToTrade, bool IsRight)
 {
 	auto CanRequiredItemBeConsumed = false;
@@ -2811,6 +2735,12 @@ void AWeirdThingsPlayerController::RefreshCharacterMP()
 	//}
 }
 
+void AWeirdThingsPlayerController::RemoveActionPointsFromCharacter(AWTPlayerCharacter* AffectedCharacter, int32 AmountToRemove)
+{
+	if (!AffectedCharacter) { return; }
+	AffectedCharacter->RemoveActionPoints(AmountToRemove);
+}
+
 bool AWeirdThingsPlayerController::ConsumeFood(int32 FoodAmountToConsume, AWTPlayerCharacter* AffectedCharacter, int32 ActionPointsRequired) //TODO make applicable regardless selected character or not
 {
 	UE_LOG(LogTemp, Warning, TEXT("Consuming Food"))
@@ -2843,7 +2773,8 @@ bool AWeirdThingsPlayerController::ConsumeFood(int32 FoodAmountToConsume, AWTPla
 	AffectedCharacter->RemoveHunger(1);
 
 	if (!(CurrentTimeOfDay == ETimeOfDay::Evening)) {
-		AffectedCharacter->CurrentActionPoints -= ActionPointsRequired;
+		RemoveActionPointsFromCharacter(AffectedCharacter, ActionPointsRequired);
+		//AffectedCharacter->CurrentActionPoints -= ActionPointsRequired;
 	}
 
 	return true;
@@ -2867,7 +2798,8 @@ bool AWeirdThingsPlayerController::RemoveFood(int32 FoodAmountToConsume, AWTPlay
 	AffectedCharacter->Food -= FoodAmountToConsume;
 	//AffectedCharacter->RemoveHunger(1);
 
-	AffectedCharacter->CurrentActionPoints -= ActionPointsRequired;
+	RemoveActionPointsFromCharacter(AffectedCharacter, ActionPointsRequired);
+	//AffectedCharacter->CurrentActionPoints -= ActionPointsRequired;
 
 	return true;
 }
@@ -2889,7 +2821,8 @@ bool AWeirdThingsPlayerController::ConsumeWood(int32 WoodAmountToConsume, AWTPla
 		return false;
 	}
 	AffectedCharacter->Wood -= WoodAmountToConsume;
-	AffectedCharacter->CurrentActionPoints -= ActionPointsRequired;
+	RemoveActionPointsFromCharacter(AffectedCharacter, ActionPointsRequired);
+	//AffectedCharacter->CurrentActionPoints -= ActionPointsRequired;
 	return true;
 }
 

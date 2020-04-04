@@ -438,11 +438,6 @@ ALocationTemplate::ALocationTemplate()
 	SetDynamicPlayerAction(SocketDynamicPlayerAction_26, 26);
 	AvailableSocketDynamicPlayerAction[26] = (SocketDynamicPlayerAction_26);
 
-	for (int32 i = 0; i < AvailableSocketDynamicPlayerAction.Num(); i++)
-	{
-		UE_LOG(LogTemp, Error, TEXT("%s"),*AvailableSocketDynamicPlayerAction[i]->GetName());
-	}
-
 	//ConstructDynamicPlayerAction();
 
 	OriginalPosition = FVector(-526.f, -852.f, -807.f);
@@ -464,12 +459,6 @@ void ALocationTemplate::BeginPlay()
 	PlayerController->AllLocationsInPlay.Add(this);
 
 	DynamicPlayerActionsSetCollisionOn();
-
-	
-	for (int32 i = 0; i < AvailableSocketDynamicPlayerAction.Num(); i++)
-	{
-		UE_LOG(LogTemp, Error, TEXT("%s"), *AvailableSocketDynamicPlayerAction[i]->GetName());
-	}
 
 	HorizontalIndex = (GetActorLocation().Y) / (PlayerController->SpawnedLocationOffsetY.Y);
 	VerticalIndex = (GetActorLocation().Z) / (PlayerController->SpawnedLocationOffsetZ.Z);

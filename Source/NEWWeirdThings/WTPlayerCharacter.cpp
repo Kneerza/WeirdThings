@@ -277,6 +277,15 @@ void AWTPlayerCharacter::GetActionPoints(int32 ActionPointsAmountToGet)
 	CurrentActionPoints += ActionPointsAmountToGet;
 }
 
+void AWTPlayerCharacter::RemoveActionPoints(int32 ActionPointsAmountToRemove)
+{
+	CurrentActionPoints -= ActionPointsAmountToRemove;
+	if (CurrentActionPoints < 0)
+	{
+		CurrentActionPoints = 0;
+	}
+}
+
 void AWTPlayerCharacter::RemoveInsanity(int32 InsanityAmountToRemove)
 {
 	if (InsanityAmountToRemove == 0) { return; }
@@ -399,28 +408,6 @@ bool AWTPlayerCharacter::SetHiredCompanion(AActor* CompanionToHire)
 
 void AWTPlayerCharacter::Survive()
 {
-	/*
-	if (PlayerController->PlayerCharacters.Contains(this))
-	{
-		PlayerController->PlayerCharacters.RemoveSingle(this);
-		PlayerController->SurvivedCharacters.Add(this);
-	}
-	SetActorEnableCollision(false);
-	SetActorHiddenInGame(true);
-	IsSurvived = true;
-
-	if (PlayerController->PlayerCharacters.Num() < 1)
-	{
-		if (PlayerController->SurvivedCharacters.IsValidIndex(0))
-		{
-			PlayerController->IsGameFinished = true;
-		}
-		else
-		{
-			PlayerController->IsGameLost = true;
-		}
-	}
-	*/
 	if (PlayerController->PlayerCharacters.Contains(this))
 	{
 		auto CharacterIndex = PlayerController->PlayerCharacters.Find(this);

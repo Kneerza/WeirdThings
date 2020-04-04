@@ -39,6 +39,14 @@ public:
 	// Sets default values for this pawn's properties
 	AWTPlayerCharacter();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int32 ActionPoints = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int32 CurrentActionPoints = 0;
+
+	void RemoveActionPoints(int32 ActionPointsAmountToRemove);
+
 	UPROPERTY(BlueprintReadWrite, Category = Setup)
 		bool IsSurvived = false;
 
@@ -65,11 +73,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Setup)
 		UPaperSpriteComponent* DiedCharacterSprite;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		int32 ActionPoints = 0;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		int32 CurrentActionPoints = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		int32 MovementPoints = 3;
@@ -195,6 +199,10 @@ public:
 		void RemoveExhaustion(int32 ExhaustionAmountToRemove);
 
 	void SetSelected(bool IsSelected);
+	// Set character ready or not-ready for combat with given enemy using given item
+	//IsSelected - is Character ready or not ready for combat
+	//*ItemPicked - Item picked for Combat
+	//*CurrentEnemy - Encounter picked for Combat
 	void SetSelectedForCombat(bool IsSelected, AItemTemplate* ItemPicked, AEncounter* CurrentEnemy);
 	void SetSelectedForPickingEnemy(bool IsSelected);
 

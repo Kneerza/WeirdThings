@@ -76,45 +76,42 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = Setup)
 		AWTPlayerCharacter* pSelectedCharacter;
 
-	bool CharacterIsSelected = false;
 	bool AreClickEventsDisabled = false;
-
-	AActor* pClickedActor;
-	FString ClickedActorClassName;
-
-	UFUNCTION(BlueprintCallable, Category = "Custom")
-		void LeftClickEvents();
-
-	UFUNCTION(BlueprintCallable, Category = "Custom")
-		void RightClickEvents();
-
-	// Returns pointer to clicked actor and name of its class
-	UFUNCTION(BlueprintCallable, Category = "Custom")
-		void GetComponentUnderCursor(AActor* &ClickedActor, FString &ClickedActorClassName);
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void SelectCharacter(AActor* CharacterToSelectActor);
-
 	UFUNCTION(BlueprintCallable, Category = "Custom")
 		void DeselectCharacter(AActor* CharacterToDeselectActor);
 
-	void Encounter_BadRightClickResponse();
-	void Encounter_BadLeftClickResponse();
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void Encounter_BadRightClickResponse(AEncounter_Bad* ClickedEncounter_Bad);
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void Encounter_BadLeftClickResponse(AEncounter_Bad* ClickedEncounter_Bad);
 
-	void Encounter_GoodRightClickResponse();
-	void Encounter_GoodLeftClickResponse();
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void Encounter_GoodRightClickResponse(AEncounter_Good* ClickedEncounter_Good);
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void Encounter_GoodLeftClickResponse(AEncounter_Good* ClickedEncounter_Good);
 
-	void Encounter_DeadRightClickResponse();
-	void Encounter_DeadLeftClickResponse();
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void Encounter_DeadRightClickResponse(AEncounter_Dead* ClickedEncounter_Dead);
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void Encounter_DeadLeftClickResponse(AEncounter_Dead* ClickedEncounter_Dead);
+	
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void ActionLeftClickResponse(AAction* ClickedAction);
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void ActionRightClickResponse(AAction* ClickedAction);
 
-	void ActionLeftClickResponse();
-	void ActionRightClickResponse();
 	void ClickedActionHandle(AAction* CurrentAction);
 
-	void LocationRightClickResponse();
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void LocationRightClickResponse(ALocationTemplate* ClickedLocation);
 
-	void InteractiveLocationDecorationRightClickResponse();
-	void InteractiveLocationDecorationLeftClickResponse();
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void InteractiveLocationDecorationRightClickResponse(AInteractiveLocationDecoration* ClickedILD);
+	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void InteractiveLocationDecorationLeftClickResponse(AInteractiveLocationDecoration* ClickedILD);
 	//------------------------------------------------------
 
 
@@ -355,6 +352,9 @@ public:
 		void RefreshCharacterMP();
 
 	UFUNCTION(BlueprintCallable, Category = "Custom")
+		void RemoveActionPointsFromCharacter(AWTPlayerCharacter* AffectedCharacter, int32 AmountToRemove);
+
+	UFUNCTION(BlueprintCallable, Category = "Custom")
 		bool ConsumeFood(int32 FoodAmountToConsume, AWTPlayerCharacter* AffectedCharacter, int32 ActionPointsRequired);
 	bool ConsumeWood(int32 WoodAmountToConsume, AWTPlayerCharacter* AffectedCharacter, int32 ActionPointsRequired);
 	bool RemoveFood(int32 FoodAmountToConsume, AWTPlayerCharacter* AffectedCharacter, int32 ActionPointsRequired);
@@ -393,7 +393,7 @@ public:
 	TArray<AActor*> CampfiresInPlay;
 
 	UPROPERTY(BlueprintReadWrite, Category = Setup)
-	TArray<ACombatManager*> CombatManagersInPlay = {};
+	TArray<ACombatManager*> CombatManagersInPlay;
 
 	UPROPERTY(BlueprintReadWrite, Category = Setup)
 		TArray<AWTPlayerCharacter*> SurvivedCharacters;
